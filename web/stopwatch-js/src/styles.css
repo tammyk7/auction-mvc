@@ -1,0 +1,98 @@
+@font-face {
+  font-family: 'Helvetica Neue';
+  src: url(./fonts/HelveticaNeue-UltraLight.otf) format('opentype');
+  font-weight: 600;
+  font-style: 'normal';
+}
+
+@font-face {
+  font-family: 'Helvetica Neue Roman';
+  src: url(./fonts/HelveticaNeue-Roman.otf) format('opentype');
+}
+
+body {
+  background-color: black;
+  color: white;
+  max-width: 250px;
+}
+
+#timer {
+  height: 200px;
+  line-height: 200px;
+  font-size: 64px;
+  font-family: 'Helvetica Neue';
+}
+
+#actionButtons {
+  display: flex;
+  justify-content: space-between;
+}
+
+#actionButtons button {
+  height: 50px;
+  width: 50px;
+  border-radius: 50%;
+  color: white;
+  border-style: none;
+  outline: none;
+}
+
+#startStopButton.started {
+  background-color: darkred;
+  color: red;
+}
+
+#startStopButton.stopped {
+  background-color: #336600;
+  color: lightgreen;
+}
+
+#lapResetButton {
+  background-color: grey;
+}
+
+#lapResetButton:disabled {
+  background-color: #404040;
+}
+
+#lapsTableDiv {
+  font-family: 'Helvetica Neue Roman';
+  margin-top: 24px;
+  max-height: 320px;
+  overflow: auto;
+}
+
+#lapsTable {
+  border-collapse: collapse;
+  width: 100%;
+}
+
+#lapsTable tr {
+  height: 32px;
+}
+
+#lapsTable td {
+  border-style: solid;
+  border-color: #202020;
+  border-width: 1px 0px;
+}
+
+#lapsTable td:nth-child(odd) {
+  text-align: start;
+}
+
+#lapsTable td:nth-child(even) {
+  text-align: end;
+}
+
+#lapsTable td:nth-child(even).scrollVisible {
+  padding-right: 10px;
+}
+
+.max-lap {
+  color: red;
+}
+
+.min-lap {
+  color: green;
+}
