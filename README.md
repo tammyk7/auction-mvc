@@ -1,1 +1,1 @@
-# academy-examples
+# academy-guides
