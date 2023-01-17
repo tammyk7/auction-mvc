@@ -1,0 +1,68 @@
+{
+  "name": "@adaptive/admin-ui",
+  "version": "0.1.0",
+  "dependencies": {
+    "@adaptive/hydra-platform": "^3.138.0",
+    "@material-ui/core": "^4.11.0",
+    "@material-ui/icons": "^4.9.1",
+    "@react-rxjs/core": "^0.8.4",
+    "axios": "^0.26.0",
+    "fontsource-roboto": "^4.0.0",
+    "lodash": "^4.17.21",
+    "react": "^17.0.2",
+    "react-dom": "^17.0.2",
+    "react-router-dom": "^6.2.2",
+    "rxjs": "^7.5.4",
+    "styled-components": "^5.3.3",
+    "typescript": "^4.6.2"
+  },
+  "devDependencies": {
+    "@cyclonedx/bom": "^3.5.0",
+    "@types/jest": "^27.4.1",
+    "@types/lodash": "^4.14.179",
+    "@types/node": "^17.0.21",
+    "@types/react": "^17.0.39",
+    "@types/react-dom": "^17.0.13",
+    "@types/styled-components": "^5.1.24",
+    "@typescript-eslint/eslint-plugin": "^4.5.0",
+    "@typescript-eslint/parser": "^4.5.0",
+    "eslint": "^7.11.0",
+    "eslint-config-prettier": "^6.11.0",
+    "eslint-plugin-jest": "^23.17.1",
+    "eslint-plugin-prettier": "^3.1.4",
+    "eslint-plugin-react": "^7.20.0",
+    "eslint-plugin-security": "^1.4.0",
+    "jest-junit": "^13.0.0",
+    "prettier": "^2.3.1",
+    "react-scripts": "4.0.3"
+  },
+  "scripts": {
+    "generate:api": "hydra-web-codegen -i ../component/wg/api/build/generated-sources/codecs/main/resources/web-gateway.hyer -o src/generated",
+    "start": "react-scripts start",
+    "start:build": "serve -l 3000 -s build",
+    "prebuild": "npm run generate:api",
+    "build": "react-scripts build",
+    "test-dev": "react-scripts test",
+    "pretest": "npm run generate:api",
+    "test": "react-scripts test --testResultsProcessor ./node_modules/jest-junit --ci",
+    "lint": "eslint src --ignore-path .eslintignore --ext .js,.jsx,.ts,.tsx",
+    "lint:fix": "npm run lint -- --fix",
+    "sbom": "cyclonedx-bom -d -o bom.json -t application"
+  },
+  "eslintConfig": {
+    "extends": "react-app"
+  },
+  "browserslist": {
+    "production": [
+      ">0.2%",
+      "not dead",
+      "not op_mini all"
+    ],
+    "development": [
+      "last 2 chrome version",
+      "last 2 firefox version",
+      "last 2 safari version"
+    ]
+  },
+  "license": "UNLICENSED"
+}

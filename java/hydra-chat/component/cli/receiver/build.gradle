@@ -1,0 +1,29 @@
+import com.weareadaptive.hydraplatform.gradle.ArtifactoryCredentials
+import com.weareadaptive.hydraplatform.gradle.Dependencies
+import com.weareadaptive.hydraplatform.gradle.HydraContainerUtils
+import com.weareadaptive.hydraplatform.gradle.plugins.ConfigureJavaLibraryPlugin
+
+apply plugin: ConfigureJavaLibraryPlugin
+apply plugin: 'com.weareadaptive.hydra-code-gen-plugin'
+
+dependencies {
+    implementation Dependencies.HYDRA_CLUSTER_CORE()
+    implementation Dependencies.HYDRA_LOGGING_API()
+    implementation Dependencies.HYDRA_LOGGING_IMPL()
+    implementation Dependencies.HYDRA_LOGGING_SLF4J()
+    implementation Dependencies.HYDRA_PLATFORM_ENGINE_CLIENT()
+    implementation project(':component:engine:api')
+    testImplementation Dependencies.JUNIT_API()
+    testRuntimeOnly Dependencies.JUNIT_ENGINE()
+    testImplementation Dependencies.TRUTH()
+}
+
+codecs {
+    defaultGeneratorVersion = "v4"
+    markdownOutDir = [
+            'main': file("$buildDir/docs/main")
+    ]
+    plantUmlOutDir = [
+            'main': file("$buildDir/uml/main")
+    ]
+}

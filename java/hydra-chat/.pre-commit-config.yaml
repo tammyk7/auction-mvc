@@ -1,0 +1,13 @@
+---
+default_stages:
+  - commit
+repos:
+  - repo: https://github.com/pre-commit/pre-commit-hooks.git
+    rev: v4.4.0
+    hooks:
+      - id: trailing-whitespace
+        files: \.(js|json|rb|md|py|sh|txt|yaml|yml)$
+      - id: check-case-conflict
+      - id: check-json
+      - id: check-toml
+      - id: end-of-file-fixer

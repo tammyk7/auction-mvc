@@ -1,0 +1,134 @@
+import com.weareadaptive.hydraplatform.gradle.ArtifactoryCredentials
+import com.weareadaptive.hydraplatform.gradle.Dependencies
+
+plugins {
+    id 'com.github.node-gradle.node'
+}
+apply plugin: 'com.google.cloud.tools.jib'
+apply plugin: 'java'
+
+if (project.plugins.hasPlugin('idea')) {
+    idea.module.excludeDirs = [
+            file("${projectDir}/node_modules"),
+            file("${projectDir}/build"),
+    ]
+}
+
+def rootProjectDir = rootProject.projectDir
+
+node {
+    version = Dependencies.toolVersion(rootProject, 'nodejs', '16.13.2')
+    workDir = file("${rootProjectDir}/.gradle/nodejs")
+    npmWorkDir = file("${rootProjectDir}/.gradle/npm")
+    npmInstallCommand = 'ci'
+}
+
+task updateHydraClientPackages(type: NpmTask) {
+    inputs.property("hydraVersion", Dependencies.Versions.HYDRA)
+    outputs.files(fileTree(projectDir) {
+        include "package.json"
+    })
+
+    args = ["install", "@adaptive/hydra-platform@${Dependencies.Versions.HYDRA}", "--save"]
+}
+
+task generateUIContract(type: NpmTask) {
+    dependsOn(":component:wg:api:generateCodecs")
+    inputs.file("$rootDir/component/wg/api/build/generated-sources/codecs/main/resources/web-gateway.hyer")
+    outputs.dir("$projectDir/src/generated")
+    args = ["run", "generate:api"]
+
+    dependsOn('npmInstall')
+}
+
+task buildUI(type: NpmTask) {
+    dependsOn tasks.named('npmInstall')
+    dependsOn(generateUIContract)
+
+    inputs.files(fileTree(projectDir) {
+        include "src/**/*.ts"
+        include "src/**/*.tsx"
+        include ".env"
+        include "public/*"
+    })
+
+    outputs.dir("$projectDir/build/web")
+
+    args = ['run', 'build']
+}
+
+task testUI(type: NpmTask) {
+    dependsOn('npmInstall')
+    dependsOn(generateUIContract)
+
+    inputs.files(fileTree(projectDir) {
+        include "src/**/*.ts"
+        include "src/**/*.tsx"
+    })
+
+    outputs.file("$projectDir/junit.xml")
+
+    args = ['run', 'test']
+}
+
+task lintUI(type: NpmTask) {
+    dependsOn('npmInstall')
+    dependsOn(generateUIContract)
+
+    inputs.files(fileTree(projectDir) {
+        include "src/**/*.ts"
+        include "src/**/*.tsx"
+    })
+
+    outputs.file("$projectDir/eslint.xml")
+
+    args = ['run', 'lint'] + (System.getenv().containsKey('CI') ? ['-f', 'checkstyle', '-o', 'eslint.xml'] : [])
+}
+
+task CI {
+    dependsOn(lintUI, testUI, buildUI)
+}
+
+jibDockerBuild.dependsOn(buildUI)
+
+jib {
+    from {
+        image = 'nginx:stable-alpine'
+    }
+    to {
+        def registry = project.properties['dockerTargetRegistry']
+        def tag = project.properties['dockerTag']
+        image = "${registry}platform-admin-ui-box:${tag}"
+
+        if (registry ==~ /^weareadaptive.*\.jfrog\.io\/$/) {
+            def credentials = ArtifactoryCredentials.load(project)
+            auth {
+                username = credentials.username
+                password = credentials.password  // pragma: allowlist secret
+            }
+        }
+    }
+    container {
+        appRoot = '/app'
+        entrypoint = ['sh', '/bin/entrypoint.sh']
+        ports = [
+                '3001'
+        ]
+        creationTime = 'USE_CURRENT_TIMESTAMP'
+    }
+    extraDirectories {
+        paths {
+            path {
+                // copies the files into '/' on the container
+                from = file("${projectDir}/container_files/")
+            }
+            path {
+                from = file("${projectDir}/build/web")
+                into = '/app/build/'
+            }
+        }
+        permissions = [
+                '/bin/entrypoint.sh': '755'
+        ]
+    }
+}
