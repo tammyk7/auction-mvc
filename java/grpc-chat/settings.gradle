@@ -8,4 +8,5 @@
  */
 
 rootProject.name = 'grpc-chat'
-include('app', 'list', 'utilities')
+include('receiver', 'sender', 'contract')
+
