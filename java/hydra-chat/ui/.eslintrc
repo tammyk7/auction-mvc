@@ -1,0 +1,58 @@
+{
+  "root": true,
+  "plugins": ["@typescript-eslint", "prettier", "jest", "security"],
+  "parser": "@typescript-eslint/parser",
+  "extends": [
+    "eslint:recommended",
+    "plugin:@typescript-eslint/recommended",
+    "prettier/@typescript-eslint",
+    "plugin:react/recommended",
+    "plugin:prettier/recommended",
+    "plugin:security/recommended"
+  ],
+  "env": {
+    "node": true,
+    "browser": true,
+    "jest/globals": true
+  },
+  "globals": {
+    "BigInt": true
+  },
+  "settings": {
+    "react": {
+      "pragma": "React",
+      "version": "16.13"
+    }
+  },
+  "rules": {
+    "@typescript-eslint/no-explicit-any": "off",
+    "@typescript-eslint/explicit-module-boundary-types": "off",
+    "@typescript-eslint/no-non-null-assertion": "off",
+    "@typescript-eslint/no-empty-interface": "off",
+    "@typescript-eslint/explicit-function-return-type": "off",
+    "@typescript-eslint/ban-ts-comment": [
+      "error",
+      {
+        "ts-ignore": false
+      }
+    ],
+    "@typescript-eslint/no-use-before-define": "off",
+    "react/prop-types": "off",
+    "react/display-name": "off",
+    "react/no-unescaped-entities": [
+      "error",
+      {
+        "forbid": [
+          {
+            "char": ">",
+            "alternatives": ["&gt;"]
+          },
+          {
+            "char": "}",
+            "alternatives": ["&#125;"]
+          }
+        ]
+      }
+    ]
+  }
+}

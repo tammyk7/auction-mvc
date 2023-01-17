@@ -1,0 +1,71 @@
+import com.weareadaptive.hydraplatform.gradle.Dependencies
+import com.weareadaptive.hydraplatform.gradle.plugins.CucumberPlugin
+import com.weareadaptive.hydraplatform.gradle.plugins.CucumberTask
+
+apply plugin: CucumberPlugin
+
+dependencies {
+    api Dependencies.HYDRA_PLATFORM_CUCUMBER()
+    api Dependencies.HYDRA_PLATFORM_ENGINE()
+    api Dependencies.HYDRA_PLATFORM_ENGINE_CLIENT()
+    api Dependencies.HYDRA_PLATFORM_WEB()
+    api Dependencies.HYDRA_WS()
+    implementation Dependencies.HYDRA_LOGGING_API()
+    implementation Dependencies.HYDRA_LOGGING_IMPL()
+    implementation Dependencies.HYDRA_PERF_HARNESS_CORE()
+    implementation Dependencies.HYDRA_PLATFORM_FIX_TESTING()
+    implementation Dependencies.HYDRA_PLATFORM_HISTORY_TESTING()
+    implementation Dependencies.HYDRA_PLATFORM_STUB_IDP()
+    implementation Dependencies.PICO()
+    implementation Dependencies.TESTCONTAINERS()
+    implementation Dependencies.TESTCONTAINERS_POSTGRESQL()
+    implementation Dependencies.TRUTH()
+    implementation Dependencies.JSON_ASSERT()
+    implementation project(":component:engine:api")
+    implementation project(":component:engine:impl")
+    implementation project(":component:cli:sender")
+    implementation project(":component:cli:receiver")
+
+    testImplementation Dependencies.JUNIT_API()
+    testImplementation Dependencies.TRUTH()
+    testRuntimeOnly Dependencies.JUNIT_ENGINE()
+}
+
+def commonCucumberArgs = [
+        '--plugin', 'json:build/reports/cucumber.json',
+        '--plugin', 'junit:build/reports/cucumber.xml',
+        '--plugin', 'pretty',
+        '--strict',
+        'src/test/resources'
+]
+
+tasks.register('cucumber', CucumberTask.class, { task ->
+    task.cucumberArgs = commonCucumberArgs + [
+            '--tags', System.getProperty('cucumber.tags', 'not @WorkInProgress and not @PerfTest and not @EmbeddedRealOnly'),
+            '--threads', Runtime.getRuntime().availableProcessors()
+    ] as List<String>
+    task.cucumberSystemProperties = [
+            'test.mode': System.getProperty('test.mode', 'embedded-direct')
+    ]
+})
+
+// TODO get working and add to the default tasks so we see if it breaks more easily.
+tasks.register('cucumberExistingDocker', CucumberTask.class, { task ->
+    task.cucumberArgs = commonCucumberArgs + [
+            '--tags', System.getProperty('cucumber.tags', 'not @WorkInProgress and not @PerfTest and not @ManipulatesTime and not @EmbeddedRealOnly'),
+            '--threads', Runtime.getRuntime().availableProcessors()
+    ] as List<String>
+    task.cucumberSystemProperties = [
+            'test.mode': System.getProperty('test.mode', 'existing'),
+            'hydra.cluster.addresses': '172.16.202.2'
+    ]
+})
+
+tasks.register('cucumberEmbeddedReal', CucumberTask.class, { task ->
+    task.cucumberArgs = commonCucumberArgs + [
+            '--tags', System.getProperty('cucumber.tags', 'not @WorkInProgress and not @PerfTest')
+    ] as List<String>
+    task.cucumberSystemProperties = [
+            'test.mode': System.getProperty('test.mode', 'embedded-real')
+    ]
+})

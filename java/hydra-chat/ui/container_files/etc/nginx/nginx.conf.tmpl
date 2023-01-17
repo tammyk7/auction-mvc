@@ -1,0 +1,44 @@
+events {}
+pid /tmp/nginx.pid;
+user nginx nginx;
+
+http {
+    access_log /dev/stdout;
+    error_log /dev/stdout;
+    client_body_temp_path /tmp/client_temp;
+    server {
+        listen 3000;
+        include  /etc/nginx/mime.types;
+        gzip on;
+        gzip_min_length 1024;
+        gzip_types text/javascript application/octet-stream;
+
+
+        location / {
+            root /app/build;
+            index index.html index.htm;
+            try_files $uri $uri/ /index.html;
+            tcp_nodelay     on;
+            sendfile        on;
+            tcp_nopush      on;
+
+            # Avoid caching, as it can be annoying during development
+            add_header Last-Modified $date_gmt;
+            add_header Cache-Control 'no-store, no-cache, must-revalidate, proxy-revalidate, max-age=0';
+            if_modified_since   off;
+            expires             off;
+            etag                off;
+        }
+
+        location /health {
+           return 200 "OK\n";
+        }
+
+        location /info {
+            alias /var/lib/nginx/html/info;
+            types {}
+            default_type "text/plain; charset=utf-8";
+        }
+    }
+}
+
