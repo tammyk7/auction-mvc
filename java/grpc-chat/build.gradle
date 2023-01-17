@@ -16,15 +16,15 @@ targetCompatibility = 1.8
 
 
 dependencies {
-    implementation "io.grpc:grpc-protobuf"
-    implementation "io.grpc:grpc-stub"
-    implementation "org.apache.tomcat:annotations-api"
+    implementation "io.grpc:grpc-protobuf:1.52.1"
+    implementation "io.grpc:grpc-stub:1.52.1"
+    implementation "org.apache.tomcat:annotations-api:6.0.53"
 }
 
 protobuf {
-    protoc { artifact = "com.google.protobuf:protoc" }
+    protoc { artifact = "com.google.protobuf:protoc:3.9.2" }
     plugins {
-        grpc { artifact = "io.grpc:protoc-gen-grpc-java" }
+        grpc { artifact = "io.grpc:protoc-gen-grpc-java:1.52.1" }
     }
     generateProtoTasks {
         all()*.plugins { grpc {} }
@@ -34,6 +34,9 @@ protobuf {
 // Inform IDEs like IntelliJ IDEA, Eclipse or NetBeans about the generated code.
 sourceSets {
     main {
+        proto {
+            srcDir 'contract/src/main/proto'
+        }
         java {
             srcDirs 'build/generated/source/proto/main/grpc'
             srcDirs 'build/generated/source/proto/main/java'
