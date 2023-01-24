@@ -15,13 +15,32 @@ import io.aeron.cluster.MillisecondClusterClock;
  */
 public class EngineMain {
     private static final Logger LOGGER = LoggerFactory.getNotThreadSafeLogger(EngineMain.class);
-
     public static final EngineBootstrapper BOOTSTRAPPER = context ->
     {
-        final var clientProxy = context.config().;
+        LOGGER.info("Bootstrapping Chat Room Engine").log();
+        registerChatRoomService(context);
+        registerEchoService(context);
+    };
+
+    /**
+     * Create and register the chat room service.
+     * The chat room service needs to send messages to the client, so it needs a chat room service client proxy
+     */
+    private static void registerChatRoomService(final EngineContext context) {
+        LOGGER.info("Registering Chat Room Service").log();
+        final var clientProxy = context.channelToClients().getChatRoomServiceClientProxy();
+        final var service = new EngineChatRoomService(clientProxy);
+        context.channelToClients().registerChatRoomService(service);
+        LOGGER.info("Registered Chat Room Service").log();
+    }
+
+    private static void registerEchoService(final EngineContext context) {
+        LOGGER.info("Registering Echo Service").log();
+        final var clientProxy = context.channelToClients().getEchoServiceClientProxy();
         final var service = new EngineEchoService(clientProxy);
         context.channelToClients().registerEchoService(service);
-    };
+        LOGGER.info("Registered Echo Service").log();
+    }
 
     public static void main(final String[] args) {
         try (ClusterNodeBinding binding = Engine.node(BOOTSTRAPPER, new MillisecondClusterClock()).run()) {

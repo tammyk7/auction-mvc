@@ -1,7 +1,5 @@
 package com.weareadaptive.chatroom.engine;
 
-import com.weareadaptive.chatroom.allocated.AllocatedBroadcastChatMessageRequest;
-import com.weareadaptive.chatroom.allocated.AllocatedMessage;
 import com.weareadaptive.chatroom.entities.BroadcastChatMessageRequest;
 import com.weareadaptive.chatroom.entities.MutableChatRoomEvent;
 import com.weareadaptive.chatroom.services.ChatRoomService;
@@ -41,27 +39,9 @@ public class EngineChatRoomService implements ChatRoomService {
         log.info("Received request to broadcast message: ").append(broadcastChatMessageRequest).log();
 
         try (final MutableChatRoomEvent event = clientProxy.acquireChatRoomEvent()) {
-            event.message().copyFrom(broadcastChatMessageRequest.message());
+            event.messageReceived().message().copyFrom(broadcastChatMessageRequest.message());
             log.info("Broadcasting event: ").append(event).log();
             clientProxy.onChatRoomEvent(event);
         }
-    }
-
-    @Override
-    public void last10Chats(UniqueId correlationId) {
-        // get chats from storage
-
-
-        try (final MutableChatRoomEvent event = clientProxy.acquireChatRoomEvent()) {
-            for (int i = 0; i < 10; i++) {
-                event.message().user("abc").text("bcd");
-            }
-                clientProxy.onLast10ChatsResponse(correlationId, event.message(new AllocatedMessage()));
-        }
-    }
-
-    @Override
-    public void cancelLast10Chats(UniqueId correlationId) {
-
     }
 }
