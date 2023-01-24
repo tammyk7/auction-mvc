@@ -1,23 +1,25 @@
 syntax = "proto3";
 
-import "google/protobuf/timestamp.proto";
+import "google/protobuf/empty.proto";
 package com.weareadaptive.grpcchat;
 
 
-message ChatMessage {
-  string sender_username = 1;
-  string message = 2;
+message Message {
+  string user = 1;
+  string text = 2;
 }
 
-// Message received from server
-// When the message is processed by the server
-// a timestamp will be added to each message
-message ChatMessageFromServer {
-  google.protobuf.Timestamp timestamp = 1;
-  ChatMessage chat_message = 2;
+
+message ChatMessageRequest {
+  Message message = 1;
+}
+
+message ChatRoomEvent {
+  Message message = 1;
 }
 
 // Chat service, which communicates via HTTP2
 service ChatService {
-  rpc SendChatMessage (stream ChatMessage) returns (stream ChatMessageFromServer);
+  rpc SendChatMessage (ChatMessageRequest) returns (google.protobuf.Empty) {}
+  rpc SubscribeToChatMessages(google.protobuf.Empty) returns (stream ChatRoomEvent) {};
 }
