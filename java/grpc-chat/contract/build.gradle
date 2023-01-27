@@ -11,20 +11,24 @@ repositories {
     mavenLocal()
 }
 
-sourceCompatibility = 1.8
-targetCompatibility = 1.8
+sourceCompatibility = 1.17
+targetCompatibility = 1.17
 
+def protocVersion = '3.21.12'
+def grpcVersion = '1.52.1'
 
 dependencies {
-    implementation "io.grpc:grpc-protobuf:1.52.1"
-    implementation "io.grpc:grpc-stub:1.52.1"
+    implementation "io.grpc:grpc-protobuf:${grpcVersion}"
+    implementation "io.grpc:grpc-stub:${grpcVersion}"
     implementation "org.apache.tomcat:annotations-api:6.0.53"
 }
 
+
+
 protobuf {
-    protoc { artifact = "com.google.protobuf:protoc:3.9.2" }
+    protoc { artifact = "com.google.protobuf:protoc:${protocVersion}" }
     plugins {
-        grpc { artifact = "io.grpc:protoc-gen-grpc-java:1.52.1" }
+        grpc { artifact = "io.grpc:protoc-gen-grpc-java:${grpcVersion}" }
     }
     generateProtoTasks {
         all()*.plugins { grpc {} }
