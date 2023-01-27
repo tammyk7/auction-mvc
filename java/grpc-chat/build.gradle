@@ -9,6 +9,3 @@ repositories {
     mavenCentral()
     mavenLocal()
 }
-
-sourceCompatibility = 1.8
-targetCompatibility = 1.8
