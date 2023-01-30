@@ -1,0 +1,25 @@
+syntax = "proto3";
+
+import "google/protobuf/empty.proto";
+package com.weareadaptive.grpcchat;
+
+
+message Message {
+  string user = 1;
+  string text = 2;
+}
+
+
+message ChatMessageRequest {
+  Message message = 1;
+}
+
+message ChatRoomEvent {
+  Message message = 1;
+}
+
+// Chat service, which communicates via HTTP2
+service ChatService {
+  rpc SendChatMessage (ChatMessageRequest) returns (google.protobuf.Empty) {}
+  rpc SubscribeToChatMessages(google.protobuf.Empty) returns (stream ChatRoomEvent) {};
+}
