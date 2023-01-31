@@ -137,7 +137,7 @@
 					<includeTestSourceDirectory>true</includeTestSourceDirectory>
 					<violationSeverity>warning</violationSeverity>
 					<failOnViolation>true</failOnViolation>
-					<configLocation>../general/checkstyle.xml</configLocation>
+					<configLocation>../../general/checkstyle.xml</configLocation>
 					<encoding>UTF-8</encoding>
 					<consoleOutput>true</consoleOutput>
 					<failsOnError>true</failsOnError>
