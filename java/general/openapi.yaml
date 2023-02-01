@@ -1,0 +1,601 @@
+openapi: 3.0.1
+info:
+  title: Auction API
+  license:
+    name: Apache 2.0
+    url: http://springdoc.org
+  version: 0.0.1-SNAPSHOT
+servers:
+  - url: http://localhost:8080
+    description: Generated server url
+paths:
+  /auction-lots:
+    get:
+      tags:
+        - Auction Lot
+      description: Retrieves all auction lots
+      responses:
+        '200':
+          description: Auctions lots have been returned
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/AuctionLot'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+    post:
+      tags:
+        - Auction Lot
+      description: Create a new auction lot
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AuctionLotCreationRequest'
+      responses:
+        '201':
+          description: The auction lot has been created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuctionLot'
+        '400':
+          description: Bad request (see Error object for the details, specifically the invalid fields)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ExtendedError'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '403':
+          description: User not authorized (only admin users can create an auction)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+  /auction-lots/search:
+    post:
+      tags:
+        - Auction Lot
+      description: Search for auction lots.
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AuctionLotSearchRequest'
+      responses:
+        '200':
+          description: Auction lots have been found matching search criterias
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/AuctionLot'
+        '400':
+          description: The search criterias are not valid
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ExtendedError'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+  /auction-lots/{id}:
+    get:
+      tags:
+        - Auction Lot
+      description: retrieves a specific auction lot
+      parameters:
+        - name: id
+          in: path
+          description: The auction lot id
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuctionLot'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '404':
+          description: The auction lot doesn't exist
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+  /auction-lots/{id}/schedule:
+    post:
+      tags:
+        - Auction Lot
+      description: Schedules an auction lot
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AuctionLotScheduleRequest'
+      parameters:
+        - name: id
+          in: path
+          description: The auction lot id
+          required: true
+          schema:
+            type: integer
+      responses:
+        '204':
+          description: The auction lot has been scheduled successfully
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '403':
+          description: User not allowed to perform this action (only admin users can schedule)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          description: The auction lot id doesn't exist
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '405':
+          description: Cannot schedule the auction lot. Must be in Pending to be Scheduled.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+  /auction-lots/{id}/bids:
+    parameters:
+      - name: id
+        in: path
+        description: The auction lot id
+        required: true
+        schema:
+          type: integer
+    get:
+      tags:
+        - Auction Lot
+      description: Retrieves all bids for a specified auction lot (auction lot status validation to be confirmed for returning or not the bids) and only accessible by the connected user (admin can see them all and users only their owns)
+      responses:
+        '200':
+          description: list of bids associated with the auction lot
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Bid'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '404':
+          description: The auction lot id doesn't exist
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+    post:
+      tags:
+        - Auction Lot
+      description: Places a bid on an auction lot
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/BidCreationRequest'
+      responses:
+        '201':
+          description: Bid has correctly been placed on the auction lot.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Bid'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '403':
+          description: User not allowed to place a bid. For example only non-admin users can bid on auction lots OR user cannot bid on his own auction lot (check Error object title and detail fields)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          description: The auction lot id doesn't exist
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+  /users:
+    get:
+      tags:
+        - Users
+      description: List all the registered users
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/User'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '403':
+          description: Only admin users can retrieve all the users
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+    post:
+      tags:
+        - Users
+      description: Create a new registered user
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UserCreationRequest'
+      responses:
+        '201':
+          description: The registered user has been created. The username is generated from users's firstName, lastName and company.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+        '400':
+          description: The creation didn't worked (check the error details in the body)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ExtendedError'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '403':
+          description: Only admin users can create new users
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+  /users/{id}:
+    get:
+      tags:
+        - Users
+      description: Retrieves a user for the specified id
+      parameters:
+        - name: id
+          in: path
+          description: The user id
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '404':
+          description: The user doesn't exist.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+    patch:
+      tags:
+        -  Users
+      description: Allows the user to modify their informations
+      parameters:
+        - name: id
+          in: path
+          description: The registered user id
+          required: true
+          schema:
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UserPatchRequest'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '404':
+          description: The user doesn't exist.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+  /users/{id}/suspend:
+    put:
+      tags:
+        - Users
+      description: Suspends a specific user, only admin can do it
+      parameters:
+        - name: id
+          in: path
+          description: The user id to suspend
+          required: true
+          schema:
+            type: string
+      responses:
+        '204':
+          description: The user to has sucessfuly been suspended
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '403':
+          description: The connected user is not allowed to suspend users
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          description: The user to suspend was not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+components:
+  schemas:
+    AuctionLot:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+        title:
+          type: string
+        quantity:
+          type: integer
+          format: int32
+        description:
+          type: string
+        issuer:
+          description : Username of the auction issuer
+          type: string
+        minimumPrice:
+          type: number
+          format: double
+          description: floated number dot separated (12.6)
+        currencyCode:
+          type: string
+          maximum: 3
+          minimum: 3
+          description: The currency code should respect the ISO 4217 3 char standard (EUR, USD, CAD)
+        status:
+          type: string
+          enum: [PENDING,SCHEDULED,IN_PROGRESS,COMPLETED]
+        startAt:
+          type: string
+          format: date-time
+          description: start date time of the auction lot. UTC in ISO 8601 format.
+        endAt:
+          type: string
+          format: date-time
+          description: end date time of the auction lot. UTC in ISO 8601 format.
+        createdAt:
+          type: string
+          format: date-time
+          description: creation UTC date time in ISO 8601 format
+        lastUpdatedAt:
+          type: string
+          format: date-time
+          description: last update UTC date time in ISO 8601 format
+        createdBy:
+          description : creator username
+          type: string
+        lastUpdatedBy:
+          description : last updater username
+          type: string
+    AuctionLotCreationRequest:
+      type: object
+      required: [title, quantity, description, minimumPrice, currencyCode]
+      properties:
+        title:
+          type: string
+        quantity:
+          type: integer
+          format: int32
+        description:
+          type: string
+        minimumPrice:
+          type: number
+          format: double
+          description: floated number dot separated (12.6)
+        currencyCode:
+          type: string
+          maximum: 3
+          minimum: 3
+          description: The currency code should respect the ISO 4217 3 char standard (EUR, USD, CAD)
+    AuctionLotSearchRequest:
+      type: object
+      properties:
+        issuer:
+          type: string
+    AuctionLotScheduleRequest:
+      type: object
+      required: [startAt, endAt]
+      properties:
+        startAt:
+          type: string
+          format: date-time
+          description: start date time of the auction lot. UTC date time in ISO 8601 format. MUST be in the future.
+        endAt:
+          type: string
+          format: date-time
+          description: end date time of the auctin lot. UTC date time in ISO 8601 format. MUST be after startAt.
+    User:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+        username:
+          type: string
+          description: generated by the API
+        userType:
+          enum: [USER, ADMIN]
+        firstName:
+          type: string
+        lastName:
+          type: string
+        company:
+          type: string
+        email:
+          type: string
+          description: should be a valid email
+        phoneNumber:
+          type: string
+        notificationType:
+          type: array
+          items:
+            type: string
+            enum: [TEXT, EMAIL]
+        createdAt:
+          type: string
+          format: date-time
+          description: creation UTC date time in ISO 8601 format
+        lastUpdatedAt:
+          type: string
+          format: date-time
+          description: last update UTC date time in ISO 8601 format
+        createdBy:
+          description : creator username
+          type: string
+        lastUpdatedBy:
+          description : last updater username
+          type: string
+    UserCreationRequest:
+      type: object
+      required: [firstName, lastName, company]
+      properties:
+        firstName:
+          type: string
+        lastName:
+          type: string
+        company:
+          type: string
+        email:
+          type: string
+          description: should be a valid email
+        phoneNumber:
+          type: string
+        notificationType:
+          type: array
+          items:
+            type: string
+            enum: [TEXT, EMAIL]
+    UserPatchRequest:
+      type: object
+      properties:
+        email:
+          type: string
+          description: should be a valid email
+        phoneNumber:
+          type: string
+        notificationType:
+          type: array
+          items:
+            type: string
+            enum: [TEXT, EMAIL]
+    Bid:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+        auctionlotId:
+          type: integer
+          format: int64
+        price:
+          type: number
+          format: double
+          minimum: 0
+        quantity:
+          type: integer
+          format: int32
+          minimum: 0
+        createdAt:
+          type: string
+          format: date-time
+          description: creation UTC date time in ISO 8601 format
+        userId:
+          type: integer
+          format: int64
+          description: id of the user who placed this bid
+        lastUpdatedAt:
+          type: string
+          format: date-time
+          description: last update UTC date time in ISO 8601 format
+        createdBy:
+          description: creator username
+          type: string
+        lastUpdatedBy:
+          description: last updater username
+          type: string
+    BidCreationRequest:
+      type: object
+      required: [auctionlotId, price, quantity]
+      properties:
+        price:
+          type: number
+          format: double
+          minimum: 0
+        quantity:
+          type: integer
+          format: int32
+          minimum: 0
+    Error:
+      type: object
+      description: based on https://datatracker.ietf.org/doc/html/rfc7807
+      properties:
+        title:
+          type: string
+        status:
+          type: number
+          description: status MUST correspond to http status code (see rfc7807)
+        detail:
+          type: string
+    ExtendedError:
+      allOf:
+        - $ref: '#/components/schemas/Error'
+        - type: object
+      properties:
+        invalidFields:
+          description: Optional, only present when bad request
+          type: array
+          items:
+            $ref: '#/components/schemas/InvalidField'
+    InvalidField:
+      type: object
+      properties:
+        name:
+          type: string
+        message:
+          type: string
+  securitySchemes:
+    basicScheme:
+      type: http
+      scheme: basic
+
+  responses:
+    UnauthorizedError:
+      description: Authentication information is missing or invalid
+      headers:
+        WWW_Authenticate:
+          schema:
+            type: string
+
+# TODO : describe admin, read et write scopes and associate them to corresponding routes ( schedule, suspend and create only by admin role etc)
