@@ -1,0 +1,21 @@
+version: '3'
+services:
+  postgres:
+    image: postgres:latest
+    container_name: postgres
+    networks:
+      - auctionhouse
+    ports:
+      - 5432:5432
+    volumes:
+      - 'postgres-data:/var/lib/postgresql/data'
+    environment:
+      POSTGRES_DB: "auctionhouse"
+      POSTGRES_USER: "testUsername"
+      POSTGRES_PASSWORD: "testPassword"  # pragma: allowlist secret
+
+networks:
+  auctionhouse:
+
+volumes:
+  postgres-data:
