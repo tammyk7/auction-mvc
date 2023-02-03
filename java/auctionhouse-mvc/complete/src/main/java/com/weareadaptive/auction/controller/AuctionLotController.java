@@ -11,9 +11,9 @@ import com.weareadaptive.auction.controller.dto.ClosingSummaryResponse;
 import com.weareadaptive.auction.controller.dto.CreateAuctionLotRequest;
 import com.weareadaptive.auction.exception.NotFoundException;
 import com.weareadaptive.auction.service.AuctionLotService;
+import jakarta.validation.Valid;
 import java.security.Principal;
 import java.util.stream.Stream;
-import javax.validation.Valid;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -52,8 +52,8 @@ public class AuctionLotController {
   @GetMapping("/{id}/bids")
   public Stream<BidResponse> getAuctionLotBids(@PathVariable int id) {
     return auctionLotService.getAuctionLotBids(id)
-      .stream()
-      .map(AuctionMapper::map);
+        .stream()
+        .map(AuctionMapper::map);
   }
 
   @PostMapping("/{id}/close")

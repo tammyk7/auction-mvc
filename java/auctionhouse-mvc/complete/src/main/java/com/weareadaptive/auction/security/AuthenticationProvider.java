@@ -1,8 +1,8 @@
 package com.weareadaptive.auction.security;
 
 import com.weareadaptive.auction.service.UserService;
+import jakarta.validation.constraints.NotNull;
 import java.util.Optional;
-import javax.validation.constraints.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -11,13 +11,17 @@ import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
-import org.springframework.stereotype.Component;
 
-@Component
 public class AuthenticationProvider extends AbstractUserDetailsAuthenticationProvider {
 
   @Autowired
   private UserService userService;
+
+  @Override
+  public boolean supports(Class<?> authentication) {
+
+    return super.supports(authentication);
+  }
 
   @Override
   protected void additionalAuthenticationChecks(

@@ -71,7 +71,7 @@ public class UserService {
 
   @Transactional
   public User updateUser(int id, String firstName, String lastName, String organisation) {
-    var user = userRepository.getById(id);
+    var user = userRepository.getReferenceById(id);
 
     user.setFirstName(firstName);
     user.setOrganisation(organisation);

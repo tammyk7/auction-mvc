@@ -2,76 +2,66 @@ package com.weareadaptive.auction.security;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.http.HttpStatus;
-import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
-import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
+import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
+import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
-import org.springframework.security.config.annotation.web.builders.WebSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
-import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
+import org.springframework.security.config.annotation.web.configuration.WebSecurityCustomizer;
 import org.springframework.security.config.http.SessionCreationPolicy;
-import org.springframework.security.web.AuthenticationEntryPoint;
+import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.AnonymousAuthenticationFilter;
-import org.springframework.security.web.authentication.HttpStatusEntryPoint;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 import org.springframework.security.web.util.matcher.OrRequestMatcher;
 import org.springframework.security.web.util.matcher.RequestMatcher;
 
 @Configuration
 @EnableWebSecurity
-@EnableGlobalMethodSecurity(prePostEnabled = true)
-public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
+@EnableMethodSecurity(prePostEnabled = true)
+public class SecurityConfiguration {
+
+  private final AuthenticationConfiguration authenticationConfiguration;
 
   private static final RequestMatcher PROTECTED_URLS = new OrRequestMatcher(
       new AntPathRequestMatcher("/**")
   );
 
-  AuthenticationProvider provider;
-
-  public SecurityConfiguration(final AuthenticationProvider authenticationProvider) {
+  public SecurityConfiguration(final AuthenticationConfiguration authenticationConfiguration) {
     super();
-    this.provider = authenticationProvider;
+    this.authenticationConfiguration = authenticationConfiguration;
   }
 
-  @Override
-  protected void configure(final AuthenticationManagerBuilder auth) {
-    auth.authenticationProvider(provider);
+  @Bean
+  public AuthenticationProvider authenticationProvider() {
+    return new AuthenticationProvider();
   }
 
-  @Override
-  public void configure(final WebSecurity webSecurity) {
-    webSecurity.ignoring().antMatchers("/token/**");
+  @Bean
+  public WebSecurityCustomizer webSecurityCustomizer() {
+    return (web) -> web.debug(true).ignoring().requestMatchers("/token/**");
   }
 
-  @Override
-  public void configure(HttpSecurity http) throws Exception {
+  @Bean
+  public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
     http.sessionManagement()
         .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
         .and()
         .exceptionHandling()
         .and()
-        .authenticationProvider(provider)
-        .addFilterBefore(authenticationFilter(), AnonymousAuthenticationFilter.class)
-        .authorizeRequests()
-        .requestMatchers(PROTECTED_URLS)
-        .authenticated()
-        .and()
+        .authorizeHttpRequests((requests) -> requests.anyRequest().authenticated())
         .csrf().disable()
+        .addFilterBefore(authenticationFilter(), AnonymousAuthenticationFilter.class)
         .formLogin().disable()
         .httpBasic().disable()
         .logout().disable();
+
+    return http.build();
   }
 
   @Bean
   AuthenticationFilter authenticationFilter() throws Exception {
     final AuthenticationFilter filter = new AuthenticationFilter(PROTECTED_URLS);
-    filter.setAuthenticationManager(authenticationManager());
-    //filter.setAuthenticationSuccessHandler(successHandler());
+    filter.setAuthenticationManager(authenticationConfiguration.getAuthenticationManager());
     return filter;
   }
 
-  @Bean
-  AuthenticationEntryPoint forbiddenEntryPoint() {
-    return new HttpStatusEntryPoint(HttpStatus.FORBIDDEN);
-  }
 }

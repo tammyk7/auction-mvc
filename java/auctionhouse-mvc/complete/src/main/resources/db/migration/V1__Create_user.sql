@@ -27,7 +27,7 @@ CREATE TABLE auction_lot
     min_price DOUBLE PRECISION NOT NULL,
     quantity  INT              NOT NULL,
     status    VARCHAR(50)      NOT NULL,
-    closed_at TIMESTAMP,
+    closed_at TIMESTAMP WITH TIME ZONE,
     CONSTRAINT fk_auction_lot_user
         FOREIGN KEY (owner)
             REFERENCES auction_user (username)

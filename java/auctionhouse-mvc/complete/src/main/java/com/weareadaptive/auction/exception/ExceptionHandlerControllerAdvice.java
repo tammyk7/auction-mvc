@@ -4,7 +4,7 @@ import static org.springframework.http.HttpStatus.BAD_REQUEST;
 import static org.springframework.http.MediaType.APPLICATION_PROBLEM_JSON;
 
 import com.weareadaptive.auction.model.BusinessException;
-import javax.persistence.EntityNotFoundException;
+import jakarta.persistence.EntityNotFoundException;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.MethodArgumentNotValidException;
@@ -49,9 +49,9 @@ public class ExceptionHandlerControllerAdvice {
     headers.setContentType(APPLICATION_PROBLEM_JSON);
     return new ResponseEntity<>(
         new Problem(
-          BAD_REQUEST.value(),
-          BAD_REQUEST.name(),
-          ex.getMessage()),
+            BAD_REQUEST.value(),
+            BAD_REQUEST.name(),
+            ex.getMessage()),
         headers,
         BAD_REQUEST);
   }

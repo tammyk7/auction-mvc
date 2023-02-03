@@ -1,6 +1,6 @@
 package com.weareadaptive.auction.controller.dto;
 
-import javax.validation.constraints.Min;
+import jakarta.validation.constraints.Min;
 
 public record BidRequest(
     @Min(1)
