@@ -4,6 +4,13 @@ target/
 !**/src/main/**/target/
 !**/src/test/**/target/
 
+.cache/
+.gradle/
+build/
+
+.direnv/
+.DS_Store
+
 ### STS ###
 .apt_generated
 .classpath

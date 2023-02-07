@@ -1,3 +1,26 @@
+## Building
+
+Application build is performed with Gradle.
+
+To build source code, run in a terminal:
+
+```shell
+./gradlew clean build
+```
+
+The build generates the application executable jar in `build/libs`.
+
+## Running
+
+To run the application, run in a terminal:
+
+```shell
+./gradlew bootRun
+```
+
+The application web server should listen at `http://localhost:8080`. It needs
+a database to work properly.
+
 ## Docker
 
 Run docker
