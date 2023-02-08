@@ -1,5 +1,20 @@
 # AuctionHouse MVC In Memory - initial version
 
+## Building
+Application build is performed with Gradle.
+
+To build source code, run in a terminal (it will also execute the tests):
+
+> ./gradlew clean build
+
+The build generates the application executable jar in build/libs.
+
+## Running
+To run the application, run in a terminal:
+
+> ./gradlew bootRun
+
+
 ## Security
 
 It is disabled for now, to enable, see instructions on top of `AuctionHouseMvcApplication.java` and `SecurityConfiguration.java`

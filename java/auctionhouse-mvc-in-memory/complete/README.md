@@ -1,5 +1,20 @@
 # AuctionHouse MVC In Memory - complete version
 
+## Building
+Application build is performed with Gradle.
+
+To build source code, run in a terminal (it will also execute the tests):
+
+> ./gradlew clean build
+
+The build generates the application executable jar in build/libs.
+
+## Running
+To run the application, run in a terminal:
+
+> ./gradlew bootRun
+
+
 ## Security
 
 Spring security is enabled for the project, with a custom authentication provider implemented to respond to UsernamePasswordAuthenticationToken authentication requests.
