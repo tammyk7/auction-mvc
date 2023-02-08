@@ -1,8 +1,12 @@
-# AuctionHouse MVC In Memory - complete version
+# AuctionHouse MVC In Memory - initial version
 
 ## Security
 
-Spring security is enabled for the project, with a custom authentication provider implemented to respond to UsernamePasswordAuthenticationToken authentication requests.
+It is disabled for now, to enable, see instructions on top of `AuctionHouseMvcApplication.java` and `SecurityConfiguration.java`
+Tests are disabled since security is disabled for now
+
+Once enabled, security for this project uses a custom authentication provider implemented to respond to UsernamePasswordAuthenticationToken authentication requests.
+The username and password are validated against the data defined here `src/main/java/com/weareadaptive/auction/configuration/ApplicationInit.java`.
 See `security` package in the project for details.
 
 !!! Note that this is a very basic implementation (not be reused in any "real projects").
@@ -10,7 +14,7 @@ See valid Jwt token definition here https://jwt.io/introduction.
 
 ### Call to application endpoints
 
-As configured in the SecurityConfiguration.java class and in the controllers, you need to provide a valid token in the `Authorization` header to call the endpoints.
+When security is enabled, you need to provide a valid token in the `Authorization` header to call the endpoints.
 
 According to the implementation done in this project, the expected format is `Bearer username:password`.
 The username and password are validated against the data defined here `src/main/java/com/weareadaptive/auction/configuration/ApplicationInit.java`.
