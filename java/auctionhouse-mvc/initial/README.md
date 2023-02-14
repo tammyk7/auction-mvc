@@ -8,13 +8,13 @@ It contains the following features
 - Security: see package `security` + userService, userRepository and required table in the db. 
 It is disabled for now, to enable, see instructions on top of `AuctionhouseMvcApplication.java` and `SecurityConfiguration.java`
 - Tests setup to use postresql testContainers + tests for security (partially disabled since security is disabled for now)
-- Checkstyle plugin (in pom.xml)
+- Checkstyle plugin
 
 
 ## Docker
 
 In order to successfully start the application you need to have a running database.
-This is achieved by using docker (and docker-compose) that will run a postgresl db.
+This is achieved by using docker (and docker-compose) that will run a postgresql db.
 
 #### Pre-requisite
 

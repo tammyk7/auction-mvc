@@ -14,19 +14,23 @@ repositories {
     mavenCentral()
 }
 
+ext {
+    checkstyleVersion = '10.7.0'
+}
+
 checkstyle {
     maxErrors = 0
     ignoreFailures = false
     configFile = file("../../general/checkstyle.xml")
     showViolations = true
-    toolVersion = 10.0
+    toolVersion = checkstyleVersion
 
     configurations {
         checkstyle
     }
 
     dependencies {
-        checkstyle 'com.puppycrawl.tools:checkstyle:10.0'
+        checkstyle "com.puppycrawl.tools:checkstyle:$checkstyleVersion"
     }
 }
 
