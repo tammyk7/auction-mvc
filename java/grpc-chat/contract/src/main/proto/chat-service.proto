@@ -20,6 +20,6 @@ message ChatRoomEvent {
 
 // Chat service, which communicates via HTTP2
 service ChatService {
-  rpc SendChatMessage (ChatMessageRequest) returns (google.protobuf.Empty) {}
+  rpc SendChatMessage (ChatMessageRequest) returns (ChatRoomEvent) {}
   rpc SubscribeToChatMessages(google.protobuf.Empty) returns (stream ChatRoomEvent) {};
 }

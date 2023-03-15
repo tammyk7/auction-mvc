@@ -1,66 +1,68 @@
 package com.wearadaptive.grpcchat.sender;
 
-import com.google.protobuf.Empty;
-import com.weareadaptive.grpcchat.ChatServiceGrpc;
-import com.weareadaptive.grpcchat.ChatServiceOuterClass;
-import io.grpc.Channel;
-import io.grpc.ManagedChannelBuilder;
-import io.grpc.Status;
-import io.grpc.stub.StreamObserver;
-
-import java.util.Arrays;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-public class ChatClient {
-    private static final Logger logger = Logger.getLogger(ChatClient.class.getName());
+import com.google.protobuf.Empty;
+import com.weareadaptive.grpcchat.ChatServiceGrpc;
+import com.weareadaptive.grpcchat.ChatServiceOuterClass;
+
+import io.grpc.Channel;
+import io.grpc.Status;
+import io.grpc.stub.StreamObserver;
+
+public class ChatClient implements StreamObserver<ChatServiceOuterClass.ChatRoomEvent> {
+  private static final Logger logger = Logger.getLogger(ChatClient.class.getName());
 
 
-    final ChatServiceGrpc.ChatServiceBlockingStub blockingStub;
-    final ChatServiceGrpc.ChatServiceStub asyncStub;
-    final String user;
+  final ChatServiceGrpc.ChatServiceBlockingStub blockingStub;
+  final ChatServiceGrpc.ChatServiceStub asyncStub;
+  final String user;
+  int totalSentMessageCount;
 
 
-    public ChatClient(Channel channel, String user) {
-        this.user = user;
-        this.asyncStub = ChatServiceGrpc.newStub(channel);
-        this.blockingStub =  ChatServiceGrpc.newBlockingStub(channel);
+  public ChatClient(Channel channel, String user) {
+    this.totalSentMessageCount = 0;
+    this.user = user;
+    this.asyncStub = ChatServiceGrpc.newStub(channel);
+    this.blockingStub = ChatServiceGrpc.newBlockingStub(channel);
 
-        this.subscribeToChats();
-    }
+    this.subscribeToChats();
+  }
 
-    private void subscribeToChats() {
+  private void subscribeToChats() {
+    this.asyncStub.subscribeToChatMessages(Empty.newBuilder().build(), this);
+  }
 
-        StreamObserver<ChatServiceOuterClass.ChatRoomEvent> responseObserver = new StreamObserver<ChatServiceOuterClass.ChatRoomEvent>() {
-            @Override
-            public void onNext(ChatServiceOuterClass.ChatRoomEvent message) {
-                logger.log(Level.INFO, "Got chat message from {0}: {1}",
-                        new String[]{message.getMessage().getUser(),
-                        message.getMessage().getText()});
-            }
+  public void sendChatMessage(String message) {
+    ChatServiceOuterClass.ChatMessageRequest messageRequest = ChatServiceOuterClass.ChatMessageRequest.newBuilder()
+      .setMessage(ChatServiceOuterClass.Message.newBuilder().setText(message).setUser(user).build()).build();
 
-            @Override
-            public void onError(Throwable t) {
-                logger.log(Level.WARNING, "Chat messages failed: {0}", Status.fromThrowable(t));
-            }
+    logger.log(Level.INFO, "Sending {0}", messageRequest);
 
-            @Override
-            public void onCompleted() {
-                logger.log(Level.INFO,"Finished chatting");
-            }
-        };
+    ChatServiceOuterClass.ChatRoomEvent response = blockingStub.sendChatMessage(messageRequest);
+    totalSentMessageCount++;
+  }
 
-        this.asyncStub.subscribeToChatMessages(Empty.newBuilder().build(), responseObserver);
-    }
+  @Override
+  public void onNext(ChatServiceOuterClass.ChatRoomEvent message) {
+    logger.log(Level.INFO, "Got chat message from {0}: {1}",
+      new String[] {message.getMessage().getUser(),
+        message.getMessage().getText()});
+  }
 
-    public void sendChatMessage(String message) {
-        ChatServiceOuterClass.ChatMessageRequest messageRequest = ChatServiceOuterClass.ChatMessageRequest.newBuilder()
-                .setMessage(ChatServiceOuterClass.Message.newBuilder().setText(message).setUser(user).build()).build();
+  @Override
+  public void onError(Throwable t) {
+    logger.log(Level.WARNING, "Chat messages failed: {0}", Status.fromThrowable(t));
+  }
 
-        logger.log(Level.INFO, "Sending {0}", messageRequest);
+  @Override
+  public void onCompleted() {
+    logger.log(Level.INFO, "Finished chatting");
+  }
 
-        blockingStub.sendChatMessage(messageRequest);
-    }
-
+  public int getTotalSentMessageCount() {
+    return totalSentMessageCount;
+  }
 
 }

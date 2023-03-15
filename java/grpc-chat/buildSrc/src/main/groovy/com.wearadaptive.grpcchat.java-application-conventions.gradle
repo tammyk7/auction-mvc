@@ -9,3 +9,15 @@ plugins {
     // Apply the application plugin to add support for building a CLI application in Java.
     id 'application'
 }
+
+dependencies {
+    implementation project(":contract")
+    testImplementation libs.grpc.testing
+    testImplementation libs.junit
+    testImplementation libs.mockito.core
+    runtimeOnly libs.grpc.netty
+}
+
+tasks.withType(Test) {
+    useJUnitPlatform()
+}
