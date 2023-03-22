@@ -11,7 +11,7 @@ public class IntegerEqualityCheckSolution extends IntegerEqualityCheck {
    * a = 100, b = 99 should return false
    */
   public boolean areEqual(final Integer a, final Integer b) {
-    //return Objects.equals(a,b);
+    // return Objects.equals(a,b);
     return a == null ? b == null : a.equals(b);
   }
 }

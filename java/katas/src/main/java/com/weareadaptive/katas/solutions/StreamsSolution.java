@@ -23,7 +23,7 @@ public class StreamsSolution extends Streams {
   }
 
   @Override
-  public boolean q3_isAllCreditTransactionBellow(BigDecimal max,
+  public boolean q3_areAllCreditTransactionBelow(BigDecimal max,
                                                  Collection<Transaction> transactions) {
     return transactions.stream()
         .filter(t -> Direction.Credit == t.direction())
@@ -31,7 +31,7 @@ public class StreamsSolution extends Streams {
   }
 
   @Override
-  public Collection<Transaction> q4_get3HighestCreditTransaction(Collection<Transaction> transaction) {
+  public Collection<Transaction> q4_get3HighestCreditTransactions(Collection<Transaction> transaction) {
     return transaction.stream()
         .filter(t -> t.direction() == Direction.Credit)
         .sorted(Comparator.comparing(Transaction::amount).reversed())
@@ -50,7 +50,11 @@ public class StreamsSolution extends Streams {
   @Override
   public Map<String, BigDecimal> q6_calculateByCategory(Collection<Transaction> transaction) {
     return transaction.stream()
-        .collect(Collectors.groupingBy(Transaction::category, Collectors.reducing(BigDecimal.ZERO, this::calculateRealAmount, BigDecimal::add)));
+        .collect(Collectors.groupingBy(Transaction::category,
+            Collectors.reducing(
+                BigDecimal.ZERO,
+                this::calculateRealAmount,
+                BigDecimal::add)));
   }
 
   private BigDecimal calculateRealAmount(Transaction transaction) {

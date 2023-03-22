@@ -50,26 +50,26 @@ public class Streams {
   /**
    * Return true if all credit transactions are bellow the provided maximum amount
    */
-  public boolean q3_isAllCreditTransactionBellow(BigDecimal maxAmount, Collection<Transaction> transactions) {
+  public boolean q3_areAllCreditTransactionBelow(BigDecimal maxAmount, Collection<Transaction> transactions) {
     return false;
   }
 
   /**
    * Returns the 3 highest credit transactions
    */
-  public Collection<Transaction> q4_get3HighestCreditTransaction(Collection<Transaction> transactions) {
+  public Collection<Transaction> q4_get3HighestCreditTransactions(Collection<Transaction> transactions) {
     return null;
   }
 
   /**
-   * Return the new balance for an account by applying all new transactions
+   * Return the new balance for an account by applying all new transactions to the current balance
    */
   public BigDecimal q5_calculateNewBalance(BigDecimal currentBalance, Collection<Transaction> newTransactions) {
     return null;
   }
 
   /**
-   * Return the total by categories
+   * Return the total amount broken down by categories
    */
   public Map<String, BigDecimal> q6_calculateByCategory(Collection<Transaction> stocks) {
     return null;

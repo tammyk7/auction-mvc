@@ -5,11 +5,8 @@ import static com.google.common.truth.Truth.assertThat;
 import java.math.BigDecimal;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
-import java.time.temporal.TemporalUnit;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
-
 import org.junit.jupiter.api.Test;
 
 public class StreamsTest {
@@ -34,37 +31,37 @@ public class StreamsTest {
   }
 
   @Test
-  public void testContainsCategory() {
+  public void test_q1_containsCategory() {
     assertThat(streams.q1_containsCategory("Gaz", transactions)).isTrue();
     assertThat(streams.q1_containsCategory("Bad", transactions)).isFalse();
   }
 
   @Test
-  public void testListDistinctCategories() {
+  public void test_q2_listCategories() {
     assertThat(streams.q2_listCategories(transactions)).hasSize(4);
     assertThat(streams.q2_listCategories(transactions)).containsExactly("Gaz", "Restaurant", "Pay", "Grocery");
   }
 
   @Test
-  public void testIsAllCreditTransactionBellow() {
-    assertThat(streams.q3_isAllCreditTransactionBellow(BigDecimal.valueOf(350), transactions)).isTrue();
-    assertThat(streams.q3_isAllCreditTransactionBellow(BigDecimal.valueOf(260), transactions)).isFalse();
-    assertThat(streams.q3_isAllCreditTransactionBellow(BigDecimal.valueOf(250), transactions)).isFalse();
+  public void test_q3_areAllCreditTransactionBelow() {
+    assertThat(streams.q3_areAllCreditTransactionBelow(BigDecimal.valueOf(350), transactions)).isTrue();
+    assertThat(streams.q3_areAllCreditTransactionBelow(BigDecimal.valueOf(260), transactions)).isFalse();
+    assertThat(streams.q3_areAllCreditTransactionBelow(BigDecimal.valueOf(250), transactions)).isFalse();
   }
 
   @Test
-  public void testGet3HighestCreditTransaction() {
-    var result = streams.q4_get3HighestCreditTransaction(transactions).stream().map(Streams.Transaction::amount).toList();
+  public void test_q4_get3HighestCreditTransactions() {
+    var result = streams.q4_get3HighestCreditTransactions(transactions).stream().map(Streams.Transaction::amount).toList();
     assertThat(result).containsExactly(BigDecimal.valueOf(300), BigDecimal.valueOf(250), BigDecimal.valueOf(236));
   }
 
   @Test
-  public void testCalculateNewBalance() {
+  public void test_q5_calculateNewBalance() {
     assertThat(streams.q5_calculateNewBalance(BigDecimal.valueOf(100), transactions)).isEqualTo(BigDecimal.valueOf(1049));
   }
 
   @Test
-  public void testCalculateByCategory() {
+  public void test_q6_calculateByCategory() {
     var result = streams.q6_calculateByCategory(transactions);
     assertThat(result.size()).isEqualTo(4);
     assertThat(result.get("Pay")).isEqualTo(BigDecimal.valueOf(2000));
