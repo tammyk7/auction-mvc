@@ -2,13 +2,13 @@
 
 ## Project Structure
 
-**contract** - chat-service.proto defines contract  
-**sender** - defines a client of the chat service that subscribes to messages (twice) and sends some test messages  
-**receiver** - chat server that receives and broadcasts chat messages
+**contract** - defines contract, this is where .proto file should be added
+**sender** - defines a client of the chat service that subscribes to messages and sends some test messages, this is where to add your client code
+**receiver** - chat server that receives and broadcasts chat messages, this is where to add your service code
 
 ## Building
 
-The gradle protobuf plugin is used to generate the various stubs and services. To generate the code execute
+The gradle protobuf plugin is used to generate the various stubs and services. Once you have added the .proto, to generate the code execute
 
 ```shell
 ./gradlew generateProto
@@ -16,18 +16,7 @@ The gradle protobuf plugin is used to generate the various stubs and services. T
 
 ## Running
 
-To run the server run ReceiverMain in the receiver module. This starts a server on localhost at port 8980.
+To run the server, define your main class as ReceiverMain (or update the class name in build.gradle) in the receiver module. This starts a server on localhost at port 8980.
 
-To run the client run SenderMain in the sender module. This conects to the server on localhost:8980 and sends several chat 
+To run the client, define your main class as SenderMain in the sender module (or update the class name in build.gradle). This conects to the server on localhost:8980 and sends several chat 
 messages as well as printing the responses.
-
-<!-- TODO 
-
-Fix gradle structure: shared dependencies should be in buildSrc, etc
-Better error handling
-Tests?
-Add to readme to explain the concepts and implementation
-
--->
-
-
