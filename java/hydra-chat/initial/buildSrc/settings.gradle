@@ -1,0 +1,12 @@
+pluginManagement {
+    plugins {
+        id 'com.github.spotbugs' version "${pluginVersionSpotBugs}"
+    }
+    repositories {
+        gradlePluginPortal {
+            content {
+                excludeGroupByRegex "com\\.weareadaptive.*"
+            }
+        }
+    }
+}

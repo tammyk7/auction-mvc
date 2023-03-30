@@ -1,0 +1,54 @@
+import com.weareadaptive.hydraplatform.gradle.ArtifactoryCredentials
+import com.weareadaptive.hydraplatform.gradle.Dependencies
+import com.weareadaptive.hydraplatform.gradle.HydraContainerUtils
+import com.weareadaptive.hydraplatform.gradle.plugins.ConfigureJavaLibraryPlugin
+
+apply plugin: ConfigureJavaLibraryPlugin
+apply plugin: 'com.google.cloud.tools.jib'
+
+dependencies {
+    implementation Dependencies.HYDRA_LOGGING_SLF4J()
+    implementation Dependencies.HYDRA_CLUSTER_CORE()
+    implementation Dependencies.HYDRA_LOGGING_API()
+    implementation Dependencies.HYDRA_LOGGING_IMPL()
+    implementation Dependencies.HYDRA_PLATFORM_ENGINE()
+    implementation Dependencies.HYDRA_LOGGING_SLF4J()
+    implementation project(':component:engine:api')
+    testImplementation Dependencies.JUNIT_API()
+    testRuntimeOnly Dependencies.JUNIT_ENGINE()
+    testImplementation Dependencies.TRUTH()
+}
+
+jib {
+    from {
+        image = HydraContainerUtils.imageName("hydra")
+    }
+    to {
+        def registry = project.properties['dockerTargetRegistry']
+        def tag = project.properties['dockerTag']
+        image = "${registry}hydra-chat-room-engine:${tag}"
+
+        if (registry ==~ /^weareadaptive.*\.jfrog\.io\/$/) {
+            def credentials = ArtifactoryCredentials.load(project)
+            auth {
+                username = credentials.username
+                password = credentials.password  // pragma: allowlist secret
+            }
+        }
+    }
+    container {
+        // Dependency JARs will go to /hydra/libs
+        // Classes will be dropped into /hydra/classes/<blah>
+        appRoot = '/hydra'
+        entrypoint = 'INHERIT'
+        environment = [
+                'HYDRA_JAR_PATH'           : '/hydra/classes:/hydra/resources:/hydra/libs/*',
+                'MAIN_CLASS'               : 'com.weareadaptive.chatroom.engine.EngineMain',
+                'HYDRA_JAR_PATH_AUTOEXPAND': 'false',
+                'ENABLE_GC_LOGGING'        : 'true',
+                'JAVA_HOME'                : '/usr/lib/jvm/zulu17-ca-amd64'
+        ]
+        user = 'hydra:users'
+        creationTime = 'USE_CURRENT_TIMESTAMP'
+    }
+}

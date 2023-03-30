@@ -1,0 +1,36 @@
+import com.weareadaptive.hydraplatform.gradle.Dependencies
+import com.github.spotbugs.snom.SpotBugsTask
+
+plugins {
+  id 'com.github.spotbugs'
+}
+
+spotbugs {
+  effort = 'default'
+  ignoreFailures = providers.environmentVariable('CI').forUseAtConfigurationTime().present
+  showStackTraces = false
+  showProgress = false
+  maxHeapSize = '1536m'
+  onlyAnalyze = ['com.weareadaptive.-']  // '-' is all nested classes
+  extraArgs = []
+  excludeFilter = file("${rootDir}/config/spotbugs-exclude.xml")
+}
+
+dependencies {
+  spotbugs Dependencies.SPOTBUGS()
+  spotbugsPlugins Dependencies.FIND_SEC_BUGS()
+}
+
+tasks.withType(SpotBugsTask) {
+  enabled = findProperty('spotBugsEnabled')
+
+  reports {
+    xml {
+      required = providers.environmentVariable('CI').forUseAtConfigurationTime().present
+    }
+    html {
+      required = true
+      stylesheet = 'fancy-hist.xsl'
+    }
+  }
+}

@@ -1,0 +1,146 @@
+import com.weareadaptive.hydraplatform.gradle.ArtifactoryCredentials
+import com.weareadaptive.hydraplatform.gradle.Dependencies
+import com.weareadaptive.hydraplatform.gradle.plugins.DockerServicePlugin
+
+buildscript {
+    repositories {
+        mavenLocal()
+        gradlePluginPortal {
+            content {
+                excludeGroupByRegex "com\\.weareadaptive.*"
+            }
+        }
+        maven {
+            url 'https://weareadaptive.jfrog.io/artifactory/hydra-release/'
+            credentials {
+                def credentials = ArtifactoryCredentials.load(project)
+                username credentials.username
+                password credentials.password  // pragma: allowlist secret
+            }
+            content {
+                includeGroup "com.weareadaptive"
+            }
+        }
+    }
+    dependencies {
+        classpath Dependencies.HYDRA_CODE_GEN_PLUGIN()
+    }
+}
+
+plugins {
+    id 'idea'
+    id 'com.github.ben-manes.versions'
+    id 'com.google.cloud.tools.jib' apply false
+    id 'ru.vyarus.mkdocs'
+}
+
+apply plugin: DockerServicePlugin
+
+idea {
+    module {
+        excludeDirs += file('.cache')
+        excludeDirs += file('.direnv')
+    }
+}
+
+ext {
+    spotBugsEnabled = false
+
+    spotBugsSkip = [rootProject.name, 'ui', 'api', 'fix-dictionary']
+
+    // Please include the trailing slash
+    dockerTargetRegistry = System.getenv().containsKey('PLATFORM_REGISTRY') ? System.getenv('PLATFORM_REGISTRY') : 'weareadaptive-hydra-docker-snapshot.jfrog.io/'
+    // Override with -PdockerTag=...
+    dockerTag = project.properties['dockerTag'] ?: 'latest'
+}
+
+allprojects {
+    if (!(it.name in project.spotBugsSkip)) {
+        apply plugin: 'configure-spotbugs'
+    }
+
+    repositories {
+        mavenLocal()
+
+        mavenCentral {
+            content {
+                excludeGroupByRegex "com\\.weareadaptive.*"
+            }
+        }
+
+        maven {
+            url 'https://weareadaptive.jfrog.io/artifactory/hydra-tools/'
+            credentials {
+                def credentials = ArtifactoryCredentials.load(project)
+                username credentials.username
+                password credentials.password
+            }
+            content {
+                includeGroup "com.weareadaptive.tools"
+            }
+        }
+        maven {
+            url 'https://weareadaptive.jfrog.io/artifactory/hydra-release/'
+            credentials {
+                def credentials = ArtifactoryCredentials.load(project)
+                username credentials.username
+                password credentials.password
+            }
+            content {
+                includeGroup "com.weareadaptive"
+            }
+        }
+    }
+}
+
+defaultTasks 'build', 'cucumber', 'cucumberEmbeddedReal'
+
+tasks.register('buildContainers', Task.class, { task ->
+    rootProject.subprojects { subProject ->
+        def jibTask = subProject.tasks.findByName('jibDockerBuild')
+        if (jibTask != null) {
+            dependsOn(jibTask)
+        }
+    }
+})
+
+task backendServices() {
+    doFirst {
+        rootProject.ext.docker_services = [
+                'engine0',
+                'engine1',
+                'engine2',
+                'wg'
+        ]
+    }
+}
+
+task frontendServices() {
+    doFirst {
+        rootProject.ext.docker_services = ['admin-ui']
+    }
+}
+
+tasks.register('startBackend', Task.class, { task ->
+    task.dependsOn('backendServices', 'startServices')
+})
+
+tasks.register('startFrontend', Task.class, { task ->
+    task.dependsOn('frontendServices', 'startServices')
+})
+
+tasks.named("dependencyUpdates").configure {
+    checkConstraints = true
+    gradleReleaseChannel = 'current'
+}
+
+mkdocs {
+    extras = [
+        'version': "${-> project.version}",
+    ]
+    sourcesDir = 'docs'
+    strict = true
+    publish {
+        docPath = ''
+    }
+}

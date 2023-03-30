@@ -1,0 +1,53 @@
+pluginManagement {
+    plugins {
+        id 'com.github.ben-manes.versions' version "${pluginVersionBenManesVersions}"
+        id 'com.github.node-gradle.node' version "${pluginVersionNodeGradle}"
+        id 'com.google.cloud.tools.jib' version "${pluginVersionJib}"
+        id 'com.gradle.enterprise' version "${pluginVersionEnterpriseGradle}"
+        id 'ru.vyarus.mkdocs' version "${pluginVersionMkDocs}"
+    }
+    repositories {
+        gradlePluginPortal {
+            content {
+                excludeGroupByRegex "com\\.weareadaptive.*"
+            }
+        }
+    }
+}
+
+plugins {
+    id "com.gradle.enterprise"
+}
+
+gradleEnterprise {
+    def buildScanUrl = System.getenv('GRADLE_ENTERPRISE_SERVER_URL') ?: System.getProperty('buildScanUrl')
+    if (buildScanUrl != null) {
+        server = buildScanUrl
+
+        buildScan {
+            capture {
+                taskInputFiles = true
+            }
+            uploadInBackground = false
+            publishAlways()
+        }
+    }
+}
+
+buildCache {
+    local {
+        directory = new File(rootDir, '.cache')
+        removeUnusedEntriesAfterDays = 30
+    }
+}
+
+rootProject.name = 'hydra-chat-room'
+
+include 'component:engine:api'
+include 'component:engine:impl'
+include 'component:wg:api'
+include 'component:wg:impl'
+include 'component:cli:receiver'
+include 'component:cli:sender'
+include 'acceptance'
+include 'ui'
