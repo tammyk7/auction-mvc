@@ -7,6 +7,9 @@ import com.weareadaptive.chatroom.services.ChatRoomServiceClientProxy;
 import com.weareadaptive.hydra.logging.Logger;
 import com.weareadaptive.hydra.logging.LoggerFactory;
 import com.weareadaptive.hydra.platform.commontypes.entities.UniqueId;
+import com.weareadaptive.hydra.platform.core.TimeSource;
+
+import org.agrona.concurrent.EpochClock;
 
 /**
  * I am the implementation of the chat room service.
@@ -23,9 +26,12 @@ public class EngineChatRoomService implements ChatRoomService {
 
     private final Logger log = LoggerFactory.getNotThreadSafeLogger(EngineChatRoomService.class);
     private final ChatRoomServiceClientProxy clientProxy;
+    private final TimeSource timeSource;
 
-    public EngineChatRoomService(final ChatRoomServiceClientProxy clientProxy) {
+
+    public EngineChatRoomService(final ChatRoomServiceClientProxy clientProxy, final TimeSource timeSource) {
         this.clientProxy = clientProxy;
+        this.timeSource = timeSource;
     }
 
     /**
@@ -39,7 +45,7 @@ public class EngineChatRoomService implements ChatRoomService {
         log.info("Received request to broadcast message: ").append(broadcastChatMessageRequest).log();
 
         try (final MutableChatRoomEvent event = clientProxy.acquireChatRoomEvent()) {
-            event.messageReceived().message().copyFrom(broadcastChatMessageRequest.message());
+            event.messageReceived().receivedTime(timeSource.nowMillis()).message().copyFrom(broadcastChatMessageRequest.message());
             log.info("Broadcasting event: ").append(event).log();
             clientProxy.onChatRoomEvent(event);
         }

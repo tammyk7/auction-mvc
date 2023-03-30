@@ -9,6 +9,8 @@ import com.weareadaptive.chatroom.entities.MutableMessage;
 import com.weareadaptive.chatroom.services.ChatRoomServiceProxy;
 import com.weareadaptive.hydra.cucumber.Expector;
 import com.weareadaptive.hydra.platform.core.testing.StreamRecorderAdapter;
+import com.weareadaptive.hydra.platform.engine.TimeMachine;
+
 import io.cucumber.java.DataTableType;
 import io.cucumber.java.en.Then;
 import io.cucumber.java.en.When;
@@ -21,10 +23,12 @@ public class ChatRoomSteps {
 
     private final Deployment deployment;
     private final Expector expector;
+    private final TimeMachine timeMachine;
 
-    public ChatRoomSteps(final Deployment deployment, final Expector expector) {
+    public ChatRoomSteps(final Deployment deployment, final Expector expector, final TimeMachine timeMachine) {
         this.deployment = deployment;
         this.expector = expector;
+        this.timeMachine = timeMachine;
     }
 
     @When("{string} sends a message containing text {string}")
@@ -58,6 +62,7 @@ public class ChatRoomSteps {
             AllocatedMessageReceived received = event.messageReceived();
             received.message().user(msg.user());
             received.message().text(msg.text());
+            received.receivedTime(timeMachine.now());
             return event;
         }).toArray(ChatRoomEvent[]::new);
 

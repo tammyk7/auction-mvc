@@ -1,13 +1,9 @@
 package com.weareadaptive.chatroom.sender;
 
-import com.weareadaptive.chatroom.entities.MutableBroadcastChatMessageRequest;
-import com.weareadaptive.chatroom.sender.components.SenderCli;
-import com.weareadaptive.chatroom.sender.components.SenderCliConnection;
-import com.weareadaptive.chatroom.services.ChatRoomServiceProxy;
+import java.util.Arrays;
+
 import com.weareadaptive.hydra.logging.Logger;
 import com.weareadaptive.hydra.logging.LoggerFactory;
-
-import java.util.Arrays;
 
 /**
  * I am the entry point for the Sender CLI.
@@ -26,25 +22,6 @@ public class SenderMain {
         }
 
         final Logger log = LoggerFactory.getNotThreadSafeLogger(SenderMain.class);
-        var user = args[0];
-        var text = args[1];
 
-        log.info("Creating connection to cluster").log();
-        final SenderCliConnection connection = SenderCli.instance().run();
-        final ChatRoomServiceProxy chatRoomService = connection.services().channelToCluster().getChatRoomServiceProxy();
-
-        connection.services().lifecycle().onAvailable(() -> {
-            log.info("Cluster has become available, sending chat message").log();
-            try (final MutableBroadcastChatMessageRequest request = chatRoomService.acquireBroadcastChatMessageRequest()) {
-                request.message().text(text);
-                request.message().user(user);
-                chatRoomService.broadcastMessage(chatRoomService.allocateCorrelationId(), request);
-                log.info("Sent chat message to cluster: ").append(request).log();
-                System.exit(0);   // A bit naughty but OK for what we're doing
-            }
-        });
-
-        log.info("Connecting to cluster").log();
-        connection.connect();
     }
 }

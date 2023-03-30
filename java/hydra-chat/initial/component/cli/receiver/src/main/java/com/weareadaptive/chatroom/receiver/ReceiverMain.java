@@ -1,15 +1,9 @@
 package com.weareadaptive.chatroom.receiver;
 
-import com.weareadaptive.chatroom.engine.components.ClientToEngineChannel;
-import com.weareadaptive.chatroom.entities.ChatRoomEvent;
-import com.weareadaptive.chatroom.receiver.components.ReceiverCli;
-import com.weareadaptive.chatroom.receiver.components.ReceiverCliConnection;
-import com.weareadaptive.chatroom.services.ChatRoomServiceClient;
+import java.util.Arrays;
+
 import com.weareadaptive.hydra.logging.Logger;
 import com.weareadaptive.hydra.logging.LoggerFactory;
-import com.weareadaptive.hydra.platform.client.Replay;
-
-import java.util.Arrays;
 
 /**
  * I am a receiver. I expect one argument, which can be either
@@ -37,27 +31,6 @@ public class ReceiverMain {
         }
 
         log.info("Creating connection to cluster").log();
-        final ReceiverCliConnection connection = ReceiverCli.instance().run();
 
-        log.info("Creating cluster replay channel").log();
-        final Replay<? extends ClientToEngineChannel> replayChannel = connection.services().createReplayChannelToCluster();
-        log.info("Registering chat room event listener").log();
-        replayChannel.channel().registerChatRoomServiceClient(new ChatRoomServiceClient() {
-            @Override
-            public void onChatRoomEvent(final ChatRoomEvent chatRoomEvent) {
-                log.info("Received egress event @ position: ").append(replayChannel.position()).log();
-                log.info(chatRoomEvent.toString()).log();
-            }
-        });
-        log.info("Consuming egress via replay channel, using: ").append(joinAt).log();
-        if ("live".equals(joinAt)) {
-            replayChannel.joinAtLive();
-        }
-        else {
-            replayChannel.joinAtEarliestAvailable();
-        }
-
-        log.info("Connecting to cluster").log();
-        connection.connect();
     }
 }

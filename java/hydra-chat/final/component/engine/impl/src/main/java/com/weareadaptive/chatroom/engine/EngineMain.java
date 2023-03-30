@@ -29,7 +29,7 @@ public class EngineMain {
     private static void registerChatRoomService(final EngineContext context) {
         LOGGER.info("Registering Chat Room Service").log();
         final var clientProxy = context.channelToClients().getChatRoomServiceClientProxy();
-        final var service = new EngineChatRoomService(clientProxy);
+        final var service = new EngineChatRoomService(clientProxy, context.timeSource());
         context.channelToClients().registerChatRoomService(service);
         LOGGER.info("Registered Chat Room Service").log();
     }

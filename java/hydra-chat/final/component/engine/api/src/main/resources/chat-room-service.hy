@@ -5,8 +5,8 @@ metadata = {
 
 /// A message
 type Message = {
-  user: char[64]
-  text: char[280]
+  user: string
+  text: string
 }
 
 /// Request to send a message to the room
@@ -17,6 +17,7 @@ type BroadcastChatMessageRequest = {
 /// An event (note past-tense) indicating that a message has been received by the room
 type MessageReceived = {
   message: Message
+  receivedTime: long
 }
 
 /// Union type of all the different chat room events that a client might receive on the chatRoomEvent stream
