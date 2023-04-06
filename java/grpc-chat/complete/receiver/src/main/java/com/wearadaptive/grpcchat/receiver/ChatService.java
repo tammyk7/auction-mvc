@@ -1,5 +1,6 @@
 package com.wearadaptive.grpcchat.receiver;
 
+import com.weareadaptive.grpcchat.ChatServiceOuterClass.ChatRoomEvent;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Level;
@@ -15,7 +16,7 @@ public class ChatService extends ChatServiceGrpc.ChatServiceImplBase {
 
   private static final Logger logger = Logger.getLogger(ChatService.class.getName());
 
-  private final List<StreamObserver<ChatServiceOuterClass.ChatRoomEvent>> clients;
+  private final List<StreamObserver<ChatRoomEvent>> clients;
 
   public ChatService() {
     clients = new ArrayList<>();
@@ -23,21 +24,24 @@ public class ChatService extends ChatServiceGrpc.ChatServiceImplBase {
 
   @Override
   public void sendChatMessage(ChatServiceOuterClass.ChatMessageRequest request,
-                              StreamObserver<ChatServiceOuterClass.ChatRoomEvent> responseObserver) {
+                              StreamObserver<ChatRoomEvent> responseObserver) {
     logger.log(Level.INFO, "Got message {0} from user {1}", new String[] {request.getMessage().getText(),
       request.getMessage().getUser()});
-    ChatServiceOuterClass.ChatRoomEvent newEvent =
-      ChatServiceOuterClass.ChatRoomEvent.newBuilder().setMessage(request.getMessage()).build();
-    for (StreamObserver<ChatServiceOuterClass.ChatRoomEvent> client : clients) {
+
+    var newEvent =
+      ChatRoomEvent.newBuilder().setMessage(request.getMessage()).build();
+
+    for (StreamObserver<ChatRoomEvent> client : clients) {
       client.onNext(newEvent);
     }
+
     responseObserver.onNext(newEvent);
     responseObserver.onCompleted();
   }
 
   @Override
   public void subscribeToChatMessages(Empty request,
-                                      StreamObserver<ChatServiceOuterClass.ChatRoomEvent> responseObserver) {
+                                      StreamObserver<ChatRoomEvent> responseObserver) {
     logger.log(Level.INFO, "Subscription request");
     clients.add(responseObserver);
   }
