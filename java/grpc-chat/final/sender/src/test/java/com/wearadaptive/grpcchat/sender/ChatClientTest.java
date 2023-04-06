@@ -3,32 +3,34 @@ package com.wearadaptive.grpcchat.sender;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.AdditionalAnswers.delegatesTo;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
 
-import com.weareadaptive.grpcchat.ChatServiceGrpc;
-import com.weareadaptive.grpcchat.ChatServiceOuterClass;
-
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-
+import com.weareadaptive.grpcchat.ChatServiceGrpc.ChatServiceImplBase;
+import com.weareadaptive.grpcchat.ChatServiceOuterClass.ChatMessageRequest;
+import com.weareadaptive.grpcchat.ChatServiceOuterClass.ChatRoomEvent;
 import io.grpc.ManagedChannel;
 import io.grpc.Server;
 import io.grpc.inprocess.InProcessChannelBuilder;
 import io.grpc.inprocess.InProcessServerBuilder;
 import io.grpc.stub.StreamObserver;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.mockito.ArgumentCaptor;
+import org.mockito.ArgumentMatchers;
 
 public class ChatClientTest {
 
-  private final ChatServiceGrpc.ChatServiceImplBase serviceImpl =
-    mock(ChatServiceGrpc.ChatServiceImplBase.class, delegatesTo(
-      new ChatServiceGrpc.ChatServiceImplBase() {
-        @Override
-        public void sendChatMessage(ChatServiceOuterClass.ChatMessageRequest request,
-                                    StreamObserver<ChatServiceOuterClass.ChatRoomEvent> responseObserver) {
-          responseObserver.onNext(ChatServiceOuterClass.ChatRoomEvent.newBuilder().build());
-          responseObserver.onCompleted();
-        }
-      }));
+  private final ChatServiceImplBase serviceImpl =
+      mock(ChatServiceImplBase.class, delegatesTo(
+          new ChatServiceImplBase() {
+            @Override
+            public void sendChatMessage(ChatMessageRequest request,
+                                        StreamObserver<ChatRoomEvent> responseObserver) {
+              responseObserver.onNext(ChatRoomEvent.newBuilder().build());
+              responseObserver.onCompleted();
+            }
+          }));
   private ChatClient client;
   private Server server;
   private ManagedChannel channel;
@@ -58,7 +60,15 @@ public class ChatClientTest {
 
   @Test
   public void testWhenChatClientSendsAMessageItReceivesAMessageBack() {
+    var requestCaptor = ArgumentCaptor.forClass(ChatMessageRequest.class);
+
     client.sendChatMessage("test");
+
+    verify(serviceImpl).sendChatMessage(requestCaptor.capture(), ArgumentMatchers.any());
+
+    var request = requestCaptor.getValue();
+    assertEquals("testUser", request.getMessage().getUser());
+    assertEquals("test", request.getMessage().getText());
     assertEquals(1, client.getTotalSentMessageCount());
   }
 
