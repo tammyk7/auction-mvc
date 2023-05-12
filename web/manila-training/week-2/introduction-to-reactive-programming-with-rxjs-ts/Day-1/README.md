@@ -48,8 +48,9 @@ doubledObservable.subscribe((value) => {
   console.log('Doubled value:', value);
 })
 
-//In this example we have a stream of numbers (sourceObservable)
-//We are then able to transform those numbers
+// In this example, we create an observable using the of function, which emits a sequence of values.
+//We then apply the map operator to transform each emitted value by doubling it.
+// Finally, we subscribe to the transformed observable and log the doubled values.
 ```
 
 ### Reactive programming offers several benefits, including:
