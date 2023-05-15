@@ -38,8 +38,9 @@ Great, but how would I use reactive programming (RxJS in particular) in my appli
 Often two paradigms are thrown about when talking about reactive programming: **event-driven** vs. **reactive**. Below we will begin to pick apart the differences and similarities between the two.
 
 <hr>
+
+
 ## Understanding Event-Driven and Reactive Programming Paradigms
-<br>
 
 ### Event-Driven Programming
 Event-driven programming is a paradigm where the flow of the program is driven by events, such as user interactions, such as user interactions (clicks, keypresses), system events (file loaded, timer triggered), or messages from other programs, or data changes. The application waits for these events and reacts to them by executing event handlers or callback functions. The program doesn't follow a predefined sequence of actions; instead, it responds to external events as they occur. Event-driven systems typically consist of event producers and event consumers, where producers generate events and consumers respond to those events.
