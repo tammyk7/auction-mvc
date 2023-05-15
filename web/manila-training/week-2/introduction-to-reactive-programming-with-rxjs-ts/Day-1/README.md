@@ -39,6 +39,7 @@ Often two paradigms are thrown about when talking about reactive programming: **
 
 <hr>
 ## Understanding Event-Driven and Reactive Programming Paradigms
+<br>
 
 ### Event-Driven Programming
 Event-driven programming is a paradigm where the flow of the program is driven by events, such as user interactions, such as user interactions (clicks, keypresses), system events (file loaded, timer triggered), or messages from other programs, or data changes. The application waits for these events and reacts to them by executing event handlers or callback functions. The program doesn't follow a predefined sequence of actions; instead, it responds to external events as they occur. Event-driven systems typically consist of event producers and event consumers, where producers generate events and consumers respond to those events.
@@ -66,10 +67,8 @@ clickObservable.subscribe(() => {
 
 
 <hr>
-Okay, I have an example & a definition but I still don't quite understand how to think about event-driven programming.
-
-
-I get it! Definitions don't really help you develop a mental model. So let's take a look a two:
+Okay, I have an example & a definition but I still don't quite understand how to think about event-driven programming. I get it! Definitions don't really help you develop a mental model. So let's take a look a two:
+<hr>
 
 ### Mental Models
 
