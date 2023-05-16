@@ -4,9 +4,7 @@
 
 Observables in RxJS represent a source of data streams that emit values over time. You can create observables using various methods provided by RxJS, such as the `Observable` constructor.
 
-The `Observable` constructor takes a subscriber function as an argument, which is called for each subscription made to the observable. Inside the subscriber function, you can use the `next` method to emit values, the `complete` method to signal the completion of the observable, and the `error` method to signal an error condition.
-
-1. **Observable Constructor:** The `Observable` constructor is the most fundamental way to create an observable from scratch. It takes a subscriber function as an argument, which defines how values are emitted over time. Inside the subscriber function, you can use the `next` method to emit values, the `error` method to emit an error, and the `complete` method to signal the completion of the observable.
+1. **Observable Constructor:** The `Observable` constructor is the most fundamental way to create an observable from scratch. It takes a subscriber function as an argument, which defines how values are emitted over time. Inside the `observer` function, you can use the `next` method to emit values, the `error` method to emit an error, and the `complete` method to signal the completion of the observable.
 
    ```typescript
    import { Observable } from 'rxjs'
@@ -34,7 +32,7 @@ The `Observable` constructor takes a subscriber function as an argument, which i
       const dataObservable = of(1, 2, 3, 4, 5)
       ```
 
-   1. **from**
+   2. **from**
 
       ```javascript
       import { from } from 'rxjs'
