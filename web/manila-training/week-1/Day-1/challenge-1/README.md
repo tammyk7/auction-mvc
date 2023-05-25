@@ -2,24 +2,16 @@
 
 The goal of this challenge is to finish the implementation of a _"Quote of the Day"_ app. Use the hooks `useState` and `useEffect` as needed to fetch a random quote from the API provided when the `New Quote` button is clicked.
 
-A skeleton app has been provided to get you started.
+A skeleton app has been provided to get you started. Use [this]('https://type.fit/api/quotes') API to fetch quotes.
 
 ```tsx
 // App.tsx
 import React from 'react'
 import './App.css'
 
+// Use this API to fetch quotes ---> 'https://type.fit/api/quotes'
+
 const QuoteApp: React.FC = () => {
-  const fetchQuote = async () => {
-    try {
-      const response = await fetch('https://type.fit/api/quotes');
-      const data = await response.json();
-      console.log('Response data:', data);
-    } catch (error) {
-      console.error('Error fetching quote:', error);
-    }
-  };
-  
   return (
     <div>
       <h1>Quote of the Day</h1>
@@ -30,7 +22,7 @@ const QuoteApp: React.FC = () => {
       </div>
     </div>
   );
-}
+};
 
 export default QuoteApp;
 ```
