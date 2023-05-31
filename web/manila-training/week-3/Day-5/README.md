@@ -1,4 +1,4 @@
-# Technical Specification: Reactive Todo App using React, RxJS, and React-RxJS Hooks with TypeScript
+# Reactive Todo App using React, RxJS, and React-RxJS Hooks with TypeScript
 
 ## Overview
 

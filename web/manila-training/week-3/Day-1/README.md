@@ -1,60 +1,98 @@
 # Getting Started with react-rxjs Hooks
+
 React-RxJS is a library that combines the principles of React and RxJS. It allows you to create a **push-based application state** that works seamlessly with the **pull-based nature of React**. Here are the core concepts you will need to understand in order to effectively use the library:
 
-1. **Push vs Pull**: React uses a pull-based architecture where it requests a new value when it needs to re-render. On the other hand, RxJS uses a push-based approach where changes are propagated from one stream to the next. React-RxJS bridges the gap between these two behaviors.
-
-2. **Streams as State**: RxJS streams are used to represent events or changing values over time. They are declarative and don't execute the effect until someone subscribes to it. React-RxJS provides `shareLatest` to share the state between many components and keep the latest value.
-
-   ```javascript
-   import { interval } from "rxjs"
-   import { take } from "rxjs/operators"
-   import { shareLatest } from "@react-rxjs/core"
-
-   const first5SpacedNumbers = interval(1000).pipe(take(5), shareLatest())
-   ```
-
-3. **Composing Streams**: The stream returned by `bind` is shared and can be easily composed with other streams. 
-
-   ```javascript
-   import { interval } from "rxjs"
-   import { take } from "rxjs/operators"
-   import { bind } from "@react-rxjs/core"
-
-   const [useSeconds, second$] = bind(interval(1000))
-   const [useLatestNSeconds, latestNSeconds$] = bind((n: number) => second$.pipe(take(n)))
-   ```
-
-4. **Entry Points**: Data for the state can come from various sources. For data coming directly from the user, RxJS Subjects are used. In React-RxJS, this is abstracted into signals which separate the producer and the consumer of that subject.
-
-   ```javascript
-   import { scan } from "rxjs/operators"
-   import { bind } from "@react-rxjs/core"
-   import { createSignal } from "@react-rxjs/utils"
-
-   const [newTodos$, postNewTodo] = createSignal();
-   const [useTodoList, todoList$] = bind(newTodos$.pipe(scan((acc, todo) => [...acc, todo], [])), [])
-   ```
-
-5. **Instances**: `bind` can take a factory function that returns an Observable for a particular instance. This is useful when components need to access a particular instance.
-
-6. **Suspense**: React-RxJS comes with full support for Suspense, a feature in React that allows you to represent values that are not yet ready. By default, using a hook from a stream that hasn't emitted any value will result in that hook suspending the component.
-
-7. **Error Boundaries**: If a stream emits an error, the components that are subscribed to that stream will propagate that error to the nearest Error Boundary. This allows for graceful error recovery.
-
-   ```javascript
-   import { bind } from "@react-rxjs/core"
-   import { interval } from "rxjs"
-   import { map, startWith } from "rxjs/operators"
-   import { ErrorBoundary } from "react-error-boundary"
-
-   const [useTimedBomb, timedBomb$] = bind(interval(1000).pipe(map((v) => v + 1), startWith(0), map((v) => { if (v === 3) { throw new Error("boom") } return v })))
-   ```
 
 
+```mermaid
+graph TB
+  A["React"] -- "Pull-based" --> B["React-RxJS"]
+  C["RxJS"] -- "Push-based" --> B
+  D["Streams as State"] -- "shareLatest" --> B
+  E["Composing Streams"] -- "bind" --> B
+  F["Entry Points"] -- "createSignal" --> B
+  G["Instances"] -- "bind with factory function" --> B
+  H["Suspense"] -- "React-RxJS support" --> B
+  I["Error Boundaries"] -- "React-RxJS support" --> B
+  linkStyle 0 stroke:#2ecd71,stroke-width:2px;
+  linkStyle 1 stroke:#2ecd71,stroke-width:2px;
+  linkStyle 2 stroke:#2ecd71,stroke-width:2px;
+  linkStyle 3 stroke:#2ecd71,stroke-width:2px;
+  linkStyle 4 stroke:#2ecd71,stroke-width:2px;
+  linkStyle 5 stroke:#2ecd71,stroke-width:2px;
+  linkStyle 6 stroke:#2ecd71,stroke-width:2px;
+  linkStyle 7 stroke:#2ecd71,stroke-width:2px;
+
+```
+
+
+## Push vs Pull
+
+React uses a pull-based architecture where it requests a new value when it needs to re-render. On the other hand, RxJS uses a push-based approach where changes are propagated from one stream to the next. React-RxJS bridges the gap between these two behaviors.
+
+## Streams as State
+
+RxJS streams are used to represent events or changing values over time. They are declarative and don't execute the effect until someone subscribes to it. React-RxJS provides `shareLatest` to share the state between many components and keep the latest value.
+
+```javascript
+import { interval } from "rxjs"
+import { take } from "rxjs/operators"
+import { shareLatest } from "@react-rxjs/core"
+
+const first5SpacedNumbers = interval(1000).pipe(take(5), shareLatest())
+```
+
+## Composing Streams
+
+The stream returned by `bind` is shared and can be easily composed with other streams. 
+
+```javascript
+import { interval } from "rxjs"
+import { take } from "rxjs/operators"
+import { bind } from "@react-rxjs/core"
+
+const [useSeconds, second$] = bind(interval(1000))
+const [useLatestNSeconds, latestNSeconds$] = bind((n: number) => second$.pipe(take(n)))
+```
+
+## Entry Points
+
+Data for the state can come from various sources. For data coming directly from the user, RxJS Subjects are used. In React-RxJS, this is abstracted into signals which separate the producer and the consumer of that subject.
+
+```javascript
+import { scan } from "rxjs/operators"
+import { bind } from "@react-rxjs/core"
+import { createSignal } from "@react-rxjs/utils"
+
+const [newTodos$, postNewTodo] = createSignal();
+const [useTodoList, todoList$] = bind(newTodos$.pipe(scan((acc, todo) => [...acc, todo], [])), [])
+```
+
+## Instances
+
+`bind` can take a factory function that returns an Observable for a particular instance. This is useful when components need to access a particular instance.
+
+## Suspense
+
+React-RxJS comes with full support for Suspense, a feature in React that allows you to represent values that are not yet ready. By default, using a hook from a stream that hasn't emitted any value will result in that hook suspending the component.
+
+## Error Boundaries
+
+If a stream emits an error, the components that are subscribed to that stream will propagate that error to the nearest Error Boundary. This allows for graceful error recovery.
+
+```javascript
+import { bind } from "@react-rxjs/core"
+import { interval } from "rxjs"
+import { map, startWith } from "rxjs/operators"
+import { ErrorBoundary } from "react-error-boundary"
+
+const [useTimedBomb, timedBomb$] = bind(interval(1000).pipe(map((v) => v + 1), startWith(0), map((v) => { if (v === 3) { throw new Error("boom") } return v })))
+```
 
 <hr>
 
 Great, now you know the key terms & concepts behind this library. While nice to know, let's make this info more practical and dive into actually using `react-rxjs`. 
+
 <hr>
 
 ## Getting Up & Running with React-RxJS
@@ -135,14 +173,29 @@ Getting started with React-RxJS involves understanding a few (more) key concepts
 
 <hr>
 
-So we see from above, that the `bind` function is really at the heart of the `react-rxjs` library. Let's review it in more depth.
+So we see from above, that the `bind` function is really at the heart of the `react-rxjs` library. It is a key feature in connecting RxJS observables to React components. Let's review it in more depth.
 <hr>
 
+## Connecting RxJS Observables to React Components
 
-## A Guide on How to Use `bind`
-The `bind` function is a core part of the React-RxJS library. It is used to connect an Observable to React, returning a hook and a shared stream representing the source Observable.
+### A Guide on How to Use `bind`
 
+The `bind` function from `react-rxjs` is a powerful tool that **creates a React hook connected to an RxJS Observable**. It manages the lifecycle of the Observable subscription within the React component lifecycle. 
 
+Here's how it works:
+
+1. **Subscription:** When a component that uses the hook returned by `bind` mounts, it subscribes to the Observable. This happens during the render phase of the component, before the actual effectful DOM updates take place. This is important because it ensures that the component has the latest value from the Observable when it renders.
+
+2. **Unsubscription:** When the component unmounts, the subscription to the Observable is automatically cleaned up, preventing memory leaks. This is handled by React's built-in cleanup mechanism for hooks.
+
+3. **Re-rendering:** Whenever a new value is emitted from the Observable, the component will re-render with the new value. This is achieved by using the `useState` and `useEffect` hooks internally within the hook returned by `bind`.
+
+4. **Sharing Subscriptions:** The Observable returned by `bind` is a shared Observable, which means that it will share the subscription between multiple consumers. If multiple components use the hook returned by `bind`, they will all share a single subscription to the source Observable. This is efficient and avoids unnecessary side effects or computations.
+
+5. **Suspense and Error Boundaries:** The hook returned by `bind` supports React's Suspense and Error Boundaries out of the box. If the Observable has not yet emitted a value, the hook will suspend. If the Observable emits an error, the hook will throw that error, which can be caught by an Error Boundary.
+
+<hr>
+Below is a visual representation of `bind`:
 
 ```mermaid
 sequenceDiagram
@@ -215,9 +268,19 @@ import { filter } from "rxjs/operators"
 const evenCount$ = count$.pipe(filter(count => count % 2 === 0))
 ```
 
-### Note
 
-`bind` does not propagate completions from the source stream - the shared subscription is closed as soon as there are no subscribers to that Observable. This means that you don't need to worry about unsubscribing from the Observable when the component unmounts.
+
+### Tricky Scenarios & Gotchas
+
+While `bind` is designed to be straightforward to use, there are a few scenarios to be aware of:
+
+- **Synchronous Emissions**: If the Observable emits a value synchronously (i.e., immediately upon subscription), the component will render with that value. However, if the Observable does not emit a value synchronously and no default value is provided, the hook will suspend until a value is emitted.
+
+- **Completion**: `bind` does not propagate completions from the source stream. The shared subscription is closed as soon as there are no subscribers to that Observable. This means that you don't need to worry about unsubscribing from the Observable when the component unmounts.
+
+- **Factory Overload**: `bind` can take a factory function that returns an Observable. This is useful when components need to access a particular instance. However, it's important to remember that each unique argument to the factory function will create a new Observable instance, so it's best to avoid passing objects or arrays directly as arguments.
+
+- **Error Handling**: If the Observable emits an error, all components subscribed to that Observable will unmount and the error will be propagated to the nearest Error Boundary. It's important to have Error Boundaries in place to handle these scenarios.
 
 <hr>
 
@@ -313,9 +376,86 @@ function NumberInput() {
 
 In this example, the `setValue` function is called when the Submit button is clicked, emitting the current value of the input through the `value$` Observable.
 
-### Conclusion
+### Tricky Scenarios & Gotchas
 
-Signals in React-RxJS provide a way to handle events in a reactive manner, separating the producer and the consumer of those events. By understanding how to create and use Signals, you can write more declarative and reactive code with React-RxJS.
+Signals in `react-rxjs` are a powerful tool for handling events in a reactive manner. However, like any tool, there are some scenarios and gotchas to be aware of:
 
+1. **Signal Emission**: Signals are not like typical RxJS Observables. They are designed to be "hot", meaning they start emitting as soon as they are created. This is different from typical "cold" Observables, which start emitting only when they are subscribed to. This means that if you create a Signal and then subscribe to it later, you might miss some emissions.
+
+2. **Signal Completion**: Unlike typical Observables, Signals do not complete. This means that you don't need to worry about unsubscribing from a Signal, but it also means that you can't use operators that rely on completion, like `toArray` or `takeLast`.
+
+3. **Signal Error Handling**: If a Signal emits an error, it will not stop emitting. This is different from typical Observables, which stop emitting as soon as they encounter an error. This means that you need to handle errors at the point of subscription, rather than at the point of emission.
+
+4. **Signal Multicasting**: Signals are multicasted, meaning they can have multiple subscribers and they share the same execution among all subscribers. This is different from typical Observables, which are unicast and create a separate execution for each subscriber. This means that side effects in a Signal will only be executed once, no matter how many subscribers there are.
+
+5. **Signal Backpressure**: Because Signals are designed to be used with user events, they do not support backpressure. This means that if you have a slow consumer, it might miss some emissions if the Signal is emitting too quickly. If you need to handle backpressure, you might need to use a different tool or pattern.
+
+6. **Signal and React Component Lifecycle**: Signals are not tied to the React component lifecycle. This means that a Signal can continue emitting even after the component that created it has unmounted. If you need to clean up a Signal when a component unmounts, you will need to handle this manually.
+
+<hr>
+Okay...so there are many pitfalls to using signals. How are they different from observables again? And when should I use an observable vs. signal?
+
+### Observables vs. Signals
+In `react-rxjs`, Signals and Observables serve different purposes and their usage depends on the specific needs of your application.
+
+**Observables** are a core concept of RxJS and represent a stream of values or events over time. They are used when you need to handle asynchronous or event-based data flows. Observables are particularly useful when you need to:
+
+- Handle streams of values over time, such as user input events, API responses, or timer events.
+- Compose, transform, or combine multiple streams of values.
+- Handle complex asynchronous operations, such as retrying failed requests or debouncing user input.
+
+**Signals** in `react-rxjs` are a concept similar to Subjects in RxJS, but with a key difference: they split the producer and the consumer. This means that the part of your code that emits values (the producer) is separated from the part of your code that reacts to those values (the consumer). Signals are particularly useful when:
+
+- You need to handle events in a reactive manner, such as user interactions or form submissions.
+- You want to separate the producer and the consumer of events, which can make your code more declarative and easier to reason about.
+- You need to share a single event source among multiple consumers.
+
+In general, you would use Observables when you need to handle, transform, or compose asynchronous data flows, and you would use Signals when you need to handle events in a reactive manner and separate the producer and consumer of those events. It's also common to use Signals and Observables together in a `react-rxjs` application. For example, you might use a Signal to handle user interactions and then use an Observable to transform and react to those events.
+
+
+<hr>
+
+
+With an in-depth understanding of `bind` & `signals` vs. `observables` we have the majority of what we need to start using react-rxjs -- before we dive into the challenges found in `day-1/challenges`, let's quickly review how TypeScript fits into all of this.
+
+<hr>
+
+## Using TypeScript Types with react-rxjs Hooks
+
+React-RxJS is fully compatible with TypeScript and provides type safety for your observables and hooks. When you use the `bind` function to create a hook, TypeScript can infer the type of the values that the hook will return based on the observable.
+
+Here's an example:
+
+```typescript
+import { bind } from "@react-rxjs/core"
+import { of } from "rxjs"
+
+const [useNumber] = bind(of(42))
+
+function NumberDisplay() {
+  const number = useNumber() // TypeScript knows that `number` is a number
+
+  return <div>{number}</div>
+}
+```
+
+In this example, TypeScript infers that `number` is a number because it comes from the `useNumber` hook, which is connected to an observable that emits numbers.
+
+You can also explicitly specify the type of the values that the observable will emit by providing a type argument to the `bind` function:
+
+```typescript
+import { bind } from "@react-rxjs/core"
+import { of } from "rxjs"
+
+const [useString] = bind<string>(of("Hello, world!"))
+
+function StringDisplay() {
+  const string = useString() // TypeScript knows that `string` is a string
+
+  return <div>{string}</div>
+}
+```
+
+In this example, the `bind<string>` function call tells TypeScript that the observable will emit strings, so the `useString` hook will return strings.
 
 
