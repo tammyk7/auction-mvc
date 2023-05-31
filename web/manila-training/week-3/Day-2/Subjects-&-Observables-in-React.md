@@ -14,7 +14,6 @@ To use an Observable in a functional React component, you can subscribe to it us
 import React, { useState, useEffect } from 'react';
 import { from } from 'rxjs';
 import { map } from 'rxjs/operators';
-import axios from 'axios';
 
 const API_URL = 'https://jsonplaceholder.typicode.com/posts';
 
@@ -22,8 +21,8 @@ const PostList = () => {
   const [posts, setPosts] = useState([]);
 
   useEffect(() => {
-    const observable = from(axios.get(API_URL)).pipe(
-      map(response => response.data)
+    const observable = from(fetch(API_URL).then(response => response.json())).pipe(
+      map(data => data)
     );
     const subscription = observable.subscribe(
       data => setPosts(data),
