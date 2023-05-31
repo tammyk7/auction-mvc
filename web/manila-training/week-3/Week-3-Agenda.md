@@ -30,7 +30,7 @@ Below you will find an outline for each day's material. Each bullet point with l
 
 ## Day 4: Code Challenge: Real-time Search
 
-- Implement a real-time search feature with React-RxJS & without React-RxJS
+- [Implement a real-time search feature with React-RxJS](Day-4/crypto-search/README.md)
 
 ## Day 5: Mini Project: Building a Reactive Crypto Watchlist
 
