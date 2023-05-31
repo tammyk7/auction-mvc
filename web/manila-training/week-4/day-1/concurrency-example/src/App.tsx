@@ -1,7 +1,7 @@
 import { FC, Suspense, lazy } from 'react'
 
-import FilmList from './components/FilmList'
 import './App.css'
+import FilmList from './components/FilmList'
 import { useSelectedFilmId } from './AppState'
 
 const FilmModal = lazy(() => import('./components/FilmModal'))
