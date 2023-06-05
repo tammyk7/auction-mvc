@@ -1,17 +1,15 @@
 # Observables vs. Signals vs. Subjects
 
-## Observables vs. Signals vs. Subjects
-
 In general, you would **use Subjects when you need to send values to multiple subscribers or create custom Observables**, and you would **use Signals when you need to handle events in a reactive manner and separate the producer and consumer of those events**.
 
-|  | Observables | Signals | Subjects |
-| --- | --- | --- | --- |
-| Use case | Handle, transform, or compose asynchronous data flows | Handle events in a reactive manner and separate the producer and consumer of those events | Send values to multiple subscribers or create custom Observables |
-| Event handling | ✅ | ✅ | ✅ |
-| Reactive programming | ✅ | ✅ | ❌ |
-| Multiple subscribers | ❌ | ❌ | ✅ |
-| Complex transformations | ✅ | ❌ | ❌ |
-| Broadcasting events | ❌ | ❌ | ✅ |
+|                         | Observables                                           | Signals                                                                                   | Subjects                                                         |
+| ----------------------- | ----------------------------------------------------- | ----------------------------------------------------------------------------------------- | ---------------------------------------------------------------- |
+| Use case                | Handle, transform, or compose asynchronous data flows | Handle events in a reactive manner and separate the producer and consumer of those events | Send values to multiple subscribers or create custom Observables |
+| Event handling          | ✅                                                    | ✅                                                                                        | ✅                                                               |
+| Reactive programming    | ✅                                                    | ✅                                                                                        | ❌                                                               |
+| Multiple subscribers    | ❌                                                    | ❌                                                                                        | ✅                                                               |
+| Complex transformations | ✅                                                    | ❌                                                                                        | ❌                                                               |
+| Broadcasting events     | ❌                                                    | ❌                                                                                        | ✅                                                               |
 
 ---
 

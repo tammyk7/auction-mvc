@@ -10,10 +10,10 @@ The `bind` function from `react-rxjs` is a powerful tool that creates a React ho
 4. **Sharing Subscriptions:** The Observable returned by `bind` is a shared Observable, which means that it will share the subscription between multiple consumers. If multiple components use the hook returned by `bind`, they will all share a single subscription to the source Observable. This is efficient and avoids unnecessary side effects or computations.
 5. **Suspense and Error Boundaries:** The hook returned by `bind` supports React's Suspense and Error Boundaries out of the box. If the Observable has not yet emitted a value, the hook will suspend. If the Observable emits an error, the hook will throw that error, which can be caught by an Error Boundary.
 
-<aside>
-💡 Remember, under the hood, `bind` uses React’s `useState` & `useEffect` to ‘magically’ handle the lifecycle of a stream. From RxJS, `bind` uses `shareLatest` to ensure a single stream can not only multicast but ensures the last entry emitted from the stream is available for new components that subscribe to the stream.
+>
+> 💡 Remember, under the hood, `bind` uses React’s `useState` & `useEffect` to ‘magically’ handle the lifecycle of a stream. From RxJS, `bind` uses `shareLatest` to ensure a single stream can not only multicast but ensures the last entry emitted from the stream is available for new components that subscribe to the stream.
+>
 
-</aside>
 
 ---
 

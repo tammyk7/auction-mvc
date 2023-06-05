@@ -4,5 +4,6 @@
 - [Introduction to react-rxjs](Introduction-to-React-RxJS.md)
 - [A Guide to Bind](A-Guide-to-Bind.md)
 - [A Guide to Signals](A-Guide-to-Signals.md)
+- [Thinking in Streams](Thinking-in-Streams.md)
 - [Observables vs. Signals vs. Subjects](Observables-vs-Signals-vs-Subjects.md)
 - [React-RxJS Utilities](React-RxJS-Utilities.md)

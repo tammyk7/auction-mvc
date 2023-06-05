@@ -2,8 +2,6 @@
 
 React-RxJS is a library that combines the principles of React and RxJS. It allows you to create a **push-based application state** that works seamlessly with the **pull-based nature of React**. Here are the core concepts you will need to understand in order to effectively use the library:
 
-
-
 ```mermaid
 graph TB
   A["React"] -- "Pull-based" --> B["React-RxJS"]
@@ -25,12 +23,11 @@ graph TB
 
 ```
 
-
 ## Push vs Pull
 
 React uses a pull-based architecture where it requests a new value when it needs to re-render. On the other hand, RxJS uses a push-based approach where changes are propagated from one stream to the next. React-RxJS bridges the gap between these two behaviors.
 
-## Streams as State
+## [[Streams as State](Thinking-in-Streams.md)](Thinking-in-Streams.md)
 
 RxJS streams are used to represent events or changing values over time. They are declarative and don't execute the effect until someone subscribes to it. React-RxJS provides `shareLatest` to share the state between many components and keep the latest value.
 
@@ -102,11 +99,10 @@ Getting started with React-RxJS involves understanding a few (more) key concepts
 1. **Installation**: React-RxJS is available on npm and can be installed with the following commands:
 
    Using npm:
+
    ```bash
    npm i rxjs @react-rxjs/core @react-rxjs/utils
    ```
-
-
 2. **Creating a Hook from an Observable**: The `bind` function from `@react-rxjs/core` is used to connect a stream to a hook. A signal, which is an entry point to React-RxJS, can be created using `createSignal` from `@react-rxjs/utils`. Here's an example:
 
    ```javascript
@@ -133,7 +129,6 @@ Getting started with React-RxJS involves understanding a few (more) key concepts
      )
    }
    ```
-
 3. **Using the Hook and Observable**: The `bind` function returns a tuple containing the hook and the underlying shared observable. The observable can be used by other streams. For instance, you can create a character count function that uses the text observable:
 
    ```javascript
@@ -152,7 +147,6 @@ Getting started with React-RxJS involves understanding a few (more) key concepts
      return <>Character Count: {count}</>
    }
    ```
-
 4. **Subscription**: A subscription to the underlying observable must be present before the hook is executed. The `Subscribe` component can be used to ensure this:
 
    ```javascript
@@ -168,8 +162,8 @@ Getting started with React-RxJS involves understanding a few (more) key concepts
    }
    ```
 
+### [Observables vs. Signals](Observables-vs-Signals-vs-Subjects.md)
 
-### Observables vs. Signals
 In `react-rxjs`, Signals and Observables serve different purposes and their usage depends on the specific needs of your application.
 
 **Observables** are a core concept of RxJS and represent a stream of values or events over time. They are used when you need to handle asynchronous or event-based data flows. Observables are particularly useful when you need to:
@@ -184,7 +178,7 @@ In `react-rxjs`, Signals and Observables serve different purposes and their usag
 - You want to separate the producer and the consumer of events, which can make your code more declarative and easier to reason about.
 - You need to share a single event source among multiple consumers.
 
-In general, you would use Observables when you need to handle, transform, or compose asynchronous data flows, and you would use Signals when you need to handle events in a reactive manner and separate the producer and consumer of those events. It's also common to use Signals and Observables together in a `react-rxjs` application. For example, you might use a Signal to handle user interactions and then use an Observable to transform and react to those events.
+In general, you would **use Observables when you need to handle, transform, or compose asynchronous data flows, and you would use Signals when you need to handle events in a reactive manner and separate the producer and consumer of those events.** It's also common to use Signals and Observables together in a `react-rxjs` application. For example, you might **use a Signal to handle user interactions and then use an Observable to transform and react to those events**.
 
 ---
 
