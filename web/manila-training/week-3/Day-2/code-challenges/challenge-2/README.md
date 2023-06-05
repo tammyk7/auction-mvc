@@ -1,7 +1,6 @@
-
 ### Challenge 2: User Profile Component
 
-Create a UserProfile component that displays a user's name and email. The component should subscribe to a `user$` Observable that emits user data. Use `bind` to create a custom hook that subscribes to the `user$` Observable.
+Create a UserProfile component that displays a user's name and email. The component should subscribe to a `user$` Observable that emits user data. Use RxJS to handle the subscription to the `user$` Observable.
 
 Use the github api for users to grab information and display it.
 
@@ -12,9 +11,9 @@ https://api.github.com/users/{username}
 Here's a skeleton to get you started:
 
 ```jsx
-import { bind } from '@react-rxjs/core';
+import { useEffect, useState, FC } from 'react';
 import { of } from 'rxjs';
-import { FC } from 'react';
+import { switchMap } from 'rxjs/operators';
 
 interface User {
   name: string;
@@ -26,20 +25,23 @@ const user$ = of<User>({
   email: 'john.doe@example.com'
 });
 
-const useUser = bind(user$);
-
 const UserProfileComponent: FC = () => {
-  const user = useUser();
-  return (
+  const [user, setUser] = useState<User | null>(null);
+
+  useEffect(() => {
+    const subscription = user$.subscribe(setUser);
+    return () => subscription.unsubscribe();
+  }, []);
+
+  return user ? (
     <div>
       <p>Name: {user.name}</p>
       <p>Email: {user.email}</p>
     </div>
-  );
+  ) : null;
 }
 
 ```
-
 
 To run this application:
 1. `cd challenge-1`
@@ -49,4 +51,3 @@ To run this application:
 
 Validate your solution by running it against the test suite:
 `npm run test`
-
