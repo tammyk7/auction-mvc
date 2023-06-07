@@ -12,7 +12,7 @@ const FilmList: FC = (): JSX.Element => {
   const films = useFilms()
 
   return (
-    <div className="filmList">
+    <div className="list">
       {films.results.map((film) => {
         return (
           <h3

@@ -1,3 +1,31 @@
+nav {
+  border-bottom: 1px solid white;
+  padding: 15px;
+  font-size: 1.5em;
+}
+
+nav > ul {
+  padding: 0;
+  margin: 0 auto;
+  max-width: 50vw;
+  display: flex;
+  justify-content: space-around;
+  list-style: none;
+}
+
+a {
+  text-decoration: none;
+  color: lightgrey;
+}
+
+a:hover {
+  opacity: 50%;
+}
+
+p {
+  margin-bottom: 0;
+}
+
 h1 {
   font-size: 2.5em;
 }
@@ -6,24 +34,29 @@ h2 {
   margin-top: 0;
 }
 
-.filmList-container {
+.loading {
+  margin: 20px;
+  text-align: center;
+}
+
+.page {
   display: flex;
   flex-direction: column;
   align-items: center;
 }
 
-.filmList > h3 {
+.list > h3 {
   border: 1px solid white;
   padding: 10px 20px;
   border-radius: 5px;
 }
 
-.filmList > h3:hover {
+.list > h3:hover {
   cursor: pointer;
   opacity: 60%;
 }
 
-.filmModal {
+.modal {
   position: fixed;
   z-index: 1;
   left: 0;
@@ -33,13 +66,17 @@ h2 {
   background-color: rgba(0, 0, 0, 0.4);
 }
 
-.filmModal-content {
+.modal-content {
   top: 50%;
   left: 50%;
   z-index: 2;
   padding: 50px;
+  display: flex;
   position: fixed;
+  min-width: 500px;
+  max-width: 750px;
   border-radius: 15px;
+  flex-direction: column;
   border: 1px solid white;
   background-color: #242424;
   transform: translate(-50%, -50%);
@@ -50,7 +87,7 @@ h2 {
   border-radius: 5px;
   display: inline-block;
   border: 1px solid white;
-  margin: 20px 180px 0 180px;
+  margin: 20px auto 0 auto;
 }
 
 .closeModal:hover {

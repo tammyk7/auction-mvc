@@ -260,6 +260,299 @@ Now when we run the `npm run build` command in our terminal we can see our app i
 
 ![Code Splitting Build Size Image](../images/split-build.png)
 
+<hr>
+
+## Incorporating RxJS observables and react-rxjs with React Router and code splitting
+
+Let's get React Router and code splitting incorporated into a React app with React-RxJS. This time we'll have put what you just learned into practice by adding routing to the Star Wars application from yesterday.
+
+From your terminal let's navigate back into the `week4/concurrency-example` and run `npm run dev` to fire up the application. Currently we have a typical React SPA, let's get started on changing that. Let's start by adding two new page components one for a landing page `<Home>` and one for our existing films page `<Films>`.
+
+If you take a look in our `src` directory you will see that we already have created a `pages` directory for you. Here we have two files `Home.tsx` and `Films.tsx`, let's open up `Home.tsx` and add the code below to create a component for our home page.
+
+```tsx
+// Home.tsx
+import { FC } from 'react'
+
+const Home: FC = (): JSX.Element => {
+  return (
+    <div className="page">
+      <h1>Welcome to our week 4 tutorial Star Wars Data app!</h1>
+    </div>
+  )
+}
+
+export default Home
+```
+
+Now let's create our `<Films>` page, open up the `Films.tsx` file and ad the following to it:
+
+```tsx
+// Films.tsx
+import { FC, Suspense, lazy } from 'react'
+
+import FilmList from '../components/FilmList'
+import { useSelectedFilmId } from '../AppState'
+import Loading from '../components/Loading'
+
+const FilmModal = lazy(() => import('../components/FilmModal'))
+
+const Films: FC = (): JSX.Element => {
+  const selectedFilmId = useSelectedFilmId()
+
+  return (
+    <>
+      <div className="page">
+        <h1>Star Wars films:</h1>
+        <Suspense fallback={<Loading message="films" />}>
+          <FilmList />
+        </Suspense>
+      </div>
+      {selectedFilmId && (
+        <div className="modal">
+          <div className="modal-content">
+            <Suspense fallback={<Loading message="film data" />}>
+              <FilmModal />
+            </Suspense>
+          </div>
+        </div>
+      )}
+    </>
+  )
+}
+
+export default Films
+```
+
+This code should look very familiar, this is because it was originally within our `<App>` component. We have now extracted that out so that this can now be used as a page within our routes.
+
+Now that we have both of our pages created let's start integrating React Router. We've already installed the npm package for you in this app so we can jump right into importing the tools we need. The first tool we need is the `BrowserRouter`, to add this open up `main.tsx` located in `concurrency-example/src`, import the `BrowserRouter` form `react-router-dom` and wrap our app with the `<BrowserRouter>` component.
+
+Your `main.tsx` should look like this:
+
+```tsx
+// main.tsx
+import { StrictMode } from 'react'
+import { createRoot } from 'react-dom/client'
+import { Subscribe } from '@react-rxjs/core'
+import { BrowserRouter } from 'react-router-dom'
+
+import App from './App.tsx'
+import './index.css'
+
+const root = createRoot(document.getElementById('root') as HTMLElement)
+
+root.render(
+  <StrictMode>
+    <BrowserRouter>
+      <Subscribe>
+        <App />
+      </Subscribe>
+    </BrowserRouter>
+  </StrictMode>
+)
+```
+
+Next we have to configure our routes. To accomplish this we need to open up our `App.tsx` file, this file will also be in the `src` folder.
+
+First we need to import `Routes` and `Route` from the `react-router-dom` package
+
+```js
+import { Routes, Route } from 'react-router-dom'
+```
+
+Then let's import our `Home` and `Films` pages using the taditional import statments:
+
+```js
+import Home from './pages/Home'
+import Films from './pages/Films'
+```
+
+Now we can remove both the `FilmList` and `FilmModal` imports. We do not need these imports anymore because this is now handled by our `Films` page. We can also remove our import and use of `useSelecedFilmId` for the same reason.
+
+Let's set up our routes. We can delete everything within the return method of our `<App>` component and replace it with routes specifying the home and films pages. Our `App.tsx` file will look like:
+
+```tsx
+// App.tsx
+import { FC } from 'react'
+import { Routes, Route, Link } from 'react-router-dom'
+
+import './App.css'
+
+import Home from './pages/Home'
+import Films from './pages/Films'
+import Loading from './components/Loading'
+
+const App: FC = (): JSX.Element => {
+  return (
+    <Routes>
+      <Route path="/" element={<Home />} />
+      <Route path="/films" element={<Films />} />
+    </Routes>
+  )
+}
+
+export default App
+```
+
+We have now specified two routes:
+
+1. `/` which is our root route that will render our `<Home>` page component.
+2. `/films` that will render our `<Films>` page component.
+
+Like earlier, even though we now have our routes configured there is no easy way for the user to access them. Let's add a navigation bar for a better user experience. We first need to add the `Link` component to our imports from `react-router-dom` then add the following code.
+
+```tsx
+<nav>
+  <ul>
+    <li>
+      <Link to="/">Home</Link>
+    </li>
+    <li>
+      <Link to="/films">Films</Link>
+    </li>
+  </ul>
+</nav>
+```
+
+Here we are creating a navigation bar by using the nav, ul, and li html elements but each list item will contain a link to our pages. we specify the route we want each `<Link>` to link to with the `to` property. We want to add this navigation bar outside of the `<Routes>` component in our return method so that our nav bar will render on every page.
+
+Our `App.tsx` will now look like this:
+
+```tsx
+// App.tsx
+import { FC, Suspense } from 'react'
+import { Routes, Route, Link } from 'react-router-dom'
+
+import './App.css'
+
+import Home from './pages/Home'
+import Films from './pages/Films'
+import Loading from './components/Loading'
+
+const App: FC = (): JSX.Element => {
+  return (
+    <>
+      <nav>
+        <ul>
+          <li>
+            <Link to="/">Home</Link>
+          </li>
+          <li>
+            <Link to="/films">Films</Link>
+          </li>
+        </ul>
+      </nav>
+
+      <Routes>
+        <Route path="/" element={<Home />} />
+        <Route path="/films" element={<Films />} />
+      </Routes>
+    </>
+  )
+}
+
+export default App
+```
+
+Now head to the url your application is on (most likely the vite default of `localhost:5173`) you should now see a navigation bar at the top of your screen with the links "Home" and "Films" and below that should be the welcome message we added to our `<Home>` component. When clicking on the "Films" link or changing the url to `/films` the application should re-render to display our film list and the app should work just as it has before.
+
+**Let's add code splitting**
+
+Now that we have routing implemented, let's add code splitting to make our application more performant.
+
+To utilize code splitting we first have to change our import stastatementstments in our `App.tsx` to use the `lazy` function from React.
+
+Old imports:
+
+```js
+import Home from './pages/Home'
+import Films from './pages/Films'
+```
+
+New imports:
+
+```js
+const Home = lazy(() => import('./pages/Home'))
+const Films = lazy(() => import('./pages/Films'))
+```
+
+Now that we are lazily loading our page components we have to add Suspense so that React can render a loading UI while the code needed to display our pages are asynchronously loaded.
+
+`App.tsx` should now look like the following:
+
+```tsx
+// App.tsx
+import { FC, lazy, Suspense } from 'react'
+import { Routes, Route, Link } from 'react-router-dom'
+
+import './App.css'
+import Loading from './components/Loading'
+
+const Home = lazy(() => import('./pages/Home'))
+const Films = lazy(() => import('./pages/Films'))
+
+const App: FC = (): JSX.Element => {
+  return (
+    <>
+      <nav>
+        <ul>
+          <li>
+            <Link to="/">Home</Link>
+          </li>
+          <li>
+            <Link to="/films">Films</Link>
+          </li>
+        </ul>
+      </nav>
+
+      <Suspense fallback={<Loading />}>
+        <Routes>
+          <Route path="/" element={<Home />} />
+          <Route path="/films" element={<Films />} />
+        </Routes>
+      </Suspense>
+    </>
+  )
+}
+
+export default App
+```
+
+Now when we reload our application and switch from our Home page to our Films page the user will briefly see our loading indicator while the Films page code is being retrieved, but the time of our initial render will be decreased. While this is not going to make a noticeable difference in our current application this will be significant in large applications.
+
+One way we can see the advantage is in the bundle sizes when our app is built.
+
+Before code splitting:
+
+![Bundle Size Pre Split Image](../images/pre-split.png)
+
+After adding code splitting:
+
+![Bundle Size Post Split Image](../images/post-split.png)
+
+Our original build generated 4 files:
+
+1. `index.html`
+2. `index-[hash].css`
+3. `index-[hash].js`
+4. `FilmModal-[hash].js`
+
+We have two `.js` files because we already introduced code splitting by lazily loading our `<FilmModal>` component in our original application. You can see that the code specifically for our `<FilmModal>` has been broken out into its own chunk and not included in the bundled `index-[hash].js` which has a size of 196.29 kB.
+
+After we add routing and lazily load all of our pages we can now see we have generated 6 files:
+
+1. `index.html`
+2. `index-[hash].css`
+3. `index-[hash].js`
+4. `Home-[hash].js`
+5. `Films-[hash].js`
+6. `FilmModal-[hash].js`
+
+You can clearly see that the `index-[hash].js` has been reduced to the size of 182.38 kB. As mentioned earlier this will not make a noticeable difference in the current appllication, but you can application see that code splitting will reduce the size size our index `.js` "chunk" and will make a significant impact in larger applications.
+
+<hr>
+
 ## Resources
 
 - https://hygraph.com/blog/routing-in-react
