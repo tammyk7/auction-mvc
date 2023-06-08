@@ -1,8 +1,9 @@
 import { FC } from 'react'
-import { selectedFilmId$, setSelectedFilmId } from '../AppState'
-import { fetchFilm } from '../services/SWApi'
 import { concat, of, switchMap } from 'rxjs'
 import { SUSPENSE, bind } from '@react-rxjs/core'
+
+import { fetchFilm } from '../services/SWApi'
+import { selectedFilmId$, setSelectedFilmId } from '../AppState'
 
 const filmData$ = selectedFilmId$.pipe(
   switchMap((filmId) => concat(of(SUSPENSE), fetchFilm(filmId)))

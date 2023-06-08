@@ -3,6 +3,12 @@
 
 Create a UserProfile component that displays a user's name and email. The component should subscribe to a `user$` Observable that emits user data. Use `bind` to create a custom hook that subscribes to the `user$` Observable.
 
+Use the github api for users to grab information and display it.
+
+```js
+https://api.github.com/users/{username}
+```
+
 Here's a skeleton to get you started:
 
 ```jsx

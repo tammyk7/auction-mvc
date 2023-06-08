@@ -23,4 +23,6 @@ const CounterComponent: FC<CounterProps> = (): JSX.Element => {
   );
 }
 
+export default CounterComponent;
+
 
