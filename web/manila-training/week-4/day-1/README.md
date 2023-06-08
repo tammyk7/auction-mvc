@@ -284,11 +284,10 @@ In reality we wouldn't use lazy loading in an application this small since it wo
 
 Now let's take what we learned about concurrency in React and apply that to working with React-RxJS. As we saw earlier, RxJS is based on a push-based architecture and React is based on a pull-based architecture. So when we use them together React will pull state data that will be pushed out by React-RxJS, by adding Suspense to our application we can dynamically render the parts of the application that are ready, and display loading indicators to the part of the app that may be waiting for React-RxJS to emit data.
 
-The best way to show this is by seeing it in action. Let's navigate into the project located in the directory `week-4/concurrency-example`. Then run the application using:
+The best way to show this is by seeing it in action. Let's navigate into the project located in the directory `week-4/day-1/concurrency-example`. Then run the application using:
 
-1. `cd concurrency-example`
-2. `npm i`
-3. `npm run dev`
+1. `npm i`
+2. `npm run dev`
 
 Here we have a small application that uses the [Star Wars API](https://swapi.dev/) to fetch and display a list of Star Wars films. When clicking on the name of a film, we initiate another fetch call to get the details of the film clicked and display that in a modal.
 

@@ -266,7 +266,7 @@ Now when we run the `npm run build` command in our terminal we can see our app i
 
 Let's get React Router and code splitting incorporated into a React app with React-RxJS. This time we'll have put what you just learned into practice by adding routing to the Star Wars application from yesterday.
 
-From your terminal let's navigate back into the `week4/concurrency-example` and run `npm run dev` to fire up the application. Currently we have a typical React SPA, let's get started on changing that. Let's start by adding two new page components one for a landing page `<Home>` and one for our existing films page `<Films>`.
+From your terminal let's navigate back into the `week-4/day-1/concurrency-example` and run `npm run dev` to fire up the application. Currently we have a typical React SPA, let's get started on changing that. Let's start by adding two new page components one for a landing page `<Home>` and one for our existing films page `<Films>`.
 
 If you take a look in our `src` directory you will see that we already have created a `pages` directory for you. Here we have the `Home.tsx` and `Films.tsx`, let's open up `Home.tsx` and add the code below to create a component for our home page.
 
