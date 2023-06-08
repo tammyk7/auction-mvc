@@ -284,17 +284,17 @@ In reality we wouldn't use lazy loading in an application this small since it wo
 
 Now let's take what we learned about concurrency in React and apply that to working with React-RxJS. As we saw earlier, RxJS is based on a push-based architecture and React is based on a pull-based architecture. So when we use them together React will pull state data that will be pushed out by React-RxJS, by adding Suspense to our application we can dynamically render the parts of the application that are ready, and display loading indicators to the part of the app that may be waiting for React-RxJS to emit data.
 
-The best way to show this is by seeing it in action. Let's navigate into the project located in the directory `week-4/day-1/concurrency-example`. Then run the application using:
+The best way to show this is by seeing it in action. Let's navigate into the project located in the directory `week-4/concurrency-example`. Then run the application using:
 
 1. `cd concurrency-example`
 2. `npm i`
 3. `npm run dev`
 
-Here we have a small application that uses the [Star Wars API](https://swapi.dev/) to fetch and display a list of star war films. When clicking on the name of a film, we perform another fetch call to get the details of the film clicked and display that in a modal.
+Here we have a small application that uses the [Star Wars API](https://swapi.dev/) to fetch and display a list of Star Wars films. When clicking on the name of a film, we initiate another fetch call to get the details of the film clicked and display that in a modal.
 
-This application uses 3 components `App.tsx`, `FilmList.tsx`, and `FilmModal.tsx`, a `AppState.ts` file to initialize shared state, and a `SWApi.ts` file to set up the service.
+This application uses 3 components `App.tsx`, `FilmList.tsx`, and `FilmModal.tsx`, a `AppState.ts` file to initialize shared state, and a `SWApi.ts` file to set up the service. (You may notice there are more components and files, we'll be using those later.)
 
-First we'll take a look at the `SWApi.ts` service file located at `concurrency-example/src/services`, which contains the code that will be handling our fetch calls. Here we create the `fetchData` function that uses the [ajax](https://rxjs.dev/api/ajax/ajax) operator provided by RxJS. This operator contains a `getJSON` method that takes a url as an argument and returns the response of the API as an Observable. (Note: We are also adding a timer to delay the network call by 1.5 seconds so that we can clearly see Suspense in action.) We also have the `fetchFilms` and `fetchFilm` functions that will return a list of films or a specific film based on the argument passed to it.
+First we'll take a look at the `SWApi.ts` service file located at `concurrency-example/src/services`, which contains the code that will be handling our fetch calls. Here we create the `fetchData` function that uses the [ajax](https://rxjs.dev/api/ajax/ajax) operator provided by RxJS. This operator contains a `getJSON` method that takes a url as an argument and returns the response of the API as an Observable. We also have the `fetchFilms` and `fetchFilm` functions that will return a list of films or a specific film based on the argument passed to it. (Note: We'll be using the `fetchCharacters` and `fetchCharacter` functions later.)
 
 Next let's look at `AppState.ts` in `concurrency-example/src`, here we are initializing a new [BehaviorSubject](https://rxjs.dev/guide/subject#behaviorsubject) and storing reference to the variable `selectedFilmId$`, we add a `$` symbol to the end of the variable name to represent an Observable. We also create a function `setSelectedFilmId` which will take the argument of a film Id and emit that value from `selectedFilmId$`. Finally we define the `useSelectedFilmId` hook which is returned from calling the [bind](https://react-rxjs.org/docs/api/core/bind) React-RxJS method and passing it `selectedFilmId$`.
 
@@ -302,7 +302,7 @@ Now let's take a look at `FilmList.tsx` which exposes the `<FilmList>` component
 
 The `<FilmModal>` component will display a modal containing the data for the specific film clicked on in the `<FilmList>` component. To achieve this we create an observable `filmData$` that is composed from `selectedFilmId$` and will either invoke `Suspense` or the `fetchFilm` function. [`Suspense`](https://react-rxjs.org/docs/api/core/suspense) is a special symbol provided by React-RxJS that will let React know that a value is on its way and that we want to leverage React Suspense while we are waiting for that value. `fetchFilm` will make an API call to get the data for the film selected.
 
-In `App.tsx` we tie everything together. We also use the `lazy` function provided by React to import the `FilmModal` component. We do this since this modal comoponent will only be rendered when a film from the `<FilmList>` component is selected. You can see in this file that we wrap both `<FilmList>` and `<FilmModal>` with `<Suspense>`, this is so that while the component is waiting for the data needed to render React will suspend and display the fallback.
+In `App.tsx` we tie everything together. We also use the `lazy` function provided by React to import the `FilmModal` component. We do this since this modal component will only be rendered when a film from the `<FilmList>` component is selected. You can see in this file that we wrap both `<FilmList>` and `<FilmModal>` with `<Suspense>`, this is so that while the component is waiting for the data needed to render React will suspend and display the fallback.
 
 In this application we do not need to manually set up the communication with Suspense like we had to in the earlier example, it is already built into the React-RxJS library that we are using for our network calls and handling state changes.
 

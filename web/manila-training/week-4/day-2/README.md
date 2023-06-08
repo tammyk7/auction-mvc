@@ -146,7 +146,7 @@ We just touched the surface of what React Router is capable of when it comes to 
 4. [Multiple Routes](https://blog.webdevsimplified.com/2022-07/react-router/#:~:text=for%20this%20context.-,Multiple%20Routes,-Another%20incredibly%20powerful)
 5. [`useRoutes` Hook](https://blog.webdevsimplified.com/2022-07/react-router/#:~:text=the%20NotFound%20component.-,useRoutes%20Hook,-The%20final%20thing)
 
-Take a look at this [Utlimate React Router v6 Guide](https://blog.webdevsimplified.com/2022-07/react-router/#:~:text=the%20URL%20changes.-,Advanced%20Route%20Definitions,-This%20is%20where) to learn more about these advanced features, or click on the links in the list above to navigate directly to each topic.
+Take a look at this [Ultimate React Router v6 Guide](https://blog.webdevsimplified.com/2022-07/react-router/#:~:text=the%20URL%20changes.-,Advanced%20Route%20Definitions,-This%20is%20where) to learn more about these advanced features, or click on the links in the list above to navigate directly to each topic.
 
 <hr>
 
@@ -268,7 +268,7 @@ Let's get React Router and code splitting incorporated into a React app with Rea
 
 From your terminal let's navigate back into the `week4/concurrency-example` and run `npm run dev` to fire up the application. Currently we have a typical React SPA, let's get started on changing that. Let's start by adding two new page components one for a landing page `<Home>` and one for our existing films page `<Films>`.
 
-If you take a look in our `src` directory you will see that we already have created a `pages` directory for you. Here we have two files `Home.tsx` and `Films.tsx`, let's open up `Home.tsx` and add the code below to create a component for our home page.
+If you take a look in our `src` directory you will see that we already have created a `pages` directory for you. Here we have the `Home.tsx` and `Films.tsx`, let's open up `Home.tsx` and add the code below to create a component for our home page.
 
 ```tsx
 // Home.tsx
@@ -361,7 +361,7 @@ First we need to import `Routes` and `Route` from the `react-router-dom` package
 import { Routes, Route } from 'react-router-dom'
 ```
 
-Then let's import our `Home` and `Films` pages using the taditional import statments:
+Then let's import our `Home` and `Films` pages using the traditional import statements:
 
 ```js
 import Home from './pages/Home'
@@ -421,7 +421,7 @@ Our `App.tsx` will now look like this:
 
 ```tsx
 // App.tsx
-import { FC, Suspense } from 'react'
+import { FC } from 'react'
 import { Routes, Route, Link } from 'react-router-dom'
 
 import './App.css'
@@ -461,7 +461,7 @@ Now head to the url your application is on (most likely the vite default of `loc
 
 Now that we have routing implemented, let's add code splitting to make our application more performant.
 
-To utilize code splitting we first have to change our import stastatementstments in our `App.tsx` to use the `lazy` function from React.
+To utilize code splitting we first have to change our import statement in our `App.tsx` to use the `lazy` function from React.
 
 Old imports:
 
@@ -549,7 +549,60 @@ After we add routing and lazily load all of our pages we can now see we have gen
 5. `Films-[hash].js`
 6. `FilmModal-[hash].js`
 
-You can clearly see that the `index-[hash].js` has been reduced to the size of 182.38 kB. As mentioned earlier this will not make a noticeable difference in the current appllication, but you can application see that code splitting will reduce the size size our index `.js` "chunk" and will make a significant impact in larger applications.
+You can clearly see that the `index-[hash].js` has been reduced to the size of 182.38 kB. As mentioned earlier this will not make a noticeable difference in the current application, but you can see that code splitting will reduce the size size our index `.js` "chunk" and will make a significant impact in larger applications.
+
+<hr>
+
+## Week 4 Day 2 Code Challenge: Add Star Wars Characters Page
+
+So far this week we have successfully created a React app that utilizes React-RxJS, React Router, Code Splitting, and Suspense, great job thats some pretty cool stuff! Now you'll work on your first coding challenge this week to give you a chance to solidify these concepts.
+
+Let's continue building on to the Star Wars application we've been working with. We already have a home page and a films page, your challenge is to add a third page that will display a list of Star Wars characters.
+
+You may have noticed we have already set up the service function for you to use in the `SWApi.ts` file:
+
+- The `fetchCharacters()` function will return an Observable emitting a list of characters returned from the API.
+- The `fetchCharacter()` function will return an Observable emitting the details for a specific character based on the id passed as an argument.
+
+We've also provided you with some scaffolded out files for the page and components needed.
+
+These files are:
+
+`/pages`
+
+- `Characters.tsx`
+
+`/components`
+
+- `CharacterList.tsx`
+- `CharacterModal.tsx`
+
+This feature will behave exactly as the Films page does so you can use that for reference. We've also already added the styles needed in `App.css` so keep the class names and the styles should be good to go.
+
+Steps needed to complete:
+
+1. `AppState.ts`:
+   - Add `selectedCharacterId$`, `setSelectedCharacterId`, and `useSelectedCharacterId`
+2. `Characters.tsx`:
+   - Import all package tools, components, and functions needed.
+   - Add the code needed to display the character list and character modal components.
+3. `CharacterList.tsx`:
+   - Import all package tools, components, and functions needed.
+   - Add the code needed to access the character list returned from the `fetchCharacters` function. This file provides you with the code to display the list, just uncomment the implementation.
+4. `CharacterModal.tsx`:
+   - Import all package tools, components, and functions needed.
+   - Add the code needed to access the selected character, invoke the `fetchCharacter` function, get access to the observable returned by `fetchCharatcher`, and use that data within the component.
+5. `App.tsx`:
+   - Import the character page.
+   - Configure a route for the character page and add it to the navigation bar.
+
+When finished open up your terminal and run:
+
+```terminal
+npm run test
+```
+
+If the tests pass, you have completed the coding challenge and can move on with your training!
 
 <hr>
 

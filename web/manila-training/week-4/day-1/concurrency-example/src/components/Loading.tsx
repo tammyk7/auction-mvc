@@ -5,7 +5,7 @@ type LoadingProps = { message?: string }
 const Loading: FC<LoadingProps> = ({ message }): JSX.Element => {
   return (
     <div className="loading">
-      <h3>Loading{message ? ` ${message}...` : '...'}</h3>
+      {message ? <h3>Loading {message}...</h3> : <h1>Loading...</h1>}
     </div>
   )
 }
