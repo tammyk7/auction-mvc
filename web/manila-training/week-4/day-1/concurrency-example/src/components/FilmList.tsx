@@ -15,12 +15,12 @@ const FilmList: FC = (): JSX.Element => {
     <div className="filmList">
       {films.results.map((film) => {
         return (
-          <h3
-            onClick={() => setSelectedFilmId(getIdFromSWApiURL(film.url))}
+          <div
             key={film.episode_id}
+            onClick={() => setSelectedFilmId(getIdFromSWApiURL(film.url))}
           >
             {film.title}
-          </h3>
+          </div>
         )
       })}
     </div>
