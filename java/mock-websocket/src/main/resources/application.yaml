@@ -1,0 +1,4 @@
+server:
+  port: 9091
+  error:
+    include-message: always
