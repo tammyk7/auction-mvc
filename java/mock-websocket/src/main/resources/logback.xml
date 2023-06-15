@@ -2,7 +2,7 @@
 <configuration>
 
     <property name="LOGS" value="./logs"/>
-    <property name="FILENAME" value="stocks-pwa-bff"/>
+    <property name="FILENAME" value="web-socket"/>
 
     <appender name="Console"
         class="ch.qos.logback.core.ConsoleAppender">
@@ -60,7 +60,7 @@
         <appender-ref ref="RfAppender"/>
     </root>
 
-    <logger name="com.fxcm.stocks.bff" level="trace" additivity="false">
+    <logger name="com.adaptive.websocket" level="trace" additivity="false">
         <appender-ref ref="Console"/>
         <appender-ref ref="RfAppender"/>
         <appender-ref ref="WarnRfAppender"/>
