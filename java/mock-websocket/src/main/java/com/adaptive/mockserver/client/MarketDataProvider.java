@@ -27,7 +27,7 @@ public class MarketDataProvider extends WebSocketClient {
     private List<Consumer<MarketData>> onMarketData = new LinkedList<>();
 
     public MarketDataProvider() {
-        super(URI.create("wss://stream.data.sandbox.alpaca.markets/v2/iex"));
+        super(URI.create("wss://add.your.server.here/"));
         objectMapper = new ObjectMapper();
         subscriptions = new ConcurrentHashMap<>();
     }
