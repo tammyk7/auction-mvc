@@ -1,3 +1,5 @@
+package com.example.streaming_apis;
+
 import java.util.concurrent.Flow;
 
 public class Subscriber implements Flow.Subscriber<String>
