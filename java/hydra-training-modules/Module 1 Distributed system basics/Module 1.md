@@ -1,7 +1,21 @@
 # Module 1 - Distributed system basics
-This initial module covers important concepts of distributed systems that people may not be familiar with.
+This initial module covers important concepts of distributed systems, in case backend developers are not familiar with them.
 
-## RPC --> TODO Mattia
+## RPC --> TODO Mattia (do you need the table below?)
+
+#### Details of some popular RPCs
+
+| Name of RPC | Date Introduced | Pros | Cons | Specification Link |
+| --- | --- | --- | --- | --- |
+| gRPC | 2015 | High performance, supports multiple languages, uses HTTP/2 protocol, supports Protocol Buffers. | Learning curve for Protocol Buffers, HTTP/2 not fully supported in all environments. | [gRPC](https://grpc.io/docs/what-is-grpc/introduction/) |
+| JSON-RPC | 2001 | Simple and lightweight, language agnostic, human-readable data format. | Not as efficient or robust as binary protocols, no streaming or flow control support. | [JSON-RPC](https://www.jsonrpc.org/specification) |
+| XML-RPC | 1998 | Simple, language-agnostic, human-readable data format. | Verbosity of XML leads to larger payloads, not as efficient or robust as binary protocols. | [XML-RPC](http://xmlrpc.scripting.com/spec.html) |
+| Java RMI | 1995 | Allows for direct method invocation, includes garbage collection of remote objects, supports dynamic class loading. | Limited to Java environments, has fallen out of favor due to the rise of web services. | [Java RMI](https://docs.oracle.com/en/java/javase/17/docs/specs/rmi/index.html) |
+| SOAP | 1998 | Highly extensible, language and platform independent, supports WS-Security. | Verbosity of XML leads to larger payloads, complexity can make development and debugging difficult. | [SOAP](https://www.w3.org/TR/soap/) |
+| Apache Thrift | 2007 | Supports many programming languages, efficient binary protocol, allows for synchronous and asynchronous communication. | Interface definition language can be complex to learn, less community support compared to newer protocols. | [Apache Thrift](https://thrift.apache.org/docs/idl) |
+| RESTful APIs | 2000 | Simple to understand and use, leverages standard HTTP protocol, language-agnostic, large support community. | Not a binary protocol, less efficient than some other methods, lacks real-time communication support. | [REST](https://www.ics.uci.edu/~fielding/pubs/dissertation/rest_arch_style.htm) |
+
+
 
 ## Passing Messages in Distributed Systems
 
@@ -87,9 +101,14 @@ business reasons and need to be considered.
 
 - UDP is a connectionless protocol, meaning that it does not establish a connection before sending data.
 
-- It just sends the data out without ensuring that it reaches its destination.
+- It just sends the data out without ensuring that it reaches its destination, nor the order in which is received.
 
 - This is in contrast to the [TCP (Transmission Control Protocol)](https://en.wikipedia.org/wiki/Transmission_Control_Protocol), which is connection-oriented and ensures that data is received by the destination before sending more data.
+
+To see that UDP packets are not received in any particular order, run the `Main` class
+in folder `code/udp`. There is a `Sender` running in a thread, that sends many UDP packets in order, 
+but the `Receiver` running in a different thread will likely receive them in wrong order, and throws
+and exception when this happens.
 
 ### Aeron Transport:
 
