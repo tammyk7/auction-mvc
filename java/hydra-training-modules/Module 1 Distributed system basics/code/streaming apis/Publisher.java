@@ -5,10 +5,12 @@ import java.util.concurrent.Flow;
 
 public class Publisher implements Flow.Publisher<String>
 {
+    private final String publisherName;
     List<Flow.Subscriber<? super String>> subscribers;
 
-    public Publisher()
+    public Publisher(final String publisherName)
     {
+        this.publisherName = publisherName;
         this.subscribers = new ArrayList<>();
     }
 
@@ -37,7 +39,7 @@ public class Publisher implements Flow.Publisher<String>
 
     public void errorStream()
     {
-        Throwable t = new IllegalStateException("some exception");
+        Throwable t = new IllegalStateException(publisherName+" threw some exception");
         for (Flow.Subscriber<? super String> subscriber : subscribers)
         {
             subscriber.onError(t);

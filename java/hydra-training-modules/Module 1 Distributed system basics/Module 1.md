@@ -50,15 +50,18 @@ and [Flow.Publisher](https://docs.oracle.com/en/java/javase/11/docs/api/java.bas
 interfaces. 
 
 With this approach, there are 2 sides in each stream: 
-- the "publisher", which accepts subscriptions from subscribers in its implementation of the only method defined in the interface **Flow.Publisher**
+- the "publisher", which accepts subscriptions in its implementation of the only method defined in the interface **Flow.Publisher**
     `void subscribe(Flow.Subscriber<? super T> subscriber)`, and keeps track of them all. When the publisher has a new item of the stream, 
     iteratively calls each subscriber's `onNext(T item)` method. It also calls each subscriber's `onComplete()` after the last item has been published,
     as well as each subscriber's `onError(Throwable throwable)` when an error occurs.
-- the "subscriber", which implements the logic of `void onNext(T item);`, `void onComplete();` and `void onError(Throwable throwable);`
+- the "subscriber" which is passed in the call to the publisher's `subscribe(Flow.Subscriber<? super T> subscriber)` method,  and implements the logic of `void onNext(T item);`, `void onComplete();` and `void onError(Throwable throwable);` methods defined in the interface **Flow.Subscriber**
 
 Notice that there can be more than one publisher and subscriber implementing classes for the same stream.
 
-
+Check the example code provided in folder `code/streaming apis` by running the Main class. In this example, the Main class
+registers two subscribers in the publisher, and the publisher "publishes" a random number of items by calling the
+`onNext` and `onComplete` when it finishes. There's a small random likelihood that the publisher will call `onError`, run
+it several times.
 
 
 ## Websockets for UIs

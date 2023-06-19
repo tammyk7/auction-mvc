@@ -2,6 +2,13 @@ import java.util.concurrent.Flow;
 
 public class Subscriber implements Flow.Subscriber<String>
 {
+    private final String name;
+
+    public Subscriber(final String name)
+    {
+        this.name = name;
+    }
+
     @Override
     public void onSubscribe(final Flow.Subscription subscription)
     {
@@ -11,18 +18,18 @@ public class Subscriber implements Flow.Subscriber<String>
     @Override
     public void onNext(final String item)
     {
-        System.out.println(item);
+        System.out.println("subscriber:" + name + " received: " + item);
     }
 
     @Override
     public void onError(final Throwable throwable)
     {
-        System.out.println(throwable.getMessage());
+        System.out.println("subscriber:" + name + " received error:" + throwable.getMessage());
     }
 
     @Override
     public void onComplete()
     {
-        System.out.println("Completed stream");
+        System.out.println("subscriber:" + name + " received completion signal");
     }
 }

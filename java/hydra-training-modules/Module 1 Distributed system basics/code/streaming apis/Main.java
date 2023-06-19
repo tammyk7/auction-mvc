@@ -5,10 +5,12 @@ public class Main
     public static void main(String[] args)
     {
         final Random random = new Random();
-        final Publisher publisher = new Publisher();
-        final Subscriber subscriber = new Subscriber();
+        final Publisher publisher = new Publisher("Publisher");
+        final Subscriber subscriberA = new Subscriber("Subscriber A");
+        final Subscriber subscriberB = new Subscriber("Subscriber B");
 
-        publisher.subscribe(subscriber);
+        publisher.subscribe(subscriberA);
+        publisher.subscribe(subscriberB);
 
         for (int i = 0; i <= random.nextInt(10); i++)
         {
