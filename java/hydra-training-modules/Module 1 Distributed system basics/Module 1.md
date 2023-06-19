@@ -1,11 +1,127 @@
 # Module 1 - Distributed system basics
-Goal: To cover important distributed system fundamentals people may not be familiar with.
+This initial module covers important concepts of distributed systems that people may not be familiar with.
 
-- RPC
-- Message Passing
-- Proxies and stubs
-- Aeron messaging & UDP
-- Media driver, etc.
+## RPC --> TODO Mattia
+
+## Passing Messages in Distributed Systems
+
+Passing messages in distributed systems is a fundamental aspect of their design and operation. 
+In distributed systems, where multiple independent components communicate and collaborate to achieve a common goal, 
+passing messages enables the exchange of information and coordination between these components.
+
+**Message passing** is a key mechanism for communication in distributed systems. It involves sending data 
+or instructions from one component to another, typically over a network. Messages can take different forms, 
+such as method calls, events, or data packets. By exchanging messages, components can share information, 
+request actions, or notify each other about specific events, facilitating cooperation and synchronization 
+in the system.
+
+One important consideration in passing messages is the choice of **communication paradigm**. 
+Distributed systems can adopt different communication paradigms, such as synchronous or asynchronous messaging. 
+In synchronous messaging, the sender blocks until the receiver processes the message, ensuring a direct response. 
+Asynchronous messaging, on the other hand, allows the sender to continue its execution without waiting for a response,
+enabling greater concurrency and scalability.
+
+**Reliable message delivery** is another crucial aspect of passing messages in distributed systems. 
+Since components may reside on different machines or operate under varying conditions, ensuring that messages 
+reach their intended recipients is essential. Techniques such as acknowledgments, retries, and message queuing 
+systems can be employed to enhance reliability. Additionally, protocols like TCP/IP provide reliable delivery 
+guarantees at the network level.
+
+**Message serialization and deserialization** play a significant role in passing messages between components. 
+Serialization involves converting complex data structures or objects into a suitable format for transmission, 
+such as JSON or Protocol Buffers. Deserialization is the reverse process of reconstructing the original object 
+from the transmitted data. Proper serialization and deserialization are essential for ensuring compatibility 
+and integrity of the messages across different components and platforms.
+
+**Message routing** is an important consideration when passing messages in distributed systems. 
+In large-scale systems, messages may need to traverse multiple intermediate nodes before reaching their destination.
+Routing algorithms and protocols, such as publish-subscribe or message brokers, help guide messages efficiently 
+through the network, considering factors like load balancing, fault tolerance, and scalability.
+
+Ensuring **message order and consistency** is crucial in distributed systems, where components may execute 
+concurrently and messages may arrive out of order. Techniques like message sequencing, logical clocks, or 
+distributed consensus algorithms can be employed to establish a total or partial ordering of messages and 
+maintain consistency across the system.
+
+**Security and authentication** are vital aspects when passing messages in distributed systems, 
+as they need to ensure the confidentiality, integrity, and authenticity of the exchanged data. 
+Techniques such as encryption, digital signatures, and secure channels can be employed to protect messages 
+from unauthorized access or tampering. Furthermore, authentication mechanisms like tokens or certificates 
+can be used to verify the identities of the sender and receiver, preventing malicious actors from impersonating
+legitimate components.
+
+
+## Proxies and Stub & Skeleton
+
+In a distributed software architecture, components interact with each other across different 
+machines, networks, or locations through remote procedure calls (RPC). RPC enables applications 
+to make method/function/procedure calls to remote applications, allowing them to access services 
+provided by a server. These interactions involve the client-side stubs and server-side skeletons, 
+which handle data marshalling and unmarshalling, simplifying communication by abstracting the 
+complexities of network communication and data transformation and giving the illusion that the 
+remote procedure is being executed locally.
+
+The client that makes a procedure call and the server exposing the procedure endpoint both
+share a service definition. A tool automatically generates code based on the definition, producing
+client-side stubs and server-side that handle data marshalling and unmarshalling, 
+abstracting the complexities of network communication, ensuring compatibility and type-checking 
+at compile time.
+
+Distributed systems using RPC face various challenges, one of them is ensuring compatibility 
+of RPC calls, ie. when something changes in the service definition, all its clients and the server/s
+need to be updated, or the change needs to be backwards-compatible. It is this necessary to ensure 
+backward compatibility and have automatic tests asserting that every update to the service definition 
+works in a system in production having the older version of that service definition.
+
+Automatic versioning aids in recognizing and adjusting for changes in serialised details, 
+but it requires access to the previous version's serialisation details for accurate comparison, therefore
+all service changes need to be tracked.
+
+When considering an RPC system, there are also security issues like permissions, encryption, 
+data integrity, confidentiality, privacy, and non-repudiation which sometimes are important for
+business reasons and need to be considered.
+
+## UDP
+
+[UDP (User Datagram Protocol)](https://en.wikipedia.org/wiki/User_Datagram_Protocol), is a internet protocol. It is used for sending messages, or datagrams, over a network.
+
+- UDP is a connectionless protocol, meaning that it does not establish a connection before sending data.
+
+- It just sends the data out without ensuring that it reaches its destination.
+
+- This is in contrast to the [TCP (Transmission Control Protocol)](https://en.wikipedia.org/wiki/Transmission_Control_Protocol), which is connection-oriented and ensures that data is received by the destination before sending more data.
+
+### Aeron Transport:
+
+[Aeron](https://aeron.io/) is a high-performance messaging system designed for real-time applications where low-latency communication is critical, such as financial trading systems.
+
+Aeron uses UDP as a transport protocol for several reasons:
+
+- Low Latency: It speeds up communications by not formally establishing a connection before data is transferred. This allows data to be transferred very quickly. This makes it well-suited for use cases where speed is essential such as high-throughput low latency trading systems.
+
+- Multicast Support: UDP supports multicast, meaning a single packet can be sent to multiple recipients with no additional overhead. This is useful for distributing messages to multiple subscribers efficiently, which is a common pattern in messaging systems like Aeron.
+
+- Efficient Throughput: UDP can be more efficient in terms of throughput compared to TCP, especially in high-bandwidth, low-latency environments. This is because it doesn’t have the congestion control mechanisms that can sometimes throttle TCP’s throughput.
+
+- Simplicity and Control: UDP is simpler than TCP and gives the application more control over the transmission. This allows Aeron to implement its own reliability and flow control mechanisms on top of UDP, tuned for the specific requirements of high-performance messaging.
+
+- Loss Tolerance: In some real-time applications, it's acceptable to lose some messages if the system is overloaded or network conditions are poor. UDP makes it easy to build systems with this kind of loss-tolerant behavior.
+
+### Aeron Message Delivery Guarantees
+
+However, it's important to note that because UDP itself doesn’t guarantee message delivery or order, Aeron implements its own set of features to handle message reliability, ordering, and flow control as needed to ensure **at-least-once delivery** of messages.
+
+In summary, UDP's low-latency, multicast support, and simplicity make it an ideal transport layer for high-performance messaging systems like Aeron, which require efficient and real-time communication over networks.
+
+### Aeron Media Driver
+
+The [Aeron Media Driver](https://aeroncookbook.com/aeron/media-driver/) is a crucial component that manages the low-level network communication for the messaging system. It is responsible for efficiently transmitting and receiving messages over the network, usually using the UDP protocol.
+
+- Specifically, it handles tasks such as buffering messages, sending and receiving data packets, ensuring reliable delivery through retransmissions and acknowledgments, and managing flow control to prevent overloading receivers.
+
+We need the Media Driver because it abstracts away the complexities of network communication from the application layer. By doing this, it allows you to focus on business logic without worrying about the intricacies of network protocols, reliability, and performance.
+
+- Furthermore, the Media Driver is optimized for high-throughput and low-latency communication, which is essential in systems where performance is critical, such as financial trading applications or real-time data streaming.
 - Message delivery guarantees (at-least-onceexactly-once, etc.)
 
 ## Streaming APIs
@@ -64,4 +180,6 @@ registers two subscribers in the publisher, and the publisher "publishes" a rand
 it several times.
 
 
-## Websockets for UIs
+## REST --> TODO Gus/Jose
+
+## Websockets --> TODO Gus/Jose
