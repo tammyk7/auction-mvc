@@ -193,7 +193,7 @@ With this approach, there are 2 sides in each stream:
 
 Notice that there can be more than one publisher and subscriber implementing classes for the same stream.
 
-Check the example code provided in folder `code/streaming apis` by running the Main class. In this example, the Main class
+Check the example code provided in folder `code/streaming_apis` by running the Main class. In this example, the Main class
 registers two subscribers in the publisher, and the publisher "publishes" a random number of items by calling the
 `onNext` and `onComplete` when it finishes. There's a small random likelihood that the publisher will call `onError`, run
 it several times.
