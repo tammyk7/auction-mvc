@@ -1,9 +1,24 @@
 # Module 1 - Distributed system basics
 This initial module covers important concepts of distributed systems, in case backend developers are not familiar with them.
 
-## RPC --> TODO Mattia (do you need the table below?)
+## RPC
+RPC (Remote Procedure Call) is a communication protocol that allows a client to call a method on a remote server.
+It facilitates communication between distinct processes or systems by enabling them to interact over a network as if they were executing operations within the same local environment. 
+The requesting process is called the client, and the process that provides the requested service is called the server.
 
-#### Details of some popular RPCs
+Here's an overview of how RPC works:
+1. The client sends the request through the client stub.
+2. The client stub marshals the parameters and sends them to the server stub.
+3. The server stub receives the request and unmarshals the parameters.
+4. The server executes the procedure and sends the results back to the server stub.
+5. The server stub marshals the results and sends them back to the client stub.
+6. The client stub receives the results and unmarshals them.
+
+_Note: Marshalling is the process of transforming the memory representation of an object to a data format suitable for storage or transmission._
+
+[You can find a UML diagram of the RPC process here](diagrams/rpc_protocol.plantuml)
+
+#### Some popular RPCs
 
 | Name of RPC | Date Introduced | Pros | Cons | Specification Link |
 | --- | --- | --- | --- | --- |
