@@ -116,7 +116,14 @@ In this case the leader is node 2. Therefore if we shutdown the container of nod
 
 A Leadership election has taken place as we specifically shutdown the leader node. If we were to shutdown a non-leader node, a leadership election would not be necessary as the current leader is still alive.
 
-## Part 5: Log Replay and Snapshotting
+## Part 5: Log replication, replay and snapshotting
+
+When the Aeron client sends an ingress message into the cluster, the leader accepts log entries from clients and replicates them across the followers. we can see it being replicated across all 3 nodes via RAFT consensus.
+The leader node is responsible for managing the log replication. The follower nodes passively replicate the log entries sent by the leader.
+
+You should see a similar output across all three node terminals such as this:
+
+`[clustered-service] INFO  i.a.cluster.service.ClusteredService - [Client-1] Ingress Message | 0`
 
 From the previous parts, you may have noticed when stopping and starting nodes in the console logs, it replays previous commands such as client connections, snapshots, ingress etc..
 
