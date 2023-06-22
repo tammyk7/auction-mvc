@@ -23,8 +23,8 @@ import static com.weareadaptive.util.ConfigUtils.ingressEndpoints;
 public class Client
 {
     private static final Logger LOGGER = LoggerFactory.getLogger(Client.class);
+    private MediaDriver mediaDriver;
     private static ClientEgressListener clientEgressListener;
-    private static ClientIngressSender clientIngressSender;
     private static final IdleStrategy IDLE_STRATEGY = new BusySpinIdleStrategy();
     private static Thread keepClusterAlive;
     private static boolean isActive;
@@ -39,7 +39,7 @@ public class Client
         LOGGER.info("Starting Aeron Client...");
         clientEgressListener = new ClientEgressListener();
 
-        final MediaDriver mediaDriver = MediaDriver.launchEmbedded(new MediaDriver.Context()
+        mediaDriver = MediaDriver.launchEmbedded(new MediaDriver.Context()
             .threadingMode(ThreadingMode.DEDICATED)
             .dirDeleteOnStart(true)
             .dirDeleteOnShutdown(true)
@@ -53,20 +53,21 @@ public class Client
                 .ingressChannel("aeron:udp")
                 .ingressEndpoints(ingressEndpoints(maxNodes))
                 .isIngressExclusive(false)
-                .messageTimeoutNs(TimeUnit.SECONDS.toNanos(5))
+                .messageTimeoutNs(TimeUnit.SECONDS.toNanos(10))
                 .errorHandler(new ErrorHandler()
                 {
                     @Override
                     public void onError(final Throwable throwable)
                     {
-                        System.err.println(throwable);
+                        LOGGER.error(throwable.toString());
+                        mediaDriver.close();
                     }
                 })
             );
         )
         {
             LOGGER.info("Aeron Client connected to cluster successfully.");
-            clientIngressSender = new ClientIngressSender(aeronCluster);
+            new ClientIngressSender(aeronCluster);
             isActive = true;
             initLeader = aeronCluster.leaderMemberId();
 
@@ -110,6 +111,7 @@ public class Client
     public void shutdown()
     {
         keepClusterAlive.interrupt();
+        mediaDriver.close();
         isActive = false;
     }
 }

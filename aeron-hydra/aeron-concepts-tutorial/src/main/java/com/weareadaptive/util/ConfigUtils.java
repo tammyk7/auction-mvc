@@ -47,7 +47,7 @@ public class ConfigUtils
             clusterAddresses = System.getProperty("cluster.addresses", "localhost");
         }
 
-        if (clusterAddresses.equalsIgnoreCase("localhost"))
+        if ("localhost".equalsIgnoreCase(clusterAddresses))
         {
             final ArrayList<String> allAddresses = new ArrayList<>();
             for (int i = 0; i < maxNodes; i++)
@@ -111,7 +111,6 @@ public class ConfigUtils
             if (SystemEpochClock.INSTANCE.time() > endTime)
             {
                 LOGGER.error("cannot resolve name {}, exiting", nodeName);
-                System.exit(-1);
             }
 
             try

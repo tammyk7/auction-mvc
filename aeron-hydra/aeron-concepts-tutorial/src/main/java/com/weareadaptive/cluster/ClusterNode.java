@@ -71,7 +71,7 @@ public class ClusterNode
         clusterConfig.aeronArchiveContext().aeronDirectoryName(aeronDirName);
         clusterConfig.consensusModuleContext().egressChannel(egressChannel());
         //This may need tuning for your environment.
-        clusterConfig.consensusModuleContext().leaderHeartbeatTimeoutNs(TimeUnit.SECONDS.toNanos(10));
+        clusterConfig.consensusModuleContext().leaderHeartbeatTimeoutNs(TimeUnit.SECONDS.toNanos(1));
 
         awaitDnsResolution(hostAddresses, nodeId);
 

@@ -122,13 +122,12 @@ public class ClusterService implements ClusteredService
              *  Because our snapshot is a stream of messages written to a Publication
              *  We use the Image.poll method for extracting data from the snapshot.
              */
-            final int fragmentsPolled = snapshotImage.poll(
+            snapshotImage.poll(
                 (bufferFragment, offset, length, header) -> // (2)
                 {
                     messagesReceived = bufferFragment.getInt(offset);
                 },
                 Integer.MAX_VALUE);
-            break;
         }
 
         LOGGER.info("Cluster has restored snapshot | Messages Received: " + messagesReceived);

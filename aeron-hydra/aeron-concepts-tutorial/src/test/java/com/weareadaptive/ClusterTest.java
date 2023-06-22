@@ -1,37 +1,41 @@
 package com.weareadaptive;
 
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class ClusterTest
 {
     Deployment deployment;
 
     @BeforeEach
-    void startup() {
+    void startup()
+    {
         deployment = new Deployment();
     }
 
     @AfterEach
-    void teardown() {
+    void teardown()
+    {
         deployment.shutdownCluster();
     }
 
     @Test
     @DisplayName("A single node cluster has started")
-    void singleNodeClusterStart() throws InterruptedException {
+    void singleNodeClusterStart() throws InterruptedException
+    {
         deployment.startSingleNodeCluster();
         deployment.getNodes().forEach((id, node) -> assertTrue(node.isActive()));
     }
 
     @Test
     @DisplayName("A single node cluster has started and gracefully shutdown")
-    void singleNodeClusterStartThenStop() throws InterruptedException {
+    void singleNodeClusterStartThenStop() throws InterruptedException
+    {
         deployment.startSingleNodeCluster();
         deployment.getNodes().forEach((id, node) -> assertTrue(node.isActive()));
         deployment.shutdownCluster();
@@ -40,14 +44,16 @@ public class ClusterTest
 
     @Test
     @DisplayName("A cluster of 3 nodes has started")
-    void clusterStart() throws InterruptedException {
+    void clusterStart() throws InterruptedException
+    {
         deployment.startCluster();
         deployment.getNodes().forEach((id, node) -> assertTrue(node.isActive()));
     }
 
     @Test
     @DisplayName("A cluster of 3 nodes has started and gracefully shutdown")
-    void clusterStartThenStop() throws InterruptedException {
+    void clusterStartThenStop() throws InterruptedException
+    {
         deployment.startCluster();
         deployment.getNodes().forEach((id, node) -> assertTrue(node.isActive()));
         deployment.shutdownCluster();
@@ -56,9 +62,10 @@ public class ClusterTest
 
     @Test
     @DisplayName("A leadership election results in a new node being elected")
-    void clusterLeadershipElection() throws InterruptedException {
+    void clusterLeadershipElection() throws InterruptedException
+    {
         clusterStart();
-        boolean newLeader = deployment.initiateLeadershipElection();
+        final boolean newLeader = deployment.initiateLeadershipElection();
         assertTrue(newLeader);
     }
 }
