@@ -7,9 +7,9 @@ public class Main
     public static void main(String[] args)
     {
         final Random random = new Random();
-        final Publisher publisher = new Publisher("com.example.streaming_apis.Publisher");
-        final Subscriber subscriberA = new Subscriber("com.example.streaming_apis.Subscriber A");
-        final Subscriber subscriberB = new Subscriber("com.example.streaming_apis.Subscriber B");
+        final Publisher publisher = new Publisher("Publisher");
+        final Subscriber subscriberA = new Subscriber("Subscriber A");
+        final Subscriber subscriberB = new Subscriber("Subscriber B");
 
         publisher.subscribe(subscriberA);
         publisher.subscribe(subscriberB);
