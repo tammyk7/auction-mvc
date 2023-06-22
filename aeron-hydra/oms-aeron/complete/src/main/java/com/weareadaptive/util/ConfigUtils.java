@@ -13,6 +13,9 @@ import java.util.List;
 
 import static java.lang.Integer.parseInt;
 
+/**
+ * Cluster Config Utilities
+ */
 public class ConfigUtils
 {
     private static final Logger LOGGER = LoggerFactory.getLogger(ConfigUtils.class);
@@ -32,6 +35,10 @@ public class ConfigUtils
         return clusterAddresses;
     }
 
+    /**
+     * @param maxNodes maximum cluster nodes
+     * @return cluster addresses
+     */
     public static String getMultiNodeClusterAddresses(final int maxNodes)
     {
         String clusterAddresses = System.getenv("CLUSTER_ADDRESSES");
@@ -42,7 +49,7 @@ public class ConfigUtils
 
         if (clusterAddresses.equalsIgnoreCase("localhost"))
         {
-            ArrayList<String> allAddresses = new ArrayList<>();
+            final ArrayList<String> allAddresses = new ArrayList<>();
             for (int i = 0; i < maxNodes; i++)
             {
                 allAddresses.add(clusterAddresses);
@@ -153,19 +160,28 @@ public class ConfigUtils
 
     /**
      * Read the cluster addresses, port and port offsets to return ingress endpoints
+     * @param maxNodes maximum cluster nodes
      * @return Ingress endpoints
      */
-    public static String ingressEndpoints(int maxNodes) {
+    public static String ingressEndpoints(final int maxNodes)
+    {
         return ClusterConfig.ingressEndpoints(
-                Arrays.asList(maxNodes != 1 ? getMultiNodeClusterAddresses(maxNodes).split(",") : getClusterAddresses().split(",")),
+                Arrays.asList(
+                    maxNodes != 1 ?
+                        getMultiNodeClusterAddresses(maxNodes).split(",") : getClusterAddresses().split(",")),
                 getBasePort(),
                 ClusterConfig.CLIENT_FACING_PORT_OFFSET
         );
     }
 
-    public static String egressChannel() {
+    /**
+     * @return egress channel
+     */
+    public static String egressChannel()
+    {
         String clusterAddresses = System.getenv("EGRESS_CHANNEL");
-        if (null == clusterAddresses || clusterAddresses.isEmpty()) {
+        if (null == clusterAddresses || clusterAddresses.isEmpty())
+        {
             clusterAddresses = System.getProperty("EGRESS_CHANNEL", "aeron:udp?endpoint=localhost:0");
         }
         return clusterAddresses;

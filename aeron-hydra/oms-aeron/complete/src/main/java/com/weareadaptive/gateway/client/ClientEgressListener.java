@@ -15,11 +15,14 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 
+/**
+ * Listener logic for Egress messages from the cluster
+ */
 public class ClientEgressListener implements EgressListener
 {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ClientEgressListener.class);
-    HashMap<Long, ServerWebSocket> WSSessions = new HashMap<>();
+    HashMap<Long, ServerWebSocket> wsSessions = new HashMap<>();
     private int currentLeader = -1;
 
     /**
@@ -28,26 +31,46 @@ public class ClientEgressListener implements EgressListener
      *      - Route to logic based on command
      */
     @Override
-    public void onMessage(final long clusterSessionId, final long timestamp, final DirectBuffer buffer, final int offset, final int length, final Header header)
+    public void onMessage(
+        final long clusterSessionId,
+        final long timestamp,
+        final DirectBuffer buffer,
+        final int offset,
+        final int length,
+        final Header header
+    )
     {
-        byte command = buffer.getByte(offset + BufferOffsets.COMMAND_OFFSET);
-        long correlation = buffer.getLong(offset + BufferOffsets.CORRELATION_OFFSET);
-        switch(command)
+        final byte command = buffer.getByte(offset + BufferOffsets.COMMAND_OFFSET);
+        final long correlation = buffer.getLong(offset + BufferOffsets.CORRELATION_OFFSET);
+        switch (command)
         {
-            case 1 -> PlaceOrderListener(correlation, buffer, offset);
-            case 2 -> CancelOrderListener(correlation, buffer, offset);
-            case 3 -> ClearOrderbookListener(correlation, buffer, offset);
-            case 4 -> ResetOrderbookListener(correlation, buffer, offset);
+            case 1 -> placeOrderListener(correlation, buffer, offset);
+            case 2 -> cancelOrderListener(correlation, buffer, offset);
+            case 3 -> clearOrderbookListener(correlation, buffer, offset);
+            case 4 -> resetOrderbookListener(correlation, buffer, offset);
         }
     }
 
     @Override
-    public void onSessionEvent(long correlationId, long clusterSessionId, long leadershipTermId, int leaderMemberId, EventCode code, String detail)
+    public void onSessionEvent(
+        final long correlationId,
+        final long clusterSessionId,
+        final long leadershipTermId,
+        final int leaderMemberId,
+        final EventCode code,
+        final String detail
+    )
     {
     }
 
     @Override
-    public void onNewLeader(long clusterSessionId, long leadershipTermId, int leaderMemberId, String ingressEndpoints) {
+    public void onNewLeader(
+        final long clusterSessionId,
+        final long leadershipTermId,
+        final int leaderMemberId,
+        final String ingressEndpoints
+    )
+    {
         LOGGER.info("Cluster node " + leaderMemberId + " is now Leader, previous Leader: " + currentLeader);
         currentLeader = leaderMemberId;
     }
@@ -57,16 +80,23 @@ public class ClientEgressListener implements EgressListener
      *      - Decode buffer
      *      - Encode response into JSON
      *      - Send response to correlation WS
+     * @param correlation - Message correlation ID
+     * @param buffer - Message buffer
+     * @param offset - Message buffer offset
      */
-    private void PlaceOrderListener(final long correlation, final DirectBuffer buffer, final int offset)
+    private void placeOrderListener(
+        final long correlation,
+        final DirectBuffer buffer,
+        final int offset
+    )
     {
-        ExecutionResult result = BufferOffsets.E_PO_Decoder(buffer, offset);
+        final ExecutionResult result = BufferOffsets.E_PO_Decoder(buffer, offset);
         LOGGER.info("Egress-" + correlation + " | OrderID: " + result.getOrderId() + " Status: " + result.getStatus());
 
-        JsonObject orderResponse = new JsonObject();
+        final JsonObject orderResponse = new JsonObject();
         orderResponse.put("OrderId", result.getOrderId());
         orderResponse.put("Status", result.getStatus());
-        WSSessions.get(correlation).writeFinalTextFrame(orderResponse.encode());
+        wsSessions.get(correlation).writeFinalTextFrame(orderResponse.encode());
     }
 
     /**
@@ -74,16 +104,23 @@ public class ClientEgressListener implements EgressListener
      *      - Decode buffer
      *      - Encode response into JSON
      *      - Send response to correlation WS
+     * @param correlation - Message correlation ID
+     * @param buffer - Message buffer
+     * @param offset - Message buffer offset
      */
-    private void CancelOrderListener(final long correlation, final DirectBuffer buffer, final int offset)
+    private void cancelOrderListener(
+        final long correlation,
+        final DirectBuffer buffer,
+        final int offset
+    )
     {
-        ExecutionResult result = BufferOffsets.E_CO_Decoder(buffer, offset);
+        final ExecutionResult result = BufferOffsets.E_CO_Decoder(buffer, offset);
         LOGGER.info("Egress-" + correlation + " | OrderID: " + result.getOrderId() + " Status: " + result.getStatus());
 
-        JsonObject orderResponse = new JsonObject();
+        final JsonObject orderResponse = new JsonObject();
         orderResponse.put("OrderId", result.getOrderId());
         orderResponse.put("Status", result.getStatus());
-        WSSessions.get(correlation).writeFinalTextFrame(orderResponse.encode());
+        wsSessions.get(correlation).writeFinalTextFrame(orderResponse.encode());
     }
 
     /**
@@ -91,14 +128,21 @@ public class ClientEgressListener implements EgressListener
      *      - Decode buffer
      *      - Encode response into JSON
      *      - Send response to correlation WS
+     * @param correlation - Message correlation ID
+     * @param buffer - Message buffer
+     * @param offset - Message buffer offset
      */
-    private void ClearOrderbookListener(final long correlation, final DirectBuffer buffer, final int offset)
+    private void clearOrderbookListener(
+        final long correlation,
+        final DirectBuffer buffer,
+        final int offset
+    )
     {
         LOGGER.info("Correlation ID: " + correlation);
 
-        JsonObject response = new JsonObject();
+        final JsonObject response = new JsonObject();
         response.put("Status", "SUCCESS");
-        WSSessions.get(correlation).writeFinalTextFrame(response.encode());
+        wsSessions.get(correlation).writeFinalTextFrame(response.encode());
     }
 
     /**
@@ -106,40 +150,56 @@ public class ClientEgressListener implements EgressListener
      *      - Decode buffer
      *      - Encode response into JSON
      *      - Send response to correlation WS
+     * @param correlation - Message correlation ID
+     * @param buffer - Message buffer
+     * @param offset - Message buffer offset
      */
-    private void ResetOrderbookListener(final long correlation, final DirectBuffer buffer, final int offset)
+    private void resetOrderbookListener(
+        final long correlation,
+        final DirectBuffer buffer,
+        final int offset
+    )
     {
         LOGGER.info("Correlation ID: " + correlation);
 
-        JsonObject response = new JsonObject();
+        final JsonObject response = new JsonObject();
         response.put("Status", "SUCCESS");
-        WSSessions.get(correlation).writeFinalTextFrame(response.encode());
+        wsSessions.get(correlation).writeFinalTextFrame(response.encode());
     }
 
     /**
      * Add WS session to correlation key hashmap for returning response after receiving egress
+     * @param correlation - Message correlation ID
+     * @param ws - Web socket session
      */
-    public void addWSSession(final long correlation, final ServerWebSocket WS)
+    public void addWSSession(
+        final long correlation,
+        final ServerWebSocket ws
+    )
     {
-        WSSessions.put(correlation, WS);
+        wsSessions.put(correlation, ws);
     }
 
     /**
      * Remove WS session from hashmap if no longer connected
+     * @param ws - Web socket session
      */
-    public void removeWSSessions(final ServerWebSocket WS)
+    public void removeWSSessions(final ServerWebSocket ws)
     {
-        Iterator<Map.Entry<Long, ServerWebSocket>> iterator = WSSessions.entrySet().iterator();
+        final Iterator<Map.Entry<Long, ServerWebSocket>> iterator = wsSessions.entrySet().iterator();
         while (iterator.hasNext())
         {
-            Map.Entry<Long, ServerWebSocket> entry = iterator.next();
-            if (WS.equals(entry.getValue()))
+            final Map.Entry<Long, ServerWebSocket> entry = iterator.next();
+            if (ws.equals(entry.getValue()))
             {
                 iterator.remove();
             }
         }
     }
 
+    /**
+     * @return current cluster leader ID
+     */
     public int getCurrentLeader()
     {
         return this.currentLeader;

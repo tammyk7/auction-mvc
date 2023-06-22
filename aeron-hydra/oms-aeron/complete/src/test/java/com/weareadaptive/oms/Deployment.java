@@ -153,7 +153,7 @@ public class Deployment {
         gateway = new Gateway();
 
         gatewayThread = new Thread(() ->
-                gateway.startAeronClient(3)
+                gateway.startGateway(3)
         );
 
         gatewayThread.start();

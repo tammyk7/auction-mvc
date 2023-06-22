@@ -1,11 +1,8 @@
 package com.weareadaptive.cluster;
 
-import io.aeron.Aeron;
 import io.aeron.CommonContext;
 import io.aeron.cluster.ClusteredMediaDriver;
-import io.aeron.cluster.ConsensusModule;
 import io.aeron.cluster.service.ClusteredServiceContainer;
-import io.aeron.driver.MediaDriver;
 import io.aeron.samples.cluster.ClusterConfig;
 import org.agrona.CloseHelper;
 import org.agrona.concurrent.ShutdownSignalBarrier;
@@ -17,8 +14,10 @@ import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 import static com.weareadaptive.util.ConfigUtils.*;
-import static org.junit.jupiter.api.Assertions.assertFalse;
 
+/**
+ * Cluster Node Start and Config
+ */
 public class ClusterNode
 {
     private static final Logger LOGGER = LoggerFactory.getLogger(ClusterNode.class);
@@ -30,7 +29,13 @@ public class ClusterNode
 
     ShutdownSignalBarrier barrier = new ShutdownSignalBarrier();
 
-    public void startNode(final int node, final int maxNodes,final boolean test)
+    /**
+     * Method to start node
+     * @param node nodeID
+     * @param maxNodes maxiumum total cluster nodes
+     * @param test debug/testing bool
+     */
+    public void startNode(final int node, final int maxNodes, final boolean test)
     {
         LOGGER.info("Starting Cluster Node...");
         barrier = new ShutdownSignalBarrier();
@@ -49,11 +54,11 @@ public class ClusterNode
 
         final List<String> hostAddresses = List.of(hosts.split(","));
         final ClusterConfig clusterConfig = ClusterConfig.create(
-                nodeId,
-                hostAddresses,
-                hostAddresses,
-                portBase,
-                clusterService
+            nodeId,
+            hostAddresses,
+            hostAddresses,
+            portBase,
+            clusterService
         );
         clusterConfig.consensusModuleContext().ingressChannel("aeron:udp");
 
@@ -71,12 +76,12 @@ public class ClusterNode
         awaitDnsResolution(hostAddresses, nodeId);
 
         try (
-                ClusteredMediaDriver clusteredMediaDriver = ClusteredMediaDriver.launch(
-                        clusterConfig.mediaDriverContext(),
-                        clusterConfig.archiveContext(),
-                        clusterConfig.consensusModuleContext());
-                ClusteredServiceContainer clusteredServiceContainer = ClusteredServiceContainer.launch(
-                        clusterConfig.clusteredServiceContext()))
+            ClusteredMediaDriver clusteredMediaDriver = ClusteredMediaDriver.launch(
+                clusterConfig.mediaDriverContext(),
+                clusterConfig.archiveContext(),
+                clusterConfig.consensusModuleContext());
+            ClusteredServiceContainer clusteredServiceContainer = ClusteredServiceContainer.launch(
+                clusterConfig.clusteredServiceContext()))
         {
             this.clusteredServiceContainer = clusteredServiceContainer;
             this.clusteredMediaDriver = clusteredMediaDriver;
@@ -93,21 +98,34 @@ public class ClusterNode
         }
     }
 
+    /**
+     * @return active status of node
+     */
     public boolean isActive()
     {
         return this.active;
     }
 
-    public void setActive(boolean active)
+    /**
+     * set active state of node
+     * @param active node active status boolean
+     */
+    public void setActive(final boolean active)
     {
         this.active = active;
     }
 
+    /**
+     * @return shutdown barrier for graceful node shutdown
+     */
     public ShutdownSignalBarrier getBarrier()
     {
         return barrier;
     }
 
+    /**
+     * @return current leader nodeID
+     */
     public int getLeaderId()
     {
         return clusterService.getCurrentLeader();

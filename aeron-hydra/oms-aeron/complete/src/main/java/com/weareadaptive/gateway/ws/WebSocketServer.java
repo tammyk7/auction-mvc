@@ -7,13 +7,25 @@ import io.vertx.core.AbstractVerticle;
 import io.vertx.core.http.ServerWebSocket;
 import io.vertx.core.json.JsonObject;
 
+/**
+ * Gateway Websocket Server
+ */
 public class WebSocketServer extends AbstractVerticle
 {
 
     ClientIngressSender clientIngressSender;
     ClientEgressListener clientEgressListener;
 
-    public WebSocketServer(final ClientIngressSender clientIngressSender, final ClientEgressListener clientEgressListener) {
+    /**
+     * Initialise with Ingress Sender and Egress Listener
+     * @param clientIngressSender - Sending Ingress Messages to Cluster
+     * @param clientEgressListener - Listening Egress Messages to Cluster
+     */
+    public WebSocketServer(
+        final ClientIngressSender clientIngressSender,
+        final ClientEgressListener clientEgressListener
+    )
+    {
         this.clientIngressSender = clientIngressSender;
         this.clientEgressListener = clientEgressListener;
     }
@@ -24,7 +36,7 @@ public class WebSocketServer extends AbstractVerticle
     public void start()
     {
         vertx.createHttpServer()
-                .webSocketHandler(this::WSHandler)
+                .webSocketHandler(this::wsHandler)
                 .listen(8080);
     }
 
@@ -41,20 +53,22 @@ public class WebSocketServer extends AbstractVerticle
      *              "side": "BID"
      *          }
      *      }
+     * @param ws - websocket
      */
-    private void WSHandler(ServerWebSocket ws)
+    private void wsHandler(final ServerWebSocket ws)
     {
         ws.handler(buffer ->
         {
-            JsonObject json = buffer.toJsonObject();
-            String command = json.getString("command");
-            JsonObject payload = json.getJsonObject("payload");
-            clientEgressListener.addWSSession(correlation,ws);
-            switch (command) {
-                case "place" -> WSPlaceOrder(payload);
-                case "cancel" -> WSCancelOrder(payload);
-                case "clear" -> WSClearOrderbook();
-                case "reset" -> WSResetOrderbook();
+            final JsonObject json = buffer.toJsonObject();
+            final String command = json.getString("command");
+            final JsonObject payload = json.getJsonObject("payload");
+            clientEgressListener.addWSSession(correlation, ws);
+            switch (command)
+            {
+                case "place" -> wsPlaceOrder(payload);
+                case "cancel" -> wsCancelOrder(payload);
+                case "clear" -> wsClearOrderbook();
+                case "reset" -> wsResetOrderbook();
             }
             correlation++;
         });
@@ -67,7 +81,6 @@ public class WebSocketServer extends AbstractVerticle
 
     /**
      * * Handle Place Order request into Cluster, return status response to client
-     *
      *      - e.g: JSON payload request
      *      {
      *          "command": "place"
@@ -78,24 +91,23 @@ public class WebSocketServer extends AbstractVerticle
      *              "side": "BID"
      *          }
      *      }
-     *
      *      - e.g: JSON response (Use WS handler in ClientEgressListener)
      *      {
      *          "orderId": 1
      *          "status": "FILLED"
      *      }
+     * @param payload - JSON payload
      */
-    private void WSPlaceOrder(JsonObject payload)
+    private void wsPlaceOrder(final JsonObject payload)
     {
-            Double price = payload.getDouble("price");
-            long size = payload.getLong("size");
-            Side side = payload.getString("side").equals("BID") ? Side.BID : Side.ASK;
-            clientIngressSender.PlaceOrder(correlation, price, size, side);
+        final Double price = payload.getDouble("price");
+        final long size = payload.getLong("size");
+        final Side side = payload.getString("side").equals("BID") ? Side.BID : Side.ASK;
+        clientIngressSender.placeOrder(correlation, price, size, side);
     }
 
     /**
      * * Handle request into Cluster, return ExecutionResult response to client
-     *
      *      - e.g: JSON payload request
      *      {
      *          "command": "cancel"
@@ -104,42 +116,40 @@ public class WebSocketServer extends AbstractVerticle
      *              "orderId": 1
      *          }
      *      }
-     *
      *      - e.g: JSON response (Use WS handler in ClientEgressListener)
      *      {
      *          "orderId": 1
      *          "status": "CANCELLED"
      *      }
+     * @param payload - JSON payload
      */
-    private void WSCancelOrder(JsonObject payload)
+    private void wsCancelOrder(final JsonObject payload)
     {
-            long orderId = payload.getLong("orderId");
-            clientIngressSender.CancelOrder(correlation, orderId);
+        final long orderId = payload.getLong("orderId");
+        clientIngressSender.cancelOrder(correlation, orderId);
     }
 
     /**
      * * Handle request into Cluster, return status response to client
-     *
      *      - e.g: JSON response (Use WS handler in ClientEgressListener)
      *      {
      *          "status": "SUCCESS"
      *      }
      */
-    private void WSClearOrderbook()
+    private void wsClearOrderbook()
     {
-        clientIngressSender.ClearOrderbook(correlation);
+        clientIngressSender.clearOrderbook(correlation);
     }
 
     /**
      * * Handle request into Cluster, return status response to client
-     *
      *      - e.g: JSON response (Use WS handler in ClientEgressListener)
      *      {
      *          "status": "SUCCESS"
      *      }
      */
-    private void WSResetOrderbook()
+    private void wsResetOrderbook()
     {
-        clientIngressSender.ResetOrderbook(correlation);
+        clientIngressSender.resetOrderbook(correlation);
     }
 }

@@ -8,27 +8,36 @@ import org.slf4j.LoggerFactory;
 
 import java.nio.ByteBuffer;
 
-public class ClientIngressSender {
+/**
+ * Listener logic for Egress messages from the cluster
+ */
+public class ClientIngressSender
+{
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ClientIngressSender.class);
     AeronCluster aeronCluster;
-    public ClientIngressSender(AeronCluster aeronCluster)
+
+    /**
+     * Initialise class with aeronCluster
+     * @param aeronCluster - Cluster to offer ingress
+     */
+    public ClientIngressSender(final AeronCluster aeronCluster)
     {
         this.aeronCluster = aeronCluster;
 
         //Offer a simple 0 Echo to the cluster on client start
-        OfferEcho();
+        offerEcho();
     }
 
-    private void OfferEcho()
+    private void offerEcho()
     {
         //Encode 0 int into a buffer
-        MutableDirectBuffer msgBuffer = new UnsafeBuffer(ByteBuffer.allocateDirect(Integer.BYTES));
+        final MutableDirectBuffer msgBuffer = new UnsafeBuffer(ByteBuffer.allocateDirect(Integer.BYTES));
         msgBuffer.putInt(0, 0);
 
         //Offer buffer with offset and buffer length
-        while (aeronCluster.offer(msgBuffer, 0, Integer.BYTES) < 0);
+        while (aeronCluster.offer(msgBuffer, 0, Integer.BYTES) < 0) ;
 
-        LOGGER.info("Ingress Message sent to cluster | " +  0);
+        LOGGER.info("Ingress Message sent to cluster | " + 0);
     }
 }
