@@ -214,6 +214,51 @@ registers two subscribers in the publisher, and the publisher "publishes" a rand
 it several times.
 
 
-## REST --> TODO Gus/Jose
+## REST APIs
 
-## Websockets --> TODO Gus/Jose
+REST APIs (Representational State Transfer Application Programming Interfaces) are a crucial component in modern software development, enabling seamless communication and data exchange between different systems and applications. Designed around the principles of simplicity, scalability, and interoperability, REST APIs provide developers with a standardized way to interact with web services.
+
+### HTTP Protocol Foundation
+
+REST APIs use the HTTP protocol as a foundation, making them highly accessible and widely supported across various programming languages and platforms. They utilize HTTP methods, such as GET, POST, PUT, PATCH, and DELETE, to perform operations on resources identified by unique URLs, known as endpoints. These endpoints represent different functionalities or data entities within the API.
+
+### Key Functionality and Benefits
+
+Developers can leverage REST APIs to build applications that consume data from remote servers or expose their own services for others to consume. By sending requests to the API's endpoints, developers can retrieve data, create new resources, update existing ones, or delete them as needed. The API responds with HTTP status codes and data payloads, typically in formats like JSON or XML, allowing for efficient data transmission and interpretation.
+
+One of the key advantages of REST APIs is their stateless nature. Each request contains all the necessary information to process it, eliminating the need for the server to store any session-specific data. This characteristic contributes to scalability and simplifies the API design.
+
+### Documentation and Integration
+
+To facilitate developers' usage and adoption, REST APIs often include comprehensive documentation that outlines the available endpoints, their parameters, authentication requirements, and response structures. Additionally, many APIs provide software development kits (SDKs) or client libraries tailored to specific programming languages, easing the integration process and reducing implementation complexities.
+
+### Authentication and Security
+
+Authentication and authorization mechanisms play a vital role in securing REST APIs. Developers can employ techniques like API keys, OAuth, or JSON Web Tokens (JWT) to verify the identity of the clients and restrict access to sensitive resources.
+
+
+## WebSockets
+
+WebSockets are a communication protocol that enables real-time, bidirectional communication between a client and a server over a single, long-lived connection. Unlike REST APIs, which are request-response based, WebSockets provide a persistent connection that allows for continuous data exchange and instant updates.
+
+WebSockets are particularly useful for applications that require real-time updates, such as chat applications, collaborative tools, or real-time monitoring systems. They provide efficient and low-latency communication, allowing for instant data transmission between the client and the server.
+
+### REST vs WebSockets
+
+WebSockets and REST APIs serve different purposes and have distinct characteristics:
+
+- **Communication Pattern**: WebSockets enable real-time, bidirectional communication, while REST APIs follow a request-response pattern.
+
+- **Connection Persistence**: WebSockets maintain a persistent connection, allowing for continuous data exchange, while REST APIs are stateless and do not retain connections between requests.
+
+- **Data Transmission**: WebSockets use a binary-based message format, which is more compact and efficient for continuous data streams, while REST APIs typically use JSON or XML for data transmission.
+
+- **Use Cases**: WebSockets are suitable for applications that require real-time updates or frequent data exchanges, such as chat applications or collaborative tools. REST APIs are commonly used for building client-server interactions and accessing resources over HTTP.
+
+- **Scalability**: REST APIs can be easily scaled since each request is independent, whereas WebSockets require additional considerations to handle concurrent connections and manage server resources.
+
+- **Compatibility**: REST APIs are widely supported across different platforms and programming languages due to their adherence to HTTP standards. WebSockets support is not as ubiquitous, although it is increasingly available in modern web frameworks and libraries.
+
+Both WebSockets and REST APIs have their strengths and are suited for different use cases. Choosing between them depends on the specific requirements of your application, with WebSockets providing real-time capabilities and REST APIs offering simplicity and wide compatibility.
+
+
