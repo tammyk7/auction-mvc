@@ -2,6 +2,8 @@ package com.weareadaptive.client.clientLogic;
 
 import io.aeron.cluster.client.AeronCluster;
 import org.agrona.MutableDirectBuffer;
+import org.agrona.concurrent.IdleStrategy;
+import org.agrona.concurrent.SleepingIdleStrategy;
 import org.agrona.concurrent.UnsafeBuffer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -15,6 +17,7 @@ public class ClientIngressSender
 {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ClientIngressSender.class);
+    private final IdleStrategy idleStrategy = new SleepingIdleStrategy();
     AeronCluster aeronCluster;
 
     /**
@@ -36,7 +39,10 @@ public class ClientIngressSender
         msgBuffer.putInt(0, 0);
 
         //Offer buffer with offset and buffer length
-        while (aeronCluster.offer(msgBuffer, 0, Integer.BYTES) < 0) ;
+        while (aeronCluster.offer(msgBuffer, 0, Integer.BYTES) < 0)
+        {
+            idleStrategy.idle();
+        }
 
         LOGGER.info("Ingress Message sent to cluster | " + 0);
     }

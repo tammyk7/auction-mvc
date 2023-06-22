@@ -9,6 +9,8 @@ import io.aeron.cluster.service.ClusteredService;
 import io.aeron.logbuffer.Header;
 import org.agrona.DirectBuffer;
 import org.agrona.MutableDirectBuffer;
+import org.agrona.concurrent.IdleStrategy;
+import org.agrona.concurrent.SleepingIdleStrategy;
 import org.agrona.concurrent.UnsafeBuffer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -22,6 +24,7 @@ import java.util.concurrent.TimeUnit;
 public class ClusterService implements ClusteredService
 {
     private static final Logger LOGGER = LoggerFactory.getLogger(ClusteredService.class);
+    private final IdleStrategy idleStrategy = new SleepingIdleStrategy();
     private int messagesReceived = 0;
     private int currentLeader = -1;
 
@@ -81,7 +84,10 @@ public class ClusterService implements ClusteredService
         msgBuffer.putInt(0, 1);
 
         //Offer to client
-        while (session.offer(msgBuffer, 0, Integer.BYTES) < 0);
+        while (session.offer(msgBuffer, 0, Integer.BYTES) < 0)
+        {
+            idleStrategy.idle();
+        }
     }
 
     /**
@@ -110,9 +116,12 @@ public class ClusterService implements ClusteredService
      */
     public void restoreSnapshot(final Image snapshotImage)
     {
-        while (!snapshotImage.isEndOfStream())                                                       // (1)
+        while (!snapshotImage.isEndOfStream())
         {
-            //Because our snapshot is a stream of messages written to a Publication, we use the Image.poll method for extracting data from the snapshot.
+            /**
+             *  Because our snapshot is a stream of messages written to a Publication
+             *  We use the Image.poll method for extracting data from the snapshot.
+             */
             final int fragmentsPolled = snapshotImage.poll(
                 (bufferFragment, offset, length, header) -> // (2)
                 {
