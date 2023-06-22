@@ -1,0 +1,13 @@
+plugins {
+    id 'java'
+    id 'groovy'
+    id 'groovy-gradle-plugin'
+}
+
+repositories {
+    gradlePluginPortal {
+        content {
+            excludeGroupByRegex "com\\.weareadaptive.*"
+        }
+    }
+}

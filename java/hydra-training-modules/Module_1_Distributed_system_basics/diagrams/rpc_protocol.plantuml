@@ -1,0 +1,14 @@
+@startuml
+participant Client
+boundary ClientStub
+boundary ServerStub
+participant Server
+
+Client --> ClientStub: callFunction()
+ClientStub --> ServerStub: packMessageAndSend()
+ServerStub --> Server: unpackMessage()
+Server --> Server: executeRequest()
+Server --> ServerStub: sendResponse()
+ServerStub --> ClientStub: packResponseAndSend()
+ClientStub --> Client: unpackResponse()
+@enduml

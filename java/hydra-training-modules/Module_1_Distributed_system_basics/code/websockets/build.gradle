@@ -1,0 +1,22 @@
+import com.weareadaptive.hydraplatform.gradle.Dependencies
+import com.weareadaptive.hydraplatform.gradle.plugins.ConfigureJavaLibraryPlugin
+import com.weareadaptive.hydraplatform.gradle.plugins.ConfigurePmd
+
+apply plugin: ConfigureJavaLibraryPlugin
+apply plugin: ConfigurePmd
+
+dependencies {
+    implementation Dependencies.VERX_CORE()
+    implementation Dependencies.VERX_WEB()
+    implementation Dependencies.VERX_WEB_CLIENT()
+    implementation Dependencies.HYDRA_LOGGING_API()
+    implementation Dependencies.HYDRA_LOGGING_IMPL()
+    implementation Dependencies.HYDRA_LOGGING_SLF4J()
+    testImplementation Dependencies.VERX_JUNIT()
+    testImplementation Dependencies.JUNIT_API()
+    testImplementation Dependencies.JUNIT_ENGINE()
+}
+
+test {
+    useJUnitPlatform()
+}

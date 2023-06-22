@@ -1,0 +1,6 @@
+java adoptopenjdk-17.0.6+10
+python system
+shellcheck 0.9.0
+shfmt 3.6.0
+nodejs 18.16.0
+pnpm 7.33.1

@@ -1,0 +1,85 @@
+{
+  "allowedLicenses": [
+    {
+      "moduleLicense": "Apache License, Version 2.0"
+    },
+    {
+      "moduleLicense": "BSD Zero Clause License"
+    },
+    {
+      "moduleLicense": "BSD-style"
+    },
+    {
+      "moduleLicense": "Berkeley Software Distribution (BSD) License"
+    },
+    {
+      "moduleLicense": "Bouncy Castle Licence"
+    },
+    {
+      "moduleLicense": "COMMON DEVELOPMENT AND DISTRIBUTION LICENSE (CDDL) Version 1.0"
+    },
+    {
+      "moduleLicense": "Creative Commons Legal Code"
+    },
+    {
+      "moduleLicense": "Creative Commons Attribution 2.5 Generic"
+    },
+    {
+      "moduleLicense": "Eclipse Public License - v 1.0"
+    },
+    {
+      "moduleLicense": "Eclipse Public License - v 2.0"
+    },
+    {
+      "moduleLicense": "GNU GENERAL PUBLIC LICENSE, Version 2 + Classpath Exception"
+    },
+    {
+      "moduleLicense": "GNU LESSER GENERAL PUBLIC LICENSE, Version 2.1"
+    },
+    {
+      "moduleLicense": "GNU LESSER GENERAL PUBLIC LICENSE, Version 3"
+    },
+    {
+      "moduleLicense": "GNU Lesser General Public License v3.0"
+    },
+    {
+      "moduleLicense": "GNU Lesser General Public License"
+    },
+    {
+      "moduleLicense": "Indiana University Extreme! Lab Software License"
+    },
+    {
+      "moduleLicense": "MIT License"
+    },
+    {
+      "moduleLicense": "MPL 2.0 or EPL 1.0"
+    },
+    {
+      "moduleLicense": "Mozilla Public License Version 1.0"
+    },
+    {
+      "moduleLicense": "Mozilla Public License Version 1.1"
+    },
+    {
+      "moduleLicense": "Mozilla Public License Version 2.0"
+    },
+    {
+      "moduleLicense": "PUBLIC DOMAIN"
+    },
+    {
+      "moduleLicense": "The 2-Clause BSD License"
+    },
+    {
+      "moduleLicense": "The 3-Clause BSD License"
+    },
+    {
+      "moduleLicense": "The BSD License"
+    },
+    {
+      "moduleLicense": "The QuickFIX Software License, Version 1.0"
+    },
+    {
+      "moduleLicense": "WTFPL"
+    }
+  ]
+}

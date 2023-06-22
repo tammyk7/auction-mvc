@@ -1,0 +1,23 @@
+---
+default_stages:
+  - commit
+repos:
+  - repo: https://github.com/pre-commit/pre-commit-hooks.git
+    rev: v4.4.0
+    hooks:
+      - id: trailing-whitespace
+        files: \.(js|json|rb|md|py|sh|txt|yaml|yml)$
+      - id: check-case-conflict
+      - id: check-json
+      - id: check-toml
+      - id: end-of-file-fixer
+  - repo: https://github.com/jumanjihouse/pre-commit-hooks
+    rev: 3.0.0
+    hooks:
+      - id: shellcheck
+        exclude: "gradlew$"
+        additional_dependencies: []
+      - id: shfmt
+        exclude: "gradlew$"
+        args:
+          - "-w -i 2 -ci -bn -sr"

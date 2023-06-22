@@ -1,0 +1,48 @@
+pluginManagement {
+    plugins {
+        id 'com.github.ben-manes.versions' version "${pluginVersionBenManesVersions}"
+        id 'com.github.node-gradle.node' version "${pluginVersionNodeGradle}"
+        id 'com.gradle.enterprise' version "${pluginVersionEnterpriseGradle}"
+    }
+    repositories {
+        gradlePluginPortal {
+            content {
+                excludeGroupByRegex "com\\.weareadaptive.*"
+            }
+        }
+    }
+}
+
+plugins {
+    id "com.gradle.enterprise"
+}
+
+gradleEnterprise {
+    def buildScanUrl = System.getenv('GRADLE_ENTERPRISE_SERVER_URL') ?: System.getProperty('buildScanUrl')
+    if (buildScanUrl != null) {
+        server = buildScanUrl
+
+        buildScan {
+            capture {
+                taskInputFiles = true
+            }
+            uploadInBackground = false
+            publishAlways()
+        }
+    }
+}
+
+buildCache {
+    local {
+        directory = new File(rootDir, '.cache')
+        removeUnusedEntriesAfterDays = 30
+    }
+}
+
+rootProject.name = 'hydra-training-modules'
+
+include 'Module_1_Distributed_system_basics:code:grpc'
+include 'Module_1_Distributed_system_basics:code:rest'
+include 'Module_1_Distributed_system_basics:code:streaming_apis'
+include 'Module_1_Distributed_system_basics:code:udp'
+include 'Module_1_Distributed_system_basics:code:websockets'

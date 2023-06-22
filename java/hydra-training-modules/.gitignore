@@ -1,0 +1,25 @@
+# Ignore Gradle project-specific cache directory
+.cache/
+.gradle/
+
+# Ignore tooling dirs
+.direnv/
+
+# Ignore Gradle build output directory
+build
+.idea/
+out/
+
+# Do not ignore these files
+!.idea/externalDependencies.xml
+
+# Ignore psql history
+.history-database
+
+applied_upgrades.lock
+hydra-data
+aeron-stat*
+aeron-error*
+
+# Ignore error log files
+hs_err_pid*

@@ -1,0 +1,37 @@
+import com.weareadaptive.hydraplatform.gradle.Dependencies
+import com.weareadaptive.hydraplatform.gradle.plugins.ConfigureJavaLibraryPlugin
+import com.weareadaptive.hydraplatform.gradle.plugins.ConfigurePmd
+
+plugins {
+    id 'com.google.protobuf' version '0.9.1'
+}
+
+apply plugin: ConfigureJavaLibraryPlugin
+apply plugin: ConfigurePmd
+
+protobuf {
+    protoc {
+        artifact = "com.google.protobuf:protoc:3.22.3"
+    }
+    plugins {
+        grpc {
+            artifact = 'io.grpc:protoc-gen-grpc-java:1.56.0'
+        }
+    }
+    generateProtoTasks {
+        all()*.plugins {
+            grpc {}
+        }
+    }
+}
+
+dependencies {
+    runtimeOnly Dependencies.GRPC_NETTY_SHADED()
+    implementation Dependencies.GRPC_PROTOBUF()
+    implementation Dependencies.GRPC_STUB()
+    implementation Dependencies.HYDRA_LOGGING_SLF4J()
+    implementation Dependencies.HYDRA_LOGGING_API()
+    implementation Dependencies.HYDRA_LOGGING_IMPL()
+    compileOnly Dependencies.TOMCAT_ANNOTATIONS_API()
+
+}

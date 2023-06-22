@@ -1,0 +1,82 @@
+import com.weareadaptive.hydraplatform.gradle.ArtifactoryCredentials
+import com.weareadaptive.hydraplatform.gradle.Dependencies
+
+buildscript {
+    repositories {
+        mavenLocal()
+        gradlePluginPortal {
+            content {
+                excludeGroupByRegex "com\\.weareadaptive.*"
+            }
+        }
+        maven {
+            url 'https://weareadaptive.jfrog.io/artifactory/hydra-release/'
+            credentials {
+                def credentials = ArtifactoryCredentials.load(project)
+                username credentials.username
+                password credentials.password  // pragma: allowlist secret
+            }
+            content {
+                includeGroup "com.weareadaptive"
+            }
+        }
+    }
+    dependencies {
+        classpath Dependencies.HYDRA_CODE_GEN_PLUGIN()
+    }
+}
+
+plugins {
+    id 'idea'
+    id 'com.github.ben-manes.versions'
+}
+
+idea {
+    module {
+        excludeDirs += file('.cache')
+        excludeDirs += file('.direnv')
+    }
+}
+
+allprojects {
+
+    repositories {
+        mavenLocal()
+
+        mavenCentral {
+            content {
+                excludeGroupByRegex "com\\.weareadaptive.*"
+            }
+        }
+
+        maven {
+            url 'https://weareadaptive.jfrog.io/artifactory/hydra-tools/'
+            credentials {
+                def credentials = ArtifactoryCredentials.load(project)
+                username credentials.username
+                password credentials.password
+            }
+            content {
+                includeGroup "com.weareadaptive.tools"
+            }
+        }
+        maven {
+            url 'https://weareadaptive.jfrog.io/artifactory/hydra-release/'
+            credentials {
+                def credentials = ArtifactoryCredentials.load(project)
+                username credentials.username
+                password credentials.password
+            }
+            content {
+                includeGroup "com.weareadaptive"
+            }
+        }
+    }
+}
+
+defaultTasks 'build'
+
+tasks.named("dependencyUpdates").configure {
+    checkConstraints = true
+    gradleReleaseChannel = 'current'
+}
