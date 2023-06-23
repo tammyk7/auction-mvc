@@ -88,6 +88,9 @@ As discussed in [the prior section](#security-and-authentication), when consider
 data integrity, confidentiality, privacy, and non-repudiation which sometimes are important for
 business reasons and need to be considered.
 
+### RPC Code Sample
+Run the `com.weareadaptive.grpc.Main` class in folder `code/grpc`. 
+- This starts a thread for a server and a separate thread for a client that communicates a greet message.
 
 ## Message Passing in Distributed Systems
 
@@ -147,7 +150,8 @@ legitimate components.
 - It simply sends the data out without ensuring that it reaches its destination, or the order in which it is received.
 - This is in contrast to the [TCP (Transmission Control Protocol)](https://en.wikipedia.org/wiki/Transmission_Control_Protocol), which is connection-oriented and ensures that data is received by the destination before sending more data.
 
-To see that UDP packets are not received in any particular order, run the `Main` class
+### UDP Code Sample
+To see that UDP packets are not received in any particular order, run the `com.weareadaptive.udp.Main` class
 in folder `code/udp`. There is a `Sender` running in a thread, that sends many UDP packets in order,
 but the `Receiver` running in a different thread will likely receive them in wrong order, and throws
 and exception when this happens.
@@ -228,8 +232,8 @@ With this approach, there are two sides in each stream:
 
 Notice that there can be more than one publisher and subscriber implementing classes for the same stream.
 
-### Example Code
-Check the example code provided in folder `code/streaming_apis` by running the Main class. In this example, the Main class
+### Streaming API sample Code
+Check the example code provided in folder `code/streaming_apis` by running the `com.weareadaptive.streaming_apis.Main` class. In this example, the Main class
 registers two subscribers in the publisher, and the publisher "publishes" a random number of items by calling the
 `onNext` and `onComplete` when it finishes. There's a small random likelihood that the publisher will call `onError`, run
 it several times.
@@ -256,12 +260,21 @@ To facilitate developers' usage and adoption, REST APIs often include comprehens
 
 Authentication and authorization mechanisms play a vital role in securing REST APIs. Developers can employ techniques like API keys, OAuth, or JSON Web Tokens (JWT) to verify the identity of the clients and restrict access to sensitive resources.
 
+### REST Code Sample
+Run the `com.weareadaptive.rest.Main` class in folder `code/rest`.
+
+- The code sample uses a Vertx REST Server and client to communicate.
 
 ## WebSockets
 
 WebSockets are a communication protocol that enables real-time, bidirectional communication between a client and a server over a single, long-lived connection. Unlike REST APIs, which are request-response based, WebSockets provide a persistent connection that allows for continuous data exchange and instant updates.
 
 WebSockets are particularly useful for applications that require real-time updates, such as chat applications, collaborative tools, or real-time monitoring systems. They provide efficient and low-latency communication, allowing for instant data transmission between the client and the server.
+
+### WebSocket Code Sample
+Run the `com.weareadaptive.websockets.Main` class in folder `code/websockets`.
+
+- The code sample uses a Vertx WebSocket Server and client to communicate.
 
 ### REST vs WebSockets
 
