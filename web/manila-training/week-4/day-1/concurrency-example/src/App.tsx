@@ -1,6 +1,7 @@
-import { FC, Suspense, lazy } from 'react'
+import { FC, lazy, Suspense } from 'react'
 
 import './App.css'
+import Loading from './components/Loading'
 import FilmList from './components/FilmList'
 import { useSelectedFilmId } from './AppState'
 
@@ -10,23 +11,21 @@ const App: FC = (): JSX.Element => {
   const selectedFilmId = useSelectedFilmId()
 
   return (
-    <>
-      <div className="filmList-container">
-        <h1>Star Wars films:</h1>
-        <Suspense fallback={<h3>Loading films...</h3>}>
-          <FilmList />
-        </Suspense>
-      </div>
+    <div className="page">
+      <h1>Star Wars films:</h1>
+      <Suspense fallback={<Loading message="films" />}>
+        <FilmList />
+      </Suspense>
       {selectedFilmId && (
-        <div className="filmModal">
-          <div className="filmModal-content">
-            <Suspense fallback={<h3>Loading film data...</h3>}>
+        <div className="modal">
+          <div className="modal-content">
+            <Suspense fallback={<Loading message="film data" />}>
               <FilmModal />
             </Suspense>
           </div>
         </div>
       )}
-    </>
+    </div>
   )
 }
 

@@ -1,3 +1,31 @@
+nav {
+  border-bottom: 1px solid white;
+  padding: 15px;
+  font-size: 1.5em;
+}
+
+nav > ul {
+  padding: 0;
+  margin: 0 auto;
+  max-width: 50vw;
+  display: flex;
+  justify-content: space-around;
+  list-style: none;
+}
+
+a {
+  text-decoration: none;
+  color: lightgrey;
+}
+
+a:hover {
+  opacity: 50%;
+}
+
+p {
+  margin-bottom: 0;
+}
+
 h1 {
   font-size: 2.5em;
 }
@@ -6,26 +34,34 @@ h2 {
   margin-top: 0;
 }
 
-.filmList-container {
+.loading {
+  margin: 20px;
+  text-align: center;
+}
+
+.page {
   display: flex;
   align-items: center;
   flex-direction: column;
 }
 
-.filmList > div {
-  margin-top: 25px;
-  font-size: 1.2em;
+.list > h3 {
+  border: 1px solid white;
   padding: 10px 20px;
   border-radius: 5px;
   border: 1px solid white;
 }
 
-.filmList > div:hover {
+.list > h3:hover {
+  cursor: pointer;
   opacity: 60%;
   cursor: pointer;
 }
 
-.filmModal {
+.modal {
+  position: fixed;
+  z-index: 1;
+  left: 0;
   top: 0;
   left: 0;
   z-index: 1;
@@ -35,13 +71,15 @@ h2 {
   background-color: rgba(0, 0, 0, 0.4);
 }
 
-.filmModal-content {
+.modal-content {
   top: 50%;
   left: 50%;
   width: 600px;
   padding: 50px;
   display: flex;
   position: fixed;
+  min-width: 500px;
+  max-width: 750px;
   border-radius: 15px;
   flex-direction: column;
   border: 1px solid white;
@@ -60,6 +98,7 @@ h4 {
   border-radius: 5px;
   display: inline-block;
   border: 1px solid white;
+  margin: 20px auto 0 auto;
 }
 
 .closeModal:hover {

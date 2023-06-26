@@ -18,9 +18,18 @@ const FilmModal: FC = (): JSX.Element => {
   return (
     <>
       <h2>{title}</h2>
-      <h4>Released: {new Date(release_date).toDateString()}</h4>
-      <h4>Directed by: {director}</h4>
-      <h4>Produced by: {producer}</h4>
+      <p>
+        <strong>Released: </strong>
+        {release_date ? new Date(release_date).toDateString() : ''}
+      </p>
+      <p>
+        <strong>Directed by: </strong>
+        {director}
+      </p>
+      <p>
+        <strong>Produced by: </strong>
+        {producer}
+      </p>
       <p>{opening_crawl}</p>
       <div className="closeModal" onClick={() => setSelectedFilmId('')}>
         Close
