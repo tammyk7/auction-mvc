@@ -51,6 +51,18 @@ There are several [approaches to "total ordering"](https://aeroncookbook.com/dis
 - Log replication
 - Aeron Cluster
 
+## What is consensus?
+Consensus refers to the process by which a collection of nodes reaches a consistent state regarding a given value. A consensus algorithm would be the implementation of this process of achieving consensus.
+
+### Why do we need consensus?
+Consensus enables fault tolerance in distributed systems by ensuring that every node agrees on a common value or state, even in the presence of errors and failures. If a node goes down, you can be assured that another node is running with the same state prior to the crash. This potentially enables you to resume your application as normal or at the very least reduce system downtime.
+
+### What are some consensus algorithms that I can use?
+There are two widely used consensus algorithms for distributed systems, Paxos and Raft. However, we will only be discussing Raft as this relates specifically to Aeron and Hydra.
+
+### What is Raft?
+Raft was created to be a more clear and simple alternative for algorithms like Paxos. It divides nodes into leader, follower, and candidate roles and uses leader election and log replication to ensure consistency and fault tolerance.
+
 ## Event-driven, event-sourced, command-sourced and command-query responsibility segregation (CQRS) architecture
 
 An event is something that has happened in the system. When an event happens, it can trigger specific activities
