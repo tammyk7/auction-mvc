@@ -47,7 +47,31 @@ There are several [approaches to "total ordering"](https://aeroncookbook.com/dis
 - external ordered queues: an external service (Kafka, or a message broker) receives all the requests and orders them,
     placing them in a queue that is persisted.
 
-- Consensus algorithms (Raft)
+## Raft leader election
+In a distributed system, the leader node is responsible for managing replication and consistency. Raft is a consensus algorithm that provides a straightforward and easy-to-understand approach to leader election in distributed systems. It ensures that only one leader is elected at a time, and the leader is changed when the current leader fails.
+
+### Why would a leader node fail?
+Leader nodes can fail due to various reasons, such as network partition, hardware malfunction, or software failure. In such cases, the followers will not receive heartbeats from the leader, and they will initiate an election to select a new leader. This process ensures that only one leader is elected at a time, and the leader is changed when the current one fails.
+
+### What is the relationship between a leader and follower?
+A **heartbeat** is a message sent periodically by the current leader to its followers to indicate its continued presence and authority. This message prevents an election from being initiated and maintains the leader's position. The heartbeat message sent by the leader is an AppendEntries RPC— it includes the current term number, which is a monotonically increasing integer that is incremented with each election of a new leader. Each term lasts for a fixed duration, during which only one node can be in charge. It is worth noting that the term number of the leader affects the behavior of the follower:
+- If a follower node receives a heartbeat with a lower term number than its own, it rejects the leader's heartbeats and starts a new election.
+- If a follower node receives a heartbeat with a higher term number than its own, it updates its number and follows the new leader.
+
+### How does Raft elect a leader node?
+The steps involved in the process are simple and easy to follow, making Raft a popular choice for distributed systems. A visualization of this process can be [found here](https://thesecretlivesofdata.com/raft/).
+
+1. Initially, all nodes start as **followers**. Followers accept requests from other nodes and redirect them to the current leader.
+2. If a node does not receive a heartbeat from the leader within a certain period of time (which is randomly generated for each node), it initiates an **election**, and the node that initiated the election becomes a **candidate**. During an election, the candidate starts sending RequestVoteRPCs to its peers.
+    - If any follower node does not receive a heartbeat from the leader in that randomly generated period of time, it assumes that the leader has failed and initiates a new election— this called an *election timeout*.
+3. Peers vote for the candidate by sending **VoteRPCs** back. A VoteRPC is a message indicating support for a candidate. However, before granting its vote, a follower checks that the candidate's log is at least as up-to-date as its own log. If the candidate's log is missing entries that the follower has already committed, the follower rejects the vote request.
+4. When a candidate receives votes from the majority of the nodes, it becomes the node responsible for managing replication and consistency in the system. This node is referred to as the **leader**.
+
+### How does a leader node update its followers of new messages?
+The leader commits log entries— this that the entries are made permanent and cannot be lost in the event of a failure. Once these entries are committed, the leader notifies the followers of them. This ensures that the followers will eventually have the same state as the leader.
+
+The followers then apply the committed entries to their state machines. This means that they update their own state based on the entries that the leader has committed. By doing this, they ensure that they are in sync with the leader and the rest of the system. Once the followers have applied the committed entries, consensus is reached among the nodes.
+
 - Log replication
 - Aeron Cluster
 
