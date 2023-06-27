@@ -47,6 +47,19 @@ There are several [approaches to "total ordering"](https://aeroncookbook.com/dis
 - external ordered queues: an external service (Kafka, or a message broker) receives all the requests and orders them,
     placing them in a queue that is persisted.
 
+## What is consensus?
+Consensus refers to the process by which a collection of nodes reaches a consistent state regarding a given value. A consensus algorithm would be the implementation of this process of achieving consensus.
+
+### Why do we need consensus?
+Consensus enables fault tolerance in distributed systems by ensuring that every node agrees on a common value or state, even in the presence of errors and failures. If a node goes down, you can be assured that another node is running with the same state prior to the crash. This potentially enables you to resume your application as normal or at the very least reduce system downtime.
+
+### What are some consensus algorithms that I can use?
+There are two widely used consensus algorithms for distributed systems, Paxos and Raft. However, we will only be discussing Raft as this relates specifically to Aeron and Hydra.
+
+### What is Raft?
+Raft was created to be a more clear and simple alternative for algorithms like Paxos. It divides nodes into leader, follower, and candidate roles and uses leader election and log replication to ensure consistency and fault tolerance.
+
+
 ## Raft leader election
 In a distributed system, the leader node is responsible for managing replication and consistency. Raft is a consensus algorithm that provides a straightforward and easy-to-understand approach to leader election in distributed systems. It ensures that only one leader is elected at a time, and the leader is changed when the current leader fails.
 
@@ -72,8 +85,42 @@ The leader commits log entries— this that the entries are made permanent and c
 
 The followers then apply the committed entries to their state machines. This means that they update their own state based on the entries that the leader has committed. By doing this, they ensure that they are in sync with the leader and the rest of the system. Once the followers have applied the committed entries, consensus is reached among the nodes.
 
-- Log replication
-- 
+## Log replication
+### What is Raft Log Replication?
+- Raft log replication is the duplication of incoming commands to be applied to the state machines by the nodes on their local log.
+
+[//]: # (#### It's purpose?)
+- Replication of the logs happens primarily to ensure we keep the peers' state synchronized in a distributed system.
+
+### How does it happen?
+1. The client process sends the command and the leader accepts client requests. Each client request consists of a command to be executed by the replicated state machines in the cluster.
+2. The leader consensus module appends the command to the local log. In parallel, the consensus model forwards the commands to the follower nodes as AppendEntries messages to replicate in their local log.
+3. Only after it has received an acknowledgement of the replication by more than half of the nodes on their own local logs the request is the command then considered committed.
+4. The committed command is then handed off to the Replicated State Machine for processing(business logic).
+5. After processing, the Replicated State Machine then produces events which are then sent back to the client.
+
+
+
+### Safety Rules in Raft
+In order to ensure that the protocol runs efficiently and reduce the chances of failure or data loss, 
+***Raft guarantees each of these safety properties are enforced:***
+1. **Election safety:** at most one leader can be elected in a given term. 
+2. **Leader append-only:** a leader can only append new entries to its logs (it can neither overwrite nor delete entries). 
+3. **Log matching:** if two logs contain an entry with the same index and term, then the logs are identical in all entries up through the given index. 
+4. **Leader completeness:** if a log entry is committed in a given term then it will be present in the logs of the leaders since this term.
+5. **State machine safety:** if a server has applied a particular log entry to its state machine, then no other server may apply a different command for the same log.
+
+
+*The first four rules are guaranteed by the details of the algorithm described in the previous section. The State Machine Safety is guaranteed by a restriction on the election process.*
+
+
+**State machine safety**
+- This rule is ensured by a simple restriction: a candidate can't win an election unless its log contains all committed entries. In order to be elected, a candidate has to contact a majority of the cluster, and given the rules for logs to be committed, it means that every committed entry is going to be present on at least one of the servers the candidates contact.
+
+- Raft determines which of two logs (carried by two distinct servers) is more up-to-date by comparing the index term of the last entries in the logs. If the logs have a last entry with different terms, then the log with the later term is more up-to-date. If the logs end with the same term, then whichever log is longer is more up-to-date.
+
+- In Raft, the request from a candidate to a voter includes information about the candidate's log. If its own log is more up-to-date than the candidate's log, the voter denies its vote to the candidate. This implementation ensures the State Machine Safety rule
+
 ## Aeron Cluster
 
 Aeron Cluster, is one of the three components of Aeron available. It provides an implementation of Raft Consensus upon which highly available services can be built.
@@ -88,18 +135,6 @@ Aeron Cluster has the following capabilities:
 - allows 1 or more clustered services to be run, with support for inter-service sequenced messaging
 - reliable, sequenced timers
 - very high levels of performance
-
-## What is consensus?
-Consensus refers to the process by which a collection of nodes reaches a consistent state regarding a given value. A consensus algorithm would be the implementation of this process of achieving consensus.
-
-### Why do we need consensus?
-Consensus enables fault tolerance in distributed systems by ensuring that every node agrees on a common value or state, even in the presence of errors and failures. If a node goes down, you can be assured that another node is running with the same state prior to the crash. This potentially enables you to resume your application as normal or at the very least reduce system downtime.
-
-### What are some consensus algorithms that I can use?
-There are two widely used consensus algorithms for distributed systems, Paxos and Raft. However, we will only be discussing Raft as this relates specifically to Aeron and Hydra.
-
-### What is Raft?
-Raft was created to be a more clear and simple alternative for algorithms like Paxos. It divides nodes into leader, follower, and candidate roles and uses leader election and log replication to ensure consistency and fault tolerance.
 
 ## Event-driven, event-sourced, command-sourced and command-query responsibility segregation (CQRS) architecture
 
