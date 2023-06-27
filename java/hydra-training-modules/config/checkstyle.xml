@@ -167,18 +167,6 @@
         </module>
 
         <module name="Regexp">
-            <property name="format" value=".*log4j.*"/>
-            <property name="illegalPattern" value="true"/>
-            <property name="message"
-                      value="Please use the provided Logger class"/>
-        </module>
-        <module name="Regexp">
-            <property name="format" value=".*org.slf4j.Logger.*"/>
-            <property name="illegalPattern" value="true"/>
-            <property name="message"
-                      value="Please use the provided Logger class"/>
-        </module>
-        <module name="Regexp">
             <property name="format" value=".*System.out.*"/>
             <property name="illegalPattern" value="true"/>
             <property name="message"

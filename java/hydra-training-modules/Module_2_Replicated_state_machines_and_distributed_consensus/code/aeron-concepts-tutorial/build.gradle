@@ -1,0 +1,41 @@
+import com.weareadaptive.hydraplatform.gradle.Dependencies
+import com.weareadaptive.hydraplatform.gradle.plugins.ConfigureJavaLibraryPlugin
+import com.weareadaptive.hydraplatform.gradle.plugins.ConfigurePmd
+
+apply plugin: ConfigureJavaLibraryPlugin
+apply plugin: ConfigurePmd
+
+
+dependencies {
+    implementation Dependencies.AERON_ALL()
+    implementation Dependencies.SLF4J()
+    implementation Dependencies.LOGBACK()
+    implementation Dependencies.VERX_CORE()
+
+    testImplementation Dependencies.VERX_JUNIT()
+    testImplementation Dependencies.JUNIT_API()
+    testImplementation Dependencies.JUNIT_ENGINE()
+}
+
+tasks.jar {
+    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+    manifest {
+        attributes["Main-Class"] = "com.weareadaptive.cluster.ClusterMain"
+    }
+
+    // Include all runtime dependencies
+    from {
+        configurations.runtimeClasspath.collect { it.isDirectory() ? it : zipTree(it) }
+    }
+
+    // Exclude the META-INF directories of the dependencies, to avoid a merge conflict
+    exclude 'META-INF/*.RSA', 'META-INF/*.SF','META-INF/*.DSA'
+}
+
+tasks.withType(Test).configureEach {
+    jvmArgs '--add-opens', 'java.base/sun.nio.ch=ALL-UNNAMED'
+}
+
+test {
+    useJUnitPlatform()
+}

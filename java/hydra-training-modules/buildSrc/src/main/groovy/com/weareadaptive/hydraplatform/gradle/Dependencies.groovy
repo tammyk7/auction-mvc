@@ -12,6 +12,9 @@ class Dependencies {
         static final def GRPC = '1.56.0'
         static final def TOMCAT_ANNOTATIONS_API = '6.0.53'
         static final def VERTX= '4.4.3'
+        static final def AERON= '1.41.2'
+        static final def SLF4J= '2.0.7'
+        static final def LOGBACK= '1.4.7'
     }
 
     static final def HYDRA_CLUSTER_CORE() {
@@ -137,6 +140,18 @@ class Dependencies {
 
     static final def VERX_JUNIT() {
         return "io.vertx:vertx-junit5:${Versions.VERTX}"
+    }
+
+    static final def AERON_ALL() {
+        return "io.aeron:aeron-all:${Versions.AERON}"
+    }
+
+    static final def SLF4J() {
+        return "org.slf4j:slf4j-api:${Versions.SLF4J}"
+    }
+
+    static final def LOGBACK() {
+        return "ch.qos.logback:logback-classic:${Versions.LOGBACK}"
     }
 
 }
