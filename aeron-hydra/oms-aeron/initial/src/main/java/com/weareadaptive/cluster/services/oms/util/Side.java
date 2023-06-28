@@ -1,5 +1,6 @@
 package com.weareadaptive.cluster.services.oms.util;
 
-public enum Side {
-    BID,ASK
+public enum Side
+{
+    BID, ASK
 }

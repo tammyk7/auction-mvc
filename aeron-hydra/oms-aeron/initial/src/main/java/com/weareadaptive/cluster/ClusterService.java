@@ -3,7 +3,6 @@ package com.weareadaptive.cluster;
 import com.weareadaptive.cluster.services.OMSService;
 import io.aeron.ExclusivePublication;
 import io.aeron.Image;
-import io.aeron.cluster.client.AeronCluster;
 import io.aeron.cluster.codecs.CloseReason;
 import io.aeron.cluster.service.ClientSession;
 import io.aeron.cluster.service.Cluster;
@@ -18,18 +17,19 @@ import org.slf4j.LoggerFactory;
 import java.nio.ByteBuffer;
 import java.util.concurrent.TimeUnit;
 
-public class ClusterService implements ClusteredService {
+public class ClusterService implements ClusteredService
+{
     private static final Logger LOGGER = LoggerFactory.getLogger(ClusteredService.class);
     private OMSService omsService;
     private int currentLeader = -1;
 
     /**
      * * Logic executed on cluster start
-     *      - Register services containing business logic and state
-     *      - Restore state in business logic using snapshot
+     * - Register services containing business logic and state
+     * - Restore state in business logic using snapshot
      */
     @Override
-    public void onStart(Cluster cluster, Image snapshotImage)
+    public void onStart(final Cluster cluster, final Image snapshotImage)
     {
         registerOMSService();
         restoreSnapshot(snapshotImage);
@@ -39,7 +39,7 @@ public class ClusterService implements ClusteredService {
      * * When a cluster client has connected to the cluster
      */
     @Override
-    public void onSessionOpen(ClientSession session, long timestamp)
+    public void onSessionOpen(final ClientSession session, final long timestamp)
     {
         LOGGER.info("Client ID: " + session.id() + " Connected");
     }
@@ -48,7 +48,7 @@ public class ClusterService implements ClusteredService {
      * * When a cluster client has disconnected to the cluster
      */
     @Override
-    public void onSessionClose(ClientSession session, long timestamp, CloseReason closeReason)
+    public void onSessionClose(final ClientSession session, final long timestamp, final CloseReason closeReason)
     {
         LOGGER.info("Client ID: " + session.id() + " Disconnected");
     }
@@ -57,7 +57,9 @@ public class ClusterService implements ClusteredService {
      * * When the cluster has received Ingress from a cluster client
      */
     @Override
-    public void onSessionMessage(ClientSession session, long timestamp, DirectBuffer buffer, int offset, int length, Header header)
+    public void onSessionMessage(final ClientSession session, final long timestamp, final DirectBuffer buffer,
+                                 final int offset, final int length,
+                                 final Header header)
     {
         LOGGER.info("Client ID: " + session.id() + " Ingress");
 
@@ -65,34 +67,34 @@ public class ClusterService implements ClusteredService {
         LOGGER.info("Client ID: " + session.id() + " Msg: " + buffer.getInt(offset));
 
         //Encode a 1 int Echo to respond back to client
-        MutableDirectBuffer msgBuffer = new UnsafeBuffer(ByteBuffer.allocateDirect(Integer.BYTES));
+        final MutableDirectBuffer msgBuffer = new UnsafeBuffer(ByteBuffer.allocateDirect(Integer.BYTES));
         msgBuffer.putInt(0, 1);
 
         //Offer to client
-        while (session.offer(msgBuffer, 0, Integer.BYTES) < 0);
+        while (session.offer(msgBuffer, 0, Integer.BYTES) < 0) ;
     }
 
     /**
      * * Orderbook state should be snapshotted for restoring state on cluster start.
-     *      - Convert data into binary encodings
-     *      - Offer to snapshotPublication
+     * - Convert data into binary encodings
+     * - Offer to snapshotPublication
      */
     @Override
-    public void onTakeSnapshot(ExclusivePublication snapshotPublication)
+    public void onTakeSnapshot(final ExclusivePublication snapshotPublication)
     {
     }
 
     /**
      * * Orderbook state should be restored from snapshotImage on cluster start.
-     *      - Convert binary encodings into data
-     *      - Use data to restore Orderbook state
+     * - Convert binary encodings into data
+     * - Use data to restore Orderbook state
      */
-    public void restoreSnapshot(Image snapshotImage)
+    public void restoreSnapshot(final Image snapshotImage)
     {
     }
 
     @Override
-    public void onTimerEvent(long correlationId, long timestamp)
+    public void onTimerEvent(final long correlationId, final long timestamp)
     {
 
     }
@@ -101,7 +103,7 @@ public class ClusterService implements ClusteredService {
      * * When the cluster node changes role on election
      */
     @Override
-    public void onRoleChange(Cluster.Role newRole)
+    public void onRoleChange(final Cluster.Role newRole)
     {
         LOGGER.info("Cluster node is now: " + newRole);
     }
@@ -111,14 +113,14 @@ public class ClusterService implements ClusteredService {
      */
     @Override
     public void onNewLeadershipTermEvent(
-            long leadershipTermId,
-            long logPosition,
-            long timestamp,
-            long termBaseLogPosition,
-            int leaderMemberId,
-            int logSessionId,
-            TimeUnit timeUnit,
-            int appVersion)
+        final long leadershipTermId,
+        final long logPosition,
+        final long timestamp,
+        final long termBaseLogPosition,
+        final int leaderMemberId,
+        final int logSessionId,
+        final TimeUnit timeUnit,
+        final int appVersion)
     {
         LOGGER.info("Cluster node " + leaderMemberId + " is now Leader, previous Leader: " + currentLeader);
         currentLeader = leaderMemberId;
@@ -128,7 +130,7 @@ public class ClusterService implements ClusteredService {
      * * When the cluster node is terminating
      */
     @Override
-    public void onTerminate(Cluster cluster)
+    public void onTerminate(final Cluster cluster)
     {
         LOGGER.info("Cluster node is terminating");
     }
@@ -138,7 +140,8 @@ public class ClusterService implements ClusteredService {
         omsService = new OMSService();
     }
 
-    public int getCurrentLeader() {
+    public int getCurrentLeader()
+    {
         return this.currentLeader;
     }
 }

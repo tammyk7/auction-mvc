@@ -23,41 +23,51 @@ import static com.weareadaptive.util.ConfigUtils.ingressEndpoints;
 public class Gateway
 {
     private static final Logger LOGGER = LoggerFactory.getLogger(Gateway.class);
+    private static final IdleStrategy idleStrategy = new BusySpinIdleStrategy();
     private static ClientEgressListener clientEgressListener;
     private static ClientIngressSender clientIngressSender;
     private static WebSocketServer webSocketServer;
     private static Vertx vertx;
-    private static final IdleStrategy idleStrategy = new BusySpinIdleStrategy();
     private static Thread keepClusterAlive;
     private static boolean isActive;
     private int initLeader = -1;
 
-    public void startAeronClient(int maxNodes)
+    private static void startWSServer()
+    {
+        vertx = Vertx.vertx();
+        webSocketServer = new WebSocketServer(clientIngressSender, clientEgressListener);
+        vertx.deployVerticle(webSocketServer);
+        LOGGER.info("Websocket started...");
+    }
+
+    public void startGateway(final int maxNodes)
     {
         LOGGER.info("Starting Gateway...");
         clientEgressListener = new ClientEgressListener();
 
         MediaDriver mediaDriver = MediaDriver.launchEmbedded(new MediaDriver.Context()
-                .threadingMode(ThreadingMode.DEDICATED)
-                .dirDeleteOnStart(true)
-                .dirDeleteOnShutdown(true)
+            .threadingMode(ThreadingMode.DEDICATED)
+            .dirDeleteOnStart(true)
+            .dirDeleteOnShutdown(true)
         );
         try (
             AeronCluster aeronCluster = AeronCluster.connect(
-                    new AeronCluster.Context()
-                            .egressListener(clientEgressListener)
-                            .egressChannel(egressChannel())
-                            .aeronDirectoryName(mediaDriver.aeronDirectoryName())
-                            .ingressChannel("aeron:udp")
-                            .ingressEndpoints(ingressEndpoints(maxNodes))
-                            .messageTimeoutNs(TimeUnit.SECONDS.toNanos(5))
-                            .errorHandler(new ErrorHandler() {
-                                @Override
-                                public void onError(Throwable throwable) {
-                                    System.err.println(throwable);
-                                }
-                            })
-            );
+                new AeronCluster.Context()
+                    .egressListener(clientEgressListener)
+                    .egressChannel(egressChannel())
+                    .aeronDirectoryName(mediaDriver.aeronDirectoryName())
+                    .ingressChannel("aeron:udp")
+                    .ingressEndpoints(ingressEndpoints(maxNodes))
+                    .messageTimeoutNs(TimeUnit.SECONDS.toNanos(5))
+                    .errorHandler(new ErrorHandler()
+                    {
+                        @Override
+                        public void onError(final Throwable throwable)
+                        {
+                            System.err.println(throwable);
+                        }
+                    })
+            )
         )
         {
             clientIngressSender = new ClientIngressSender(aeronCluster);
@@ -74,30 +84,23 @@ public class Gateway
              *      - Receive egress
              */
             keepClusterAlive = new Thread(() ->
+            {
+                while (true)
                 {
-                    while (true) {
-                        aeronCluster.sendKeepAlive();
-                        LockSupport.parkNanos(TimeUnit.SECONDS.toNanos(1));
-                    }
+                    aeronCluster.sendKeepAlive();
+                    LockSupport.parkNanos(TimeUnit.SECONDS.toNanos(1));
                 }
+            }
             );
             keepClusterAlive.start();
 
-            while (isActive) {
+            while (isActive)
+            {
                 aeronCluster.pollEgress();
                 idleStrategy.idle();
             }
         }
     }
-
-    private static void startWSServer()
-    {
-        vertx = Vertx.vertx();
-        webSocketServer = new WebSocketServer(clientIngressSender,clientEgressListener);
-        vertx.deployVerticle(webSocketServer);
-        LOGGER.info("Websocket started...");
-    }
-
 
     public int getLeaderId()
     {

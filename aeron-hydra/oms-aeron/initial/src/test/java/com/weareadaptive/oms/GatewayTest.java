@@ -13,26 +13,23 @@ public class GatewayTest
     Deployment deployment;
 
     @BeforeEach
-    void startup()
-    {
+    void startup() {
         deployment = new Deployment();
     }
 
     @AfterEach
-    void teardown() throws InterruptedException
-    {
+    void teardown() throws InterruptedException {
         deployment.shutdownCluster();
         deployment.shutdownGateway();
     }
 
     @Test
     @DisplayName("A gateway is launched and connects to the cluster")
-    void gatewayConnects() throws InterruptedException
-    {
+    void gatewayConnects() throws InterruptedException {
         deployment.startCluster();
         deployment.getNodes().forEach((id, node) -> assertTrue(node.isActive()));
         deployment.startGateway();
-        assertEquals(deployment.getGateway().getLeaderId(), deployment.getLeaderId());
+        assertEquals(deployment.getGateway().getLeaderId(),deployment.getLeaderId());
     }
 
 }

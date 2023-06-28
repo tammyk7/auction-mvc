@@ -11,14 +11,17 @@ public class ClusterMain
 
     /**
      * The main method.
+     *
      * @param args command line args
      */
     public static void main(final String[] args)
     {
-        int nodeID = args.length > 0 ? Integer.parseInt(args[0]) : getClusterNode();
-        int maxNodes = args.length > 0 ? Integer.parseInt(args[1]) : 1;
-        boolean test = args.length > 0 ? Boolean.parseBoolean(args[2]) : false;
-        LOGGER.info("Attempting to start cluster node: [NodeID: " + nodeID + "] | [MaxNodes: " + maxNodes + "] | [Test: " + test + "]" );
+        final int nodeID = args.length > 0 ? Integer.parseInt(args[0]) : getClusterNode();
+        final int maxNodes = args.length > 0 ? Integer.parseInt(args[1]) : 1;
+        final boolean test = args.length > 0 && Boolean.parseBoolean(args[2]);
+        LOGGER.info(
+            "Attempting to start cluster node: [NodeID: " + nodeID + "] | [MaxNodes: " + maxNodes + "] | [Test: " +
+                test + "]");
         new ClusterNode().startNode(nodeID, maxNodes, test);
     }
 

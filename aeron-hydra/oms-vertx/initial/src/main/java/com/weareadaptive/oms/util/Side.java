@@ -1,5 +1,6 @@
 package com.weareadaptive.oms.util;
 
-public enum Side {
-    BID,ASK
+public enum Side
+{
+    BID, ASK
 }

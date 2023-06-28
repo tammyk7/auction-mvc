@@ -1,19 +1,23 @@
 package com.weareadaptive.oms.util;
 
-public class ExecutionResult {
-    long orderId;
-    Status status;
+public class ExecutionResult
+{
+    final long orderId;
+    final Status status;
 
-    public ExecutionResult(long orderId, Status status) {
+    public ExecutionResult(final long orderId, final Status status)
+    {
         this.orderId = orderId;
         this.status = status;
     }
 
-    public long getOrderId() {
+    public long getOrderId()
+    {
         return orderId;
     }
 
-    public Status getStatus() {
+    public Status getStatus()
+    {
         return status;
     }
 }

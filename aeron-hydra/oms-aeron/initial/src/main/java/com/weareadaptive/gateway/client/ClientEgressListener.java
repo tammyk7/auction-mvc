@@ -16,20 +16,27 @@ public class ClientEgressListener implements EgressListener
      * * Implement Egress routing logic
      */
     @Override
-    public void onMessage(long clusterSessionId, long timestamp, DirectBuffer buffer, int offset, int length, Header header)
+    public void onMessage(final long clusterSessionId, final long timestamp, final DirectBuffer buffer,
+                          final int offset, final int length,
+                          final Header header)
     {
         //Decode buffer to receive 1 int echo from cluster
         LOGGER.info("Cluster Egress: " + buffer.getInt(offset));
     }
 
     @Override
-    public void onSessionEvent(long correlationId, long clusterSessionId, long leadershipTermId, int leaderMemberId, EventCode code, String detail)
+    public void onSessionEvent(final long correlationId, final long clusterSessionId, final long leadershipTermId,
+                               final int leaderMemberId,
+                               final EventCode code, final String detail)
     {
-        EgressListener.super.onSessionEvent(correlationId, clusterSessionId, leadershipTermId, leaderMemberId, code, detail);
+        EgressListener.super.onSessionEvent(correlationId, clusterSessionId, leadershipTermId, leaderMemberId, code,
+            detail);
     }
 
     @Override
-    public void onNewLeader(long clusterSessionId, long leadershipTermId, int leaderMemberId, String ingressEndpoints) {
+    public void onNewLeader(final long clusterSessionId, final long leadershipTermId, final int leaderMemberId,
+                            final String ingressEndpoints)
+    {
         LOGGER.info("Cluster node " + leaderMemberId + " is now Leader, previous Leader: " + currentLeader);
         currentLeader = leaderMemberId;
     }

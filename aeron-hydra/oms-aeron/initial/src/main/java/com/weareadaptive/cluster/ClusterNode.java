@@ -26,7 +26,7 @@ public class ClusterNode
 
     ShutdownSignalBarrier barrier = new ShutdownSignalBarrier();
 
-    public void startNode(final int node, final int maxNodes,final boolean test)
+    public void startNode(final int node, final int maxNodes, final boolean test)
     {
         LOGGER.info("Starting Cluster Node...");
         barrier = new ShutdownSignalBarrier();
@@ -37,7 +37,8 @@ public class ClusterNode
         final String hosts = maxNodes == 1 ? getClusterAddresses() : getMultiNodeClusterAddresses(maxNodes);
 
         //This may need tuning for your environment.
-        final File baseDir = new File(System.getProperty("user.dir") + "/oms-aeron/complete" + "/aeronCluster/", "node" + nodeId);
+        final File baseDir =
+            new File(System.getProperty("user.dir") + "/oms-aeron/complete" + "/aeronCluster/", "node" + nodeId);
         final String aeronDirName = CommonContext.getAeronDirectoryName() + "-" + nodeId + "-driver";
 
         LOGGER.info("Base Dir: " + baseDir);
@@ -45,11 +46,11 @@ public class ClusterNode
 
         final List<String> hostAddresses = List.of(hosts.split(","));
         final ClusterConfig clusterConfig = ClusterConfig.create(
-                nodeId,
-                hostAddresses,
-                hostAddresses,
-                portBase,
-                clusterService
+            nodeId,
+            hostAddresses,
+            hostAddresses,
+            portBase,
+            clusterService
         );
         clusterConfig.consensusModuleContext().ingressChannel("aeron:udp");
 
@@ -67,12 +68,12 @@ public class ClusterNode
         awaitDnsResolution(hostAddresses, nodeId);
 
         try (
-                ClusteredMediaDriver clusteredMediaDriver = ClusteredMediaDriver.launch(
-                        clusterConfig.mediaDriverContext(),
-                        clusterConfig.archiveContext(),
-                        clusterConfig.consensusModuleContext());
-                ClusteredServiceContainer clusteredServiceContainer = ClusteredServiceContainer.launch(
-                        clusterConfig.clusteredServiceContext()))
+            ClusteredMediaDriver clusteredMediaDriver = ClusteredMediaDriver.launch(
+                clusterConfig.mediaDriverContext(),
+                clusterConfig.archiveContext(),
+                clusterConfig.consensusModuleContext());
+            ClusteredServiceContainer clusteredServiceContainer = ClusteredServiceContainer.launch(
+                clusterConfig.clusteredServiceContext()))
         {
             this.clusteredServiceContainer = clusteredServiceContainer;
             this.clusteredMediaDriver = clusteredMediaDriver;
@@ -94,7 +95,7 @@ public class ClusterNode
         return this.active;
     }
 
-    public void setActive(boolean active)
+    public void setActive(final boolean active)
     {
         this.active = active;
     }
