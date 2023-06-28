@@ -73,7 +73,21 @@ The leader commits log entries— this that the entries are made permanent and c
 The followers then apply the committed entries to their state machines. This means that they update their own state based on the entries that the leader has committed. By doing this, they ensure that they are in sync with the leader and the rest of the system. Once the followers have applied the committed entries, consensus is reached among the nodes.
 
 - Log replication
-- Aeron Cluster
+- 
+## Aeron Cluster
+
+Aeron Cluster, is one of the three components of Aeron available. It provides an implementation of Raft Consensus upon which highly available services can be built.
+
+It can be used with Aeron Transport and Aeron Archive to achieve fault-tolerant, high throughput services. 
+
+Aeron Cluster has the following capabilities:
+
+- sequences multiple client connections into a single, replicated log
+- provides efficient fault tolerance with 2 or more nodes
+- provides Aeron Archive endpoints for writing to snapshots and reading from snapshots on start
+- allows 1 or more clustered services to be run, with support for inter-service sequenced messaging
+- reliable, sequenced timers
+- very high levels of performance
 
 ## What is consensus?
 Consensus refers to the process by which a collection of nodes reaches a consistent state regarding a given value. A consensus algorithm would be the implementation of this process of achieving consensus.
