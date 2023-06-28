@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<sbe:messageSchema xmlns:sbe="http://fixprotocol.io/2016/sbe"
+                   package="com.weareadaptive.sbe"
+                   id="688"
+                   version="1"
+                   semanticVersion="0.1"
+                   description="Aeron OMS SBE Messages"
+                   byteOrder="littleEndian">
+    <types>
+        <composite name="messageHeader" description="Message identifiers and length of message root">
+            <type name="blockLength" primitiveType="uint16"/>
+            <type name="templateId" primitiveType="uint16"/>
+            <type name="correlation" primitiveType="uint64"/>
+            <type name="schemaId" primitiveType="uint16"/>
+            <type name="version" primitiveType="uint16"/>
+        </composite>
+        <composite name="byteList">
+            <type name="length" primitiveType="uint32" maxValue="1073741824"/>
+            <type name="varData" primitiveType="uint8" length="0" characterEncoding="UTF-8"/>
+        </composite>
+    </types>
+    <sbe:message name="OrderIngress" id="1" description="Ingress for a order placement">
+        <field name="price" id="1" type="double"/>
+        <field name="size" id="2" type="uint64"/>
+        <field name="bidAsk" id="3" type="int8"/>
+    </sbe:message>
+    <sbe:message name="OrderEgress" id="2" description="Egress for a order placement">
+        <field name="orderid" id="1" type="uint64"/>
+        <field name="status" id="2" type="int8"/>
+    </sbe:message>
+    <sbe:message name="CancelOrderIngress" id="3" description="Ingress for a order placement">
+        <field name="orderid" id="1" type="uint64"/>
+    </sbe:message>
+    <sbe:message name="CancelOrderEgress" id="4" description="Egress for a cancel order placement">
+        <field name="orderid" id="1" type="uint64"/>
+        <field name="status" id="2" type="int8"/>
+    </sbe:message>
+    <sbe:message name="ClearOrderbookIngress" id="5" description="Ingress for clearing Orderbook">
+    </sbe:message>
+    <sbe:message name="ClearOrderbookEgress" id="6" description="Egress for clearing Orderbook">
+    </sbe:message>
+    <sbe:message name="ResetOrderbookIngress" id="7" description="Ingress for resetting Orderbook">
+    </sbe:message>
+    <sbe:message name="ResetOrderbookEgress" id="8" description="Egress for resetting Orderbook">
+    </sbe:message>
+</sbe:messageSchema>
