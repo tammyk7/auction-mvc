@@ -4,7 +4,23 @@ Goal: To ensure people are aware of how to code for a deterministic, single-thre
 
 - Why determinism is important
 - How to write deterministic code
-- Single-threaded business logic
+
+## Single-threaded business logic
+Concurrency is a popular topic nowadays in the field of software development. However, it's important to note that not all programs can benefit from concurrency, and it may not always be the best solution depending on the specific requirements of the program— especially when building a high-speed, deterministic distributed system.
+
+### Why is single-threaded business logic deterministic?
+As we have discussed in prior modules, deterministic behavior ensures that the system is able to recover from system failures and remain consistent across all nodes. Additionally, deterministic behavior enables the system to be debugged and tested more easily, since the behavior of the system is consistent and predictable. Furthermore, Raft specifically requires that the leader's log be replicated across all nodes, and that the nodes agree on the order in which entries are added to the log. Therefore, since using concurrent business logic in this context can lead to inconsistencies and race conditions, the integrity of the system can be compromised and can lead to conflicting logs. To prevent this, it is important to use single-threaded business logic when building a deterministic, distributed system, ensuring that the system remains consistent and predictable across all nodes.
+
+### Why can single-threaded business logic be faster than multi-threaded business logic in distributed systems?
+In 1993, Intel released the first Pentium processor, which had a clock speed of 60 MHz and could process about 100 million instructions per second. Since then, processors have only improved. Given the significant increase in processing power available today, developers may want to consider utilizing this speed by implementing concurrent programs that can take advantage of the multiple cores offered on many modern CPUs.
+
+Using concurrency can improve performance in some regards by enabling multiple tasks to be executed simultaneously, but as mentioned above, can also cause unpredictable behavior, data inconsistencies, and race conditions. Locking or compare-and-swap (CAS) operations can ensure monotonicity and avoid these problems, but may also slow down a program. This is especially significant in distributed systems, which involve multiple machines communicating with each other over a network. In these systems, acquiring locks and checking memory locations can take even longer, leading to even greater performance issues. To avoid these issues, developers should use single-threaded business logic and avoid locking and CAS operations entirely, allowing systems to take full advantage of high-speed CPUs.
+
+### Does this mean that nodes cannot execute multiple tasks simultaneously at all?
+No, nodes can still execute multiple tasks simultaneously. Instead of using multiple threads on multiple cores, single-threaded asynchronous processing can be used to allow nodes to execute multiple tasks at the same time.
+
+In single-threaded asynchronous processing, multiple tasks are executed simultaneously without blocking the main thread of execution. However, unlike multi-threaded asynchronous processing, single-threaded asynchronous processing does not use multiple cores; rather, it uses callbacks or events to notify the program when a task has completed so that the program can continue to execute other tasks while waiting for slow I/O operations or other tasks to complete. This avoids the risk of data inconsistencies or race conditions that can occur with concurrent programming, while still allowing nodes to execute multiple tasks.
+
 - Performance
 - Zero-garbage & flyweight pattern (working with pooled objects)
 - Working with time
