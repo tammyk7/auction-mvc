@@ -1,4 +1,4 @@
-package com.weareadaptive.gateway.client;
+package com.weareadaptive.gateway.clientLogic;
 
 import java.util.HashMap;
 import java.util.Iterator;
@@ -10,7 +10,7 @@ import com.weareadaptive.sbe.ClearOrderbookEgressDecoder;
 import com.weareadaptive.sbe.MessageHeaderDecoder;
 import com.weareadaptive.sbe.OrderEgressDecoder;
 import com.weareadaptive.sbe.ResetOrderbookEgressDecoder;
-import com.weareadaptive.util.BufferOffsets;
+import com.weareadaptive.util.BufferUtils;
 
 import org.agrona.DirectBuffer;
 import org.slf4j.Logger;
@@ -99,7 +99,7 @@ public class ClientEgressListener implements EgressListener
         final int offset
     )
     {
-        final ExecutionResult result = BufferOffsets.E_PO_Decoder(buffer, offset);
+        final ExecutionResult result = BufferUtils.E_PO_Decoder(buffer, offset);
         LOGGER.info("Egress-" + correlation + " | OrderID: " + result.getOrderId() + " Status: " + result.getStatus());
 
         final JsonObject orderResponse = new JsonObject();
@@ -124,7 +124,7 @@ public class ClientEgressListener implements EgressListener
         final int offset
     )
     {
-        final ExecutionResult result = BufferOffsets.E_CO_Decoder(buffer, offset);
+        final ExecutionResult result = BufferUtils.E_CO_Decoder(buffer, offset);
         LOGGER.info("Egress-" + correlation + " | OrderID: " + result.getOrderId() + " Status: " + result.getStatus());
 
         final JsonObject orderResponse = new JsonObject();

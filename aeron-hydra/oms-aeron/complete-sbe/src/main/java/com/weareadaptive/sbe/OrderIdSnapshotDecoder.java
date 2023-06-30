@@ -6,19 +6,19 @@ import org.agrona.DirectBuffer;
 
 
 /**
- * Ingress for a order placement
+ * Snapshot storage for current orderID in the orderbook
  */
 @SuppressWarnings("all")
-public final class OrderIngressDecoder
+public final class OrderIdSnapshotDecoder
 {
-    public static final int BLOCK_LENGTH = 17;
-    public static final int TEMPLATE_ID = 1;
+    public static final int BLOCK_LENGTH = 8;
+    public static final int TEMPLATE_ID = 9;
     public static final int SCHEMA_ID = 688;
     public static final int SCHEMA_VERSION = 1;
     public static final String SEMANTIC_VERSION = "0.1";
     public static final java.nio.ByteOrder BYTE_ORDER = java.nio.ByteOrder.LITTLE_ENDIAN;
 
-    private final OrderIngressDecoder parentMessage = this;
+    private final OrderIdSnapshotDecoder parentMessage = this;
     int actingBlockLength;
     int actingVersion;
     private DirectBuffer buffer;
@@ -26,27 +26,27 @@ public final class OrderIngressDecoder
     private int offset;
     private int limit;
 
-    public static int priceId()
+    public static int orderIdId()
     {
         return 1;
     }
 
-    public static int priceSinceVersion()
+    public static int orderIdSinceVersion()
     {
         return 0;
     }
 
-    public static int priceEncodingOffset()
+    public static int orderIdEncodingOffset()
     {
         return 0;
     }
 
-    public static int priceEncodingLength()
+    public static int orderIdEncodingLength()
     {
         return 8;
     }
 
-    public static String priceMetaAttribute(final MetaAttribute metaAttribute)
+    public static String orderIdMetaAttribute(final MetaAttribute metaAttribute)
     {
         if (MetaAttribute.PRESENCE == metaAttribute)
         {
@@ -56,109 +56,19 @@ public final class OrderIngressDecoder
         return "";
     }
 
-    public static double priceNullValue()
-    {
-        return Double.NaN;
-    }
-
-    public static double priceMinValue()
-    {
-        return 4.9E-324d;
-    }
-
-    public static double priceMaxValue()
-    {
-        return 1.7976931348623157E308d;
-    }
-
-    public static int sizeId()
-    {
-        return 2;
-    }
-
-    public static int sizeSinceVersion()
-    {
-        return 0;
-    }
-
-    public static int sizeEncodingOffset()
-    {
-        return 8;
-    }
-
-    public static int sizeEncodingLength()
-    {
-        return 8;
-    }
-
-    public static String sizeMetaAttribute(final MetaAttribute metaAttribute)
-    {
-        if (MetaAttribute.PRESENCE == metaAttribute)
-        {
-            return "required";
-        }
-
-        return "";
-    }
-
-    public static long sizeNullValue()
+    public static long orderIdNullValue()
     {
         return 0xffffffffffffffffL;
     }
 
-    public static long sizeMinValue()
+    public static long orderIdMinValue()
     {
         return 0x0L;
     }
 
-    public static long sizeMaxValue()
+    public static long orderIdMaxValue()
     {
         return 0xfffffffffffffffeL;
-    }
-
-    public static int sideId()
-    {
-        return 3;
-    }
-
-    public static int sideSinceVersion()
-    {
-        return 0;
-    }
-
-    public static int sideEncodingOffset()
-    {
-        return 16;
-    }
-
-    public static int sideEncodingLength()
-    {
-        return 1;
-    }
-
-    public static String sideMetaAttribute(final MetaAttribute metaAttribute)
-    {
-        if (MetaAttribute.PRESENCE == metaAttribute)
-        {
-            return "required";
-        }
-
-        return "";
-    }
-
-    public static byte sideNullValue()
-    {
-        return (byte)-128;
-    }
-
-    public static byte sideMinValue()
-    {
-        return (byte)-127;
-    }
-
-    public static byte sideMaxValue()
-    {
-        return (byte)127;
     }
 
     public int sbeBlockLength()
@@ -201,7 +111,7 @@ public final class OrderIngressDecoder
         return offset;
     }
 
-    public OrderIngressDecoder wrap(
+    public OrderIdSnapshotDecoder wrap(
         final DirectBuffer buffer,
         final int offset,
         final int actingBlockLength,
@@ -220,7 +130,7 @@ public final class OrderIngressDecoder
         return this;
     }
 
-    public OrderIngressDecoder wrapAndApplyHeader(
+    public OrderIdSnapshotDecoder wrapAndApplyHeader(
         final DirectBuffer buffer,
         final int offset,
         final MessageHeaderDecoder headerDecoder)
@@ -240,7 +150,7 @@ public final class OrderIngressDecoder
             headerDecoder.version());
     }
 
-    public OrderIngressDecoder sbeRewind()
+    public OrderIdSnapshotDecoder sbeRewind()
     {
         return wrap(buffer, initialOffset, actingBlockLength, actingVersion);
     }
@@ -270,19 +180,9 @@ public final class OrderIngressDecoder
         this.limit = limit;
     }
 
-    public double price()
+    public long orderId()
     {
-        return buffer.getDouble(offset + 0, java.nio.ByteOrder.LITTLE_ENDIAN);
-    }
-
-    public long size()
-    {
-        return buffer.getLong(offset + 8, java.nio.ByteOrder.LITTLE_ENDIAN);
-    }
-
-    public byte side()
-    {
-        return buffer.getByte(offset + 16);
+        return buffer.getLong(offset + 0, java.nio.ByteOrder.LITTLE_ENDIAN);
     }
 
 
@@ -293,7 +193,7 @@ public final class OrderIngressDecoder
             return "";
         }
 
-        final OrderIngressDecoder decoder = new OrderIngressDecoder();
+        final OrderIdSnapshotDecoder decoder = new OrderIdSnapshotDecoder();
         decoder.wrap(buffer, initialOffset, actingBlockLength, actingVersion);
 
         return decoder.appendTo(new StringBuilder()).toString();
@@ -308,7 +208,7 @@ public final class OrderIngressDecoder
 
         final int originalLimit = limit();
         limit(initialOffset + actingBlockLength);
-        builder.append("[OrderIngress](sbeTemplateId=");
+        builder.append("[OrderIdSnapshot](sbeTemplateId=");
         builder.append(TEMPLATE_ID);
         builder.append("|sbeSchemaId=");
         builder.append(SCHEMA_ID);
@@ -327,21 +227,15 @@ public final class OrderIngressDecoder
         }
         builder.append(BLOCK_LENGTH);
         builder.append("):");
-        builder.append("price=");
-        builder.append(this.price());
-        builder.append('|');
-        builder.append("size=");
-        builder.append(this.size());
-        builder.append('|');
-        builder.append("side=");
-        builder.append(this.side());
+        builder.append("orderId=");
+        builder.append(this.orderId());
 
         limit(originalLimit);
 
         return builder;
     }
 
-    public OrderIngressDecoder sbeSkip()
+    public OrderIdSnapshotDecoder sbeSkip()
     {
         sbeRewind();
 

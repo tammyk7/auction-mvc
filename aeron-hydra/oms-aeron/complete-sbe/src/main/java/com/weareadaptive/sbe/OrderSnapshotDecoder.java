@@ -6,19 +6,19 @@ import org.agrona.DirectBuffer;
 
 
 /**
- * Ingress for a order placement
+ * Snapshot storage for orders in the orderbook
  */
 @SuppressWarnings("all")
-public final class OrderIngressDecoder
+public final class OrderSnapshotDecoder
 {
-    public static final int BLOCK_LENGTH = 17;
-    public static final int TEMPLATE_ID = 1;
+    public static final int BLOCK_LENGTH = 25;
+    public static final int TEMPLATE_ID = 10;
     public static final int SCHEMA_ID = 688;
     public static final int SCHEMA_VERSION = 1;
     public static final String SEMANTIC_VERSION = "0.1";
     public static final java.nio.ByteOrder BYTE_ORDER = java.nio.ByteOrder.LITTLE_ENDIAN;
 
-    private final OrderIngressDecoder parentMessage = this;
+    private final OrderSnapshotDecoder parentMessage = this;
     int actingBlockLength;
     int actingVersion;
     private DirectBuffer buffer;
@@ -26,9 +26,54 @@ public final class OrderIngressDecoder
     private int offset;
     private int limit;
 
-    public static int priceId()
+    public static int orderIdId()
     {
         return 1;
+    }
+
+    public static int orderIdSinceVersion()
+    {
+        return 0;
+    }
+
+    public static int orderIdEncodingOffset()
+    {
+        return 0;
+    }
+
+    public static int orderIdEncodingLength()
+    {
+        return 8;
+    }
+
+    public static String orderIdMetaAttribute(final MetaAttribute metaAttribute)
+    {
+        if (MetaAttribute.PRESENCE == metaAttribute)
+        {
+            return "required";
+        }
+
+        return "";
+    }
+
+    public static long orderIdNullValue()
+    {
+        return 0xffffffffffffffffL;
+    }
+
+    public static long orderIdMinValue()
+    {
+        return 0x0L;
+    }
+
+    public static long orderIdMaxValue()
+    {
+        return 0xfffffffffffffffeL;
+    }
+
+    public static int priceId()
+    {
+        return 2;
     }
 
     public static int priceSinceVersion()
@@ -38,7 +83,7 @@ public final class OrderIngressDecoder
 
     public static int priceEncodingOffset()
     {
-        return 0;
+        return 8;
     }
 
     public static int priceEncodingLength()
@@ -73,7 +118,7 @@ public final class OrderIngressDecoder
 
     public static int sizeId()
     {
-        return 2;
+        return 3;
     }
 
     public static int sizeSinceVersion()
@@ -83,7 +128,7 @@ public final class OrderIngressDecoder
 
     public static int sizeEncodingOffset()
     {
-        return 8;
+        return 16;
     }
 
     public static int sizeEncodingLength()
@@ -118,7 +163,7 @@ public final class OrderIngressDecoder
 
     public static int sideId()
     {
-        return 3;
+        return 4;
     }
 
     public static int sideSinceVersion()
@@ -128,7 +173,7 @@ public final class OrderIngressDecoder
 
     public static int sideEncodingOffset()
     {
-        return 16;
+        return 24;
     }
 
     public static int sideEncodingLength()
@@ -201,7 +246,7 @@ public final class OrderIngressDecoder
         return offset;
     }
 
-    public OrderIngressDecoder wrap(
+    public OrderSnapshotDecoder wrap(
         final DirectBuffer buffer,
         final int offset,
         final int actingBlockLength,
@@ -220,7 +265,7 @@ public final class OrderIngressDecoder
         return this;
     }
 
-    public OrderIngressDecoder wrapAndApplyHeader(
+    public OrderSnapshotDecoder wrapAndApplyHeader(
         final DirectBuffer buffer,
         final int offset,
         final MessageHeaderDecoder headerDecoder)
@@ -240,7 +285,7 @@ public final class OrderIngressDecoder
             headerDecoder.version());
     }
 
-    public OrderIngressDecoder sbeRewind()
+    public OrderSnapshotDecoder sbeRewind()
     {
         return wrap(buffer, initialOffset, actingBlockLength, actingVersion);
     }
@@ -270,19 +315,24 @@ public final class OrderIngressDecoder
         this.limit = limit;
     }
 
+    public long orderId()
+    {
+        return buffer.getLong(offset + 0, java.nio.ByteOrder.LITTLE_ENDIAN);
+    }
+
     public double price()
     {
-        return buffer.getDouble(offset + 0, java.nio.ByteOrder.LITTLE_ENDIAN);
+        return buffer.getDouble(offset + 8, java.nio.ByteOrder.LITTLE_ENDIAN);
     }
 
     public long size()
     {
-        return buffer.getLong(offset + 8, java.nio.ByteOrder.LITTLE_ENDIAN);
+        return buffer.getLong(offset + 16, java.nio.ByteOrder.LITTLE_ENDIAN);
     }
 
     public byte side()
     {
-        return buffer.getByte(offset + 16);
+        return buffer.getByte(offset + 24);
     }
 
 
@@ -293,7 +343,7 @@ public final class OrderIngressDecoder
             return "";
         }
 
-        final OrderIngressDecoder decoder = new OrderIngressDecoder();
+        final OrderSnapshotDecoder decoder = new OrderSnapshotDecoder();
         decoder.wrap(buffer, initialOffset, actingBlockLength, actingVersion);
 
         return decoder.appendTo(new StringBuilder()).toString();
@@ -308,7 +358,7 @@ public final class OrderIngressDecoder
 
         final int originalLimit = limit();
         limit(initialOffset + actingBlockLength);
-        builder.append("[OrderIngress](sbeTemplateId=");
+        builder.append("[OrderSnapshot](sbeTemplateId=");
         builder.append(TEMPLATE_ID);
         builder.append("|sbeSchemaId=");
         builder.append(SCHEMA_ID);
@@ -327,6 +377,9 @@ public final class OrderIngressDecoder
         }
         builder.append(BLOCK_LENGTH);
         builder.append("):");
+        builder.append("orderId=");
+        builder.append(this.orderId());
+        builder.append('|');
         builder.append("price=");
         builder.append(this.price());
         builder.append('|');
@@ -341,7 +394,7 @@ public final class OrderIngressDecoder
         return builder;
     }
 
-    public OrderIngressDecoder sbeSkip()
+    public OrderSnapshotDecoder sbeSkip()
     {
         sbeRewind();
 

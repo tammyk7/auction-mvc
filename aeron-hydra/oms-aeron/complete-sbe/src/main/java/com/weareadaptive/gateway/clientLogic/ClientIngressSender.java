@@ -1,7 +1,7 @@
-package com.weareadaptive.gateway.client;
+package com.weareadaptive.gateway.clientLogic;
 
 import com.weareadaptive.cluster.services.oms.util.Side;
-import com.weareadaptive.util.BufferOffsets;
+import com.weareadaptive.util.BufferUtils;
 import com.weareadaptive.util.EncodeResult;
 
 import org.agrona.concurrent.BusySpinIdleStrategy;
@@ -47,7 +47,7 @@ public class ClientIngressSender
         final Side side
     )
     {
-        final EncodeResult encodeResult = BufferOffsets.I_PO_ENCODER(correlation, price, size, side);
+        final EncodeResult encodeResult = BufferUtils.I_PO_ENCODER(correlation, price, size, side);
 
         while (aeronCluster.offer(encodeResult.getBuffer(), 0, encodeResult.getEncodedLength()) < 0)
         {
@@ -68,7 +68,7 @@ public class ClientIngressSender
         final long orderId
     )
     {
-        final EncodeResult encodeResult = BufferOffsets.I_CO_Encoder(correlation, orderId);
+        final EncodeResult encodeResult = BufferUtils.I_CO_Encoder(correlation, orderId);
 
         while (aeronCluster.offer(encodeResult.getBuffer(), 0, encodeResult.getEncodedLength()) < 0)
         {
@@ -85,7 +85,7 @@ public class ClientIngressSender
      */
     public void clearOrderbook(final long correlation)
     {
-        final EncodeResult encodeResult = BufferOffsets.I_CLEAR_Encoder(correlation);
+        final EncodeResult encodeResult = BufferUtils.I_CLEAR_Encoder(correlation);
 
         while (aeronCluster.offer(encodeResult.getBuffer(), 0, encodeResult.getEncodedLength()) < 0)
         {
@@ -102,7 +102,7 @@ public class ClientIngressSender
      */
     public void resetOrderbook(final long correlation)
     {
-        final EncodeResult encodeResult = BufferOffsets.I_RESET_Encoder(correlation);
+        final EncodeResult encodeResult = BufferUtils.I_RESET_Encoder(correlation);
 
         while (aeronCluster.offer(encodeResult.getBuffer(), 0, encodeResult.getEncodedLength()) < 0)
         {

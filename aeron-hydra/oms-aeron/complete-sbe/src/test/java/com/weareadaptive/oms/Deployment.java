@@ -1,14 +1,14 @@
 package com.weareadaptive.oms;
 
-import com.weareadaptive.cluster.ClusterNode;
-import com.weareadaptive.gateway.Gateway;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.HashMap;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.LockSupport;
 
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import com.weareadaptive.cluster.ClusterNode;
+import com.weareadaptive.gateway.Gateway;
 
 public class Deployment
 {
@@ -73,7 +73,8 @@ public class Deployment
                 try
                 {
                     thread.join();
-                } catch (InterruptedException e)
+                }
+                catch (InterruptedException e)
                 {
                     throw new RuntimeException(e);
                 }
@@ -157,6 +158,22 @@ public class Deployment
         }
     }
 
+    public void waitForConnection(Gateway gateway)
+    {
+        final int TIMEOUT_LIMIT = 50;
+        int TIMEOUT_COUNTER = 0;
+        while (!gateway.isConnectedToCluster())
+        {
+            if (TIMEOUT_COUNTER == TIMEOUT_LIMIT)
+            {
+                break;
+            }
+            LockSupport.parkNanos(TimeUnit.MILLISECONDS.toNanos(100));
+            TIMEOUT_COUNTER++;
+        }
+        assertTrue(gateway.isConnectedToCluster());
+    }
+
     public int findAliveNode()
     {
         return nodes.keySet().stream().findFirst().get();
@@ -187,6 +204,7 @@ public class Deployment
 
         gatewayThread.start();
         gatewayThread.join(2500);
+        waitForConnection(gateway);
     }
 
     void shutdownGateway() throws InterruptedException

@@ -41,7 +41,6 @@ public class ClusterService implements ClusteredService
     public void onStart(final Cluster cluster, final Image snapshotImage)
     {
         registerOMSService();
-
         if (null != snapshotImage)
         {
             try

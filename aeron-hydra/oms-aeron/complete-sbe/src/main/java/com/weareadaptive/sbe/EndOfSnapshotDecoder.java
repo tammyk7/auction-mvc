@@ -6,160 +6,25 @@ import org.agrona.DirectBuffer;
 
 
 /**
- * Ingress for a order placement
+ * Marks end of snapshot
  */
 @SuppressWarnings("all")
-public final class OrderIngressDecoder
+public final class EndOfSnapshotDecoder
 {
-    public static final int BLOCK_LENGTH = 17;
-    public static final int TEMPLATE_ID = 1;
+    public static final int BLOCK_LENGTH = 0;
+    public static final int TEMPLATE_ID = 11;
     public static final int SCHEMA_ID = 688;
     public static final int SCHEMA_VERSION = 1;
     public static final String SEMANTIC_VERSION = "0.1";
     public static final java.nio.ByteOrder BYTE_ORDER = java.nio.ByteOrder.LITTLE_ENDIAN;
 
-    private final OrderIngressDecoder parentMessage = this;
+    private final EndOfSnapshotDecoder parentMessage = this;
     int actingBlockLength;
     int actingVersion;
     private DirectBuffer buffer;
     private int initialOffset;
     private int offset;
     private int limit;
-
-    public static int priceId()
-    {
-        return 1;
-    }
-
-    public static int priceSinceVersion()
-    {
-        return 0;
-    }
-
-    public static int priceEncodingOffset()
-    {
-        return 0;
-    }
-
-    public static int priceEncodingLength()
-    {
-        return 8;
-    }
-
-    public static String priceMetaAttribute(final MetaAttribute metaAttribute)
-    {
-        if (MetaAttribute.PRESENCE == metaAttribute)
-        {
-            return "required";
-        }
-
-        return "";
-    }
-
-    public static double priceNullValue()
-    {
-        return Double.NaN;
-    }
-
-    public static double priceMinValue()
-    {
-        return 4.9E-324d;
-    }
-
-    public static double priceMaxValue()
-    {
-        return 1.7976931348623157E308d;
-    }
-
-    public static int sizeId()
-    {
-        return 2;
-    }
-
-    public static int sizeSinceVersion()
-    {
-        return 0;
-    }
-
-    public static int sizeEncodingOffset()
-    {
-        return 8;
-    }
-
-    public static int sizeEncodingLength()
-    {
-        return 8;
-    }
-
-    public static String sizeMetaAttribute(final MetaAttribute metaAttribute)
-    {
-        if (MetaAttribute.PRESENCE == metaAttribute)
-        {
-            return "required";
-        }
-
-        return "";
-    }
-
-    public static long sizeNullValue()
-    {
-        return 0xffffffffffffffffL;
-    }
-
-    public static long sizeMinValue()
-    {
-        return 0x0L;
-    }
-
-    public static long sizeMaxValue()
-    {
-        return 0xfffffffffffffffeL;
-    }
-
-    public static int sideId()
-    {
-        return 3;
-    }
-
-    public static int sideSinceVersion()
-    {
-        return 0;
-    }
-
-    public static int sideEncodingOffset()
-    {
-        return 16;
-    }
-
-    public static int sideEncodingLength()
-    {
-        return 1;
-    }
-
-    public static String sideMetaAttribute(final MetaAttribute metaAttribute)
-    {
-        if (MetaAttribute.PRESENCE == metaAttribute)
-        {
-            return "required";
-        }
-
-        return "";
-    }
-
-    public static byte sideNullValue()
-    {
-        return (byte)-128;
-    }
-
-    public static byte sideMinValue()
-    {
-        return (byte)-127;
-    }
-
-    public static byte sideMaxValue()
-    {
-        return (byte)127;
-    }
 
     public int sbeBlockLength()
     {
@@ -201,7 +66,7 @@ public final class OrderIngressDecoder
         return offset;
     }
 
-    public OrderIngressDecoder wrap(
+    public EndOfSnapshotDecoder wrap(
         final DirectBuffer buffer,
         final int offset,
         final int actingBlockLength,
@@ -220,7 +85,7 @@ public final class OrderIngressDecoder
         return this;
     }
 
-    public OrderIngressDecoder wrapAndApplyHeader(
+    public EndOfSnapshotDecoder wrapAndApplyHeader(
         final DirectBuffer buffer,
         final int offset,
         final MessageHeaderDecoder headerDecoder)
@@ -240,7 +105,7 @@ public final class OrderIngressDecoder
             headerDecoder.version());
     }
 
-    public OrderIngressDecoder sbeRewind()
+    public EndOfSnapshotDecoder sbeRewind()
     {
         return wrap(buffer, initialOffset, actingBlockLength, actingVersion);
     }
@@ -270,22 +135,6 @@ public final class OrderIngressDecoder
         this.limit = limit;
     }
 
-    public double price()
-    {
-        return buffer.getDouble(offset + 0, java.nio.ByteOrder.LITTLE_ENDIAN);
-    }
-
-    public long size()
-    {
-        return buffer.getLong(offset + 8, java.nio.ByteOrder.LITTLE_ENDIAN);
-    }
-
-    public byte side()
-    {
-        return buffer.getByte(offset + 16);
-    }
-
-
     public String toString()
     {
         if (null == buffer)
@@ -293,7 +142,7 @@ public final class OrderIngressDecoder
             return "";
         }
 
-        final OrderIngressDecoder decoder = new OrderIngressDecoder();
+        final EndOfSnapshotDecoder decoder = new EndOfSnapshotDecoder();
         decoder.wrap(buffer, initialOffset, actingBlockLength, actingVersion);
 
         return decoder.appendTo(new StringBuilder()).toString();
@@ -308,7 +157,7 @@ public final class OrderIngressDecoder
 
         final int originalLimit = limit();
         limit(initialOffset + actingBlockLength);
-        builder.append("[OrderIngress](sbeTemplateId=");
+        builder.append("[EndOfSnapshot](sbeTemplateId=");
         builder.append(TEMPLATE_ID);
         builder.append("|sbeSchemaId=");
         builder.append(SCHEMA_ID);
@@ -327,21 +176,13 @@ public final class OrderIngressDecoder
         }
         builder.append(BLOCK_LENGTH);
         builder.append("):");
-        builder.append("price=");
-        builder.append(this.price());
-        builder.append('|');
-        builder.append("size=");
-        builder.append(this.size());
-        builder.append('|');
-        builder.append("side=");
-        builder.append(this.side());
 
         limit(originalLimit);
 
         return builder;
     }
 
-    public OrderIngressDecoder sbeSkip()
+    public EndOfSnapshotDecoder sbeSkip()
     {
         sbeRewind();
 

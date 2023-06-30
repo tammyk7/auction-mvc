@@ -1,7 +1,5 @@
 package com.weareadaptive.cluster.services.oms;
 
-import java.io.IOException;
-import java.io.Serial;
 import java.io.Serializable;
 import java.util.Objects;
 
@@ -9,9 +7,6 @@ import com.weareadaptive.cluster.services.oms.util.Side;
 
 public class Order implements Serializable
 {
-
-    @Serial
-    private static final long serialVersionUID = 1L;
     private long orderId;
     private double price;
     private long size;
@@ -80,17 +75,5 @@ public class Order implements Serializable
             ", size=" + size +
             ", side=" + side +
             '}';
-    }
-
-    @Serial
-    private void writeObject(final java.io.ObjectOutputStream out) throws IOException
-    {
-        out.defaultWriteObject();
-    }
-
-    @Serial
-    private void readObject(final java.io.ObjectInputStream in) throws IOException, ClassNotFoundException
-    {
-        in.defaultReadObject();
     }
 }

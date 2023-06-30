@@ -1,6 +1,5 @@
 package com.weareadaptive.cluster.services.oms;
 
-import java.io.Serializable;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.TreeSet;
@@ -12,10 +11,33 @@ import com.weareadaptive.cluster.services.oms.util.Status;
 public class OrderbookImpl implements Orderbook
 {
 
-    private HashMap<Long, Order> orders = new HashMap<Long, Order>();
-    private TreeSet<Order> bids = new TreeSet<>(new BidComparator());
-    private TreeSet<Order> asks = new TreeSet<>(new BidComparator().reversed());
+    private final HashMap<Long, Order> orders = new HashMap<Long, Order>();
+    private final TreeSet<Order> bids = new TreeSet<>(new BidComparator());
+    private final TreeSet<Order> asks = new TreeSet<>(new AskComparator());
     private long orderId = 1;
+
+    private static int compareOrders(final Order o1, final Order o2, final boolean b)
+    {
+        if (o1.getPrice() == o2.getPrice())
+        {
+            if (o1.getOrderId() == o2.getOrderId())
+            {
+                return 0;
+            }
+            else
+            {
+                return o1.getOrderId() > o2.getOrderId() ? 1 : -1;
+            }
+        }
+        else if (b)
+        {
+            return 1;
+        }
+        else
+        {
+            return -1;
+        }
+    }
 
     /**
      * * Implement Place Order logic
@@ -173,40 +195,24 @@ public class OrderbookImpl implements Orderbook
         return orderId;
     }
 
-    public void loadState(final long orderId, final HashMap<Long, Order> orders, final TreeSet<Order> bids, final TreeSet<Order> asks)
+    public void setOrderId(final long orderId)
     {
         this.orderId = orderId;
-        this.orders = orders;
-        this.bids = bids;
-        this.asks = asks;
     }
 
-    static class BidComparator implements Comparator<Order>, Serializable
+    static class BidComparator implements Comparator<Order>
     {
-        // override the compare() method
-        private static final long serialVersionUID = 1L;
-
         public int compare(final Order o1, final Order o2)
         {
-            if (o1.getPrice() == o2.getPrice())
-            {
-                if (o1.getOrderId() == o2.getOrderId())
-                {
-                    return 0;
-                }
-                else
-                {
-                    return o1.getOrderId() > o2.getOrderId() ? 1 : -1;
-                }
-            }
-            else if (o1.getPrice() < o2.getPrice())
-            {
-                return 1;
-            }
-            else
-            {
-                return -1;
-            }
+            return compareOrders(o1, o2, o1.getPrice() < o2.getPrice());
+        }
+    }
+
+    static class AskComparator implements Comparator<Order>
+    {
+        public int compare(Order o1, Order o2)
+        {
+            return compareOrders(o1, o2, o1.getPrice() > o2.getPrice());
         }
     }
 }

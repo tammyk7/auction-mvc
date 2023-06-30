@@ -1,8 +1,8 @@
 package com.weareadaptive.gateway.ws;
 
 import com.weareadaptive.cluster.services.oms.util.Side;
-import com.weareadaptive.gateway.client.ClientEgressListener;
-import com.weareadaptive.gateway.client.ClientIngressSender;
+import com.weareadaptive.gateway.clientLogic.ClientEgressListener;
+import com.weareadaptive.gateway.clientLogic.ClientIngressSender;
 
 import io.vertx.core.AbstractVerticle;
 import io.vertx.core.http.ServerWebSocket;

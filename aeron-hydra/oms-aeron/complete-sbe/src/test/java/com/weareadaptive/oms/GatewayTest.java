@@ -1,12 +1,11 @@
 package com.weareadaptive.oms;
 
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class GatewayTest
 {
@@ -32,7 +31,7 @@ public class GatewayTest
         deployment.startCluster();
         deployment.getNodes().forEach((id, node) -> assertTrue(node.isActive()));
         deployment.startGateway();
-        assertEquals(deployment.getGateway().getLeaderId(), deployment.getLeaderId());
+        assertTrue(deployment.getGateway().isConnectedToCluster());
     }
 
 }

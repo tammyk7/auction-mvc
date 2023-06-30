@@ -1,15 +1,16 @@
 package com.weareadaptive.oms;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 import com.weareadaptive.cluster.services.oms.OrderbookImpl;
 import com.weareadaptive.cluster.services.oms.util.ExecutionResult;
 import com.weareadaptive.cluster.services.oms.util.Side;
 import com.weareadaptive.cluster.services.oms.util.Status;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class OrderbookTest
 {
