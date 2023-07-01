@@ -1,4 +1,4 @@
-package com.weareadaptive.util;
+package com.weareadaptive.cluster.clusterUtil;
 
 import com.weareadaptive.cluster.services.OMSService;
 import com.weareadaptive.cluster.services.oms.Order;
@@ -15,7 +15,6 @@ import com.weareadaptive.sbe.OrderSnapshotEncoder;
 
 import org.agrona.DirectBuffer;
 import org.agrona.ExpandableDirectByteBuffer;
-import org.agrona.concurrent.BusySpinIdleStrategy;
 import org.agrona.concurrent.IdleStrategy;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -31,7 +30,7 @@ public class SnapshotManager implements FragmentHandler
     private static final Logger LOGGER = LoggerFactory.getLogger(OMSService.class);
     private static final int RETRY_COUNT = 3;
     private final OrderbookImpl orderbook;
-    private final IdleStrategy idleStrategy = new BusySpinIdleStrategy();
+    private final IdleStrategy idleStrategy;
     private final ExpandableDirectByteBuffer buffer = new ExpandableDirectByteBuffer(1024);
     private final MessageHeaderEncoder headerEncoder = new MessageHeaderEncoder();
     private final MessageHeaderDecoder headerDecoder = new MessageHeaderDecoder();
@@ -44,10 +43,12 @@ public class SnapshotManager implements FragmentHandler
     private boolean snapshotFullyLoaded = false;
 
     public SnapshotManager(
-        final OrderbookImpl orderbook
+        final OrderbookImpl orderbook,
+        final IdleStrategy idleStrategy
     )
     {
         this.orderbook = orderbook;
+        this.idleStrategy = idleStrategy;
     }
 
     /**

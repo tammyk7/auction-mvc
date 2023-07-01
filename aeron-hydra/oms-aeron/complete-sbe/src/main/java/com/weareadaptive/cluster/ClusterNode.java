@@ -1,10 +1,10 @@
 package com.weareadaptive.cluster;
 
-import static com.weareadaptive.util.ConfigUtils.awaitDnsResolution;
-import static com.weareadaptive.util.ConfigUtils.egressChannel;
-import static com.weareadaptive.util.ConfigUtils.getBasePort;
-import static com.weareadaptive.util.ConfigUtils.getClusterAddresses;
-import static com.weareadaptive.util.ConfigUtils.getMultiNodeClusterAddresses;
+import static com.weareadaptive.util.SetupConfigUtils.awaitDnsResolution;
+import static com.weareadaptive.util.SetupConfigUtils.egressChannel;
+import static com.weareadaptive.util.SetupConfigUtils.getBasePort;
+import static com.weareadaptive.util.SetupConfigUtils.getClusterAddresses;
+import static com.weareadaptive.util.SetupConfigUtils.getMultiNodeClusterAddresses;
 
 import java.io.File;
 import java.util.List;

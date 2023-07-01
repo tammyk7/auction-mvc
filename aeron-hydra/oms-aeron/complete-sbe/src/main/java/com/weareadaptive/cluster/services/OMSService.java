@@ -3,36 +3,29 @@ package com.weareadaptive.cluster.services;
 import static com.weareadaptive.util.BufferUtils.E_CLEAR_Encoder;
 import static com.weareadaptive.util.BufferUtils.E_RESET_Encoder;
 
-import java.io.IOException;
-
+import com.weareadaptive.cluster.clusterUtil.SessionMessageContext;
 import com.weareadaptive.cluster.services.oms.Order;
 import com.weareadaptive.cluster.services.oms.OrderbookImpl;
 import com.weareadaptive.cluster.services.oms.util.ExecutionResult;
 import com.weareadaptive.util.BufferUtils;
 import com.weareadaptive.util.EncodeResult;
-import com.weareadaptive.util.SnapshotManager;
 
 import org.agrona.DirectBuffer;
-import org.agrona.concurrent.BusySpinIdleStrategy;
-import org.agrona.concurrent.IdleStrategy;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import io.aeron.ExclusivePublication;
-import io.aeron.Image;
 import io.aeron.cluster.service.ClientSession;
 
 public class OMSService
 {
     private static final Logger LOGGER = LoggerFactory.getLogger(OMSService.class);
-    private final IdleStrategy idleStrategy = new BusySpinIdleStrategy();
     private final OrderbookImpl orderbook;
-    private final SnapshotManager snapshotManager;
+    private final SessionMessageContext sessionContext;
 
-    public OMSService()
+    public OMSService(SessionMessageContext sessionContext)
     {
         orderbook = new OrderbookImpl();
-        snapshotManager = new SnapshotManager(orderbook);
+        this.sessionContext = sessionContext;
     }
 
     /**
@@ -48,10 +41,7 @@ public class OMSService
         final ExecutionResult result = orderbook.placeOrder(allocatedOrder.getPrice(), allocatedOrder.getSize(), allocatedOrder.getSide());
         LOGGER.info("Ingress-" + correlation + " | OrderID: " + result.getOrderId() + " Status: " + result.getStatus());
         final EncodeResult encodeResult = BufferUtils.E_PO_Encoder(correlation, result.getOrderId(), result.getStatus());
-        while (session.offer(encodeResult.getBuffer(), 0, encodeResult.getEncodedLength()) < 0)
-        {
-            idleStrategy.idle();
-        }
+        sessionContext.reply(encodeResult.getBuffer(), 0, encodeResult.getEncodedLength());
     }
 
     /**
@@ -67,10 +57,7 @@ public class OMSService
         final ExecutionResult result = orderbook.cancelOrder(orderId);
         LOGGER.info("Ingress-" + correlation + " | OrderID: " + result.getOrderId() + " Status: " + result.getStatus());
         final EncodeResult encodeResult = BufferUtils.E_CO_Encoder(correlation, result.getOrderId(), result.getStatus());
-        while (session.offer(encodeResult.getBuffer(), 0, encodeResult.getEncodedLength()) < 0)
-        {
-            idleStrategy.idle();
-        }
+        sessionContext.reply(encodeResult.getBuffer(), 0, encodeResult.getEncodedLength());
     }
 
     /**
@@ -85,10 +72,7 @@ public class OMSService
         orderbook.clear();
         LOGGER.info("Ingress-" + correlation + " | Cleared Orderbook");
         final EncodeResult encodeResult = E_CLEAR_Encoder(correlation);
-        while (session.offer(encodeResult.getBuffer(), 0, encodeResult.getEncodedLength()) < 0)
-        {
-            idleStrategy.idle();
-        }
+        sessionContext.reply(encodeResult.getBuffer(), 0, encodeResult.getEncodedLength());
     }
 
     /**
@@ -103,30 +87,11 @@ public class OMSService
         orderbook.reset();
         LOGGER.info("Ingress-" + correlation + " | Reset Orderbook");
         final EncodeResult encodeResult = E_RESET_Encoder(correlation);
-        while (session.offer(encodeResult.getBuffer(), 0, encodeResult.getEncodedLength()) < 0)
-        {
-            idleStrategy.idle();
-        }
+        sessionContext.reply(encodeResult.getBuffer(), 0, encodeResult.getEncodedLength());
     }
 
-    /**
-     * * Encode current orderbook state and offer to SnapshotPublication
-     * - Convert data structures in Orderbook for encoding
-     * - Encode Orderbook state
-     * - Offer to SnapshotPublication
-     */
-    public void onTakeSnapshot(ExclusivePublication snapshotPublication) throws IOException
+    public OrderbookImpl getOrderbook()
     {
-        snapshotManager.takeSnapshot(snapshotPublication);
-    }
-
-    /**
-     * * Decode Snapshot Image and restore Orderbook state
-     * - Decode Snapshot Image encoding into appropriate data structures
-     * - Restore into Orderbook state
-     */
-    public void onRestoreSnapshot(final Image snapshotImage)
-    {
-        snapshotManager.loadSnapshot(snapshotImage);
+        return this.orderbook;
     }
 }

@@ -1,6 +1,6 @@
 package com.weareadaptive.cluster;
 
-import static com.weareadaptive.util.ConfigUtils.getClusterNode;
+import static com.weareadaptive.util.SetupConfigUtils.getClusterNode;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

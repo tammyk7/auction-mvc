@@ -1,12 +1,13 @@
 package com.weareadaptive.gateway.agents;
 
-import static com.weareadaptive.util.ConfigUtils.egressChannel;
-import static com.weareadaptive.util.ConfigUtils.ingressEndpoints;
+import static com.weareadaptive.util.SetupConfigUtils.egressChannel;
+import static com.weareadaptive.util.SetupConfigUtils.ingressEndpoints;
 
 import java.util.concurrent.TimeUnit;
 
 import com.weareadaptive.gateway.clientLogic.ClientEgressListener;
 import com.weareadaptive.gateway.clientLogic.ClientIngressSender;
+import com.weareadaptive.gateway.clientLogic.PendingMessageManager;
 import com.weareadaptive.gateway.ws.WebSocketServer;
 
 import org.agrona.concurrent.Agent;
@@ -22,18 +23,21 @@ import io.vertx.core.Vertx;
 public class ClusterInteractionAgent implements Agent
 {
     private static final Logger LOGGER = LoggerFactory.getLogger(ClusterInteractionAgent.class);
-    private static final long HEARTBEAT_INTERVAL = 10;
+    private static final long HEARTBEAT_INTERVAL = 250;
     private static Vertx vertx;
     private final int maxNodes;
+    private final PendingMessageManager pendingMessageManager;
     private long lastHeartbeatTime = Long.MIN_VALUE;
     private AeronCluster aeronCluster;
     private MediaDriver mediaDriver;
-    private ClientEgressListener clientEgressListener = new ClientEgressListener();
+    private ClientEgressListener clientEgressListener;
+    private ClientIngressSender clientIngressSender;
     private boolean connectedToCluster = false;
 
     public ClusterInteractionAgent(final int maxNodes)
     {
         this.maxNodes = maxNodes;
+        this.pendingMessageManager = new PendingMessageManager(SystemEpochClock.INSTANCE);
     }
 
 
@@ -57,6 +61,9 @@ public class ClusterInteractionAgent implements Agent
             aeronCluster.pollEgress();
         }
 
+        //check for timed-out messages
+        pendingMessageManager.doWork();
+
         //always sleep
         return 0;
     }
@@ -74,6 +81,7 @@ public class ClusterInteractionAgent implements Agent
      */
     private void connectCluster(final int maxNodes)
     {
+        clientEgressListener = new ClientEgressListener(pendingMessageManager);
         mediaDriver = MediaDriver.launch(new MediaDriver.Context()
             .threadingMode(ThreadingMode.SHARED)
             .dirDeleteOnStart(true)
@@ -89,6 +97,7 @@ public class ClusterInteractionAgent implements Agent
                 .aeronDirectoryName(mediaDriver.aeronDirectoryName())
                 .messageTimeoutNs(TimeUnit.SECONDS.toNanos(5)));
         connectedToCluster = true;
+        clientIngressSender = new ClientIngressSender(aeronCluster, pendingMessageManager);
         LOGGER.info("Connected to cluster leader, node " + aeronCluster.leaderMemberId());
         startWSServer();
     }
@@ -96,7 +105,7 @@ public class ClusterInteractionAgent implements Agent
     private void startWSServer()
     {
         vertx = Vertx.vertx();
-        final WebSocketServer webSocketServer = new WebSocketServer(new ClientIngressSender(aeronCluster), clientEgressListener);
+        final WebSocketServer webSocketServer = new WebSocketServer(clientIngressSender, clientEgressListener);
         vertx.deployVerticle(webSocketServer);
         LOGGER.info("Websocket started...");
     }

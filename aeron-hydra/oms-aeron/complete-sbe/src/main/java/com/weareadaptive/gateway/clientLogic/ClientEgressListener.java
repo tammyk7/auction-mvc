@@ -31,7 +31,13 @@ public class ClientEgressListener implements EgressListener
     private static final Logger LOGGER = LoggerFactory.getLogger(ClientEgressListener.class);
     private final HashMap<Long, ServerWebSocket> wsSessions = new HashMap<>();
     private final MessageHeaderDecoder headerDecoder = new MessageHeaderDecoder();
+    private final PendingMessageManager pendingMessageManager;
     private int currentLeader = -1;
+
+    public ClientEgressListener(final PendingMessageManager pendingMessageManager)
+    {
+        this.pendingMessageManager = pendingMessageManager;
+    }
 
     /**
      * * Implement Egress routing logic
@@ -50,6 +56,7 @@ public class ClientEgressListener implements EgressListener
     {
         headerDecoder.wrap(buffer, offset);
         final long correlation = headerDecoder.correlation();
+        pendingMessageManager.markMessageAsReceived(correlation);
         switch (headerDecoder.templateId())
         {
             case OrderEgressDecoder.TEMPLATE_ID -> placeOrderListener(correlation, buffer, offset);

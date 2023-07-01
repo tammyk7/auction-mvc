@@ -3,6 +3,9 @@ package com.weareadaptive.cluster;
 import java.io.IOException;
 import java.util.concurrent.TimeUnit;
 
+import com.weareadaptive.cluster.clusterUtil.ClientSessionManager;
+import com.weareadaptive.cluster.clusterUtil.SessionMessageContext;
+import com.weareadaptive.cluster.clusterUtil.SnapshotManager;
 import com.weareadaptive.cluster.services.OMSService;
 import com.weareadaptive.sbe.CancelOrderIngressDecoder;
 import com.weareadaptive.sbe.ClearOrderbookIngressDecoder;
@@ -11,6 +14,8 @@ import com.weareadaptive.sbe.OrderIngressDecoder;
 import com.weareadaptive.sbe.ResetOrderbookIngressDecoder;
 
 import org.agrona.DirectBuffer;
+import org.agrona.concurrent.BusySpinIdleStrategy;
+import org.agrona.concurrent.IdleStrategy;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -28,7 +33,11 @@ import io.aeron.logbuffer.Header;
 public class ClusterService implements ClusteredService
 {
     private static final Logger LOGGER = LoggerFactory.getLogger(ClusteredService.class);
+    private final IdleStrategy idleStrategy = new BusySpinIdleStrategy();
+    private final ClientSessionManager clientSessionManager = new ClientSessionManager();
+    private final SessionMessageContext sessionMessageContext = new SessionMessageContext(clientSessionManager);
     private final MessageHeaderDecoder headerDecoder = new MessageHeaderDecoder();
+    private SnapshotManager snapshotManager;
     private OMSService omsService;
     private int currentLeader = -1;
 
@@ -40,7 +49,9 @@ public class ClusterService implements ClusteredService
     @Override
     public void onStart(final Cluster cluster, final Image snapshotImage)
     {
+        sessionMessageContext.setIdleStrategy(idleStrategy);
         registerOMSService();
+        snapshotManager = new SnapshotManager(omsService.getOrderbook(), idleStrategy);
         if (null != snapshotImage)
         {
             try
@@ -62,6 +73,8 @@ public class ClusterService implements ClusteredService
     public void onSessionOpen(final ClientSession session, final long timestamp)
     {
         LOGGER.info("Client ID: " + session.id() + " Connected");
+        sessionMessageContext.setClusterTime(timestamp);
+        clientSessionManager.addSession(session);
     }
 
     /**
@@ -71,6 +84,7 @@ public class ClusterService implements ClusteredService
     public void onSessionClose(final ClientSession session, final long timestamp, final CloseReason closeReason)
     {
         LOGGER.info("Client ID: " + session.id() + " Disconnected");
+        clientSessionManager.removeSession(session);
     }
 
     /**
@@ -86,6 +100,7 @@ public class ClusterService implements ClusteredService
         final Header header
     )
     {
+        sessionMessageContext.setSessionContext(session, timestamp);
         headerDecoder.wrap(buffer, offset);
         final long correlation = headerDecoder.correlation();
         switch (headerDecoder.templateId())
@@ -106,14 +121,7 @@ public class ClusterService implements ClusteredService
     @Override
     public void onTakeSnapshot(final ExclusivePublication snapshotPublication)
     {
-        try
-        {
-            omsService.onTakeSnapshot(snapshotPublication);
-        }
-        catch (final IOException e)
-        {
-            throw new RuntimeException(e);
-        }
+        snapshotManager.takeSnapshot(snapshotPublication);
     }
 
     /**
@@ -125,13 +133,13 @@ public class ClusterService implements ClusteredService
      */
     public void restoreSnapshot(final Image snapshotImage) throws IOException, ClassNotFoundException
     {
-        omsService.onRestoreSnapshot(snapshotImage);
+        snapshotManager.loadSnapshot(snapshotImage);
     }
 
     @Override
     public void onTimerEvent(final long correlationId, final long timestamp)
     {
-
+        sessionMessageContext.setClusterTime(timestamp);
     }
 
     /**
@@ -140,7 +148,6 @@ public class ClusterService implements ClusteredService
     @Override
     public void onRoleChange(final Cluster.Role newRole)
     {
-//        LOGGER.info("Cluster node " + cluster.memberId() + " is now: " + newRole);
     }
 
     @Override
@@ -169,7 +176,7 @@ public class ClusterService implements ClusteredService
 
     private void registerOMSService()
     {
-        omsService = new OMSService();
+        omsService = new OMSService(sessionMessageContext);
     }
 
     /**

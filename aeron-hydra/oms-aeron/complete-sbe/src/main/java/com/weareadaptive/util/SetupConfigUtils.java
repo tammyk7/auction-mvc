@@ -17,9 +17,9 @@ import io.aeron.samples.cluster.ClusterConfig;
 /**
  * Cluster Config Utilities
  */
-public class ConfigUtils
+public class SetupConfigUtils
 {
-    private static final Logger LOGGER = LoggerFactory.getLogger(ConfigUtils.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(SetupConfigUtils.class);
 
     /**
      * Read the cluster addresses from the environment variable CLUSTER_ADDRESSES or the
