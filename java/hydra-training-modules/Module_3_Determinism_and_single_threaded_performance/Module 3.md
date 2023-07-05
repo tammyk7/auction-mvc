@@ -2,7 +2,30 @@
 
 Goal: To ensure people are aware of how to code for a deterministic, single-threaded system
 
-- Why determinism is important
+## Why determinism is important
+
+Deterministic code ensures consistent and predictable behavior across your code.
+
+- Determinism refers to the property of a system where given the same inputs and initial conditions, the system will always produce the same outputs and follow the same execution path.
+
+Here's why determinism is important in Aeron Cluster:
+
+Consensus Algorithm: 
+- Aeron Cluster uses a consensus algorithm to achieve fault-tolerant replicated state machines. Determinism ensures that all nodes in the cluster reach the same decisions and state updates. If different nodes diverge from the same inputs, consensus cannot be achieved, leading to inconsistencies and potential cluster failures.
+
+State Replication: 
+- Aeron Cluster replicates the state machine across multiple nodes, ensuring that the state is consistent and up-to-date on each node. Determinism is critical to guarantee that the state updates are applied in the same order on all nodes, maintaining the integrity of the replicated state.
+
+Handling Failures: 
+- In the presence of failures, determinism enables nodes to recover and resume consistent operation. By replaying the same sequence of inputs and following the same execution path, failed nodes can catch up with the current state of the cluster without diverging from the correct behavior.
+
+Debugging and Testing: 
+- Determinism simplifies debugging and testing of Aeron Cluster applications. With deterministic behavior, issues can be more easily reproduced and analyzed. By replaying the same inputs, developers can investigate and fix problems without worrying about non-deterministic factors.
+
+By ensuring deterministic code, the system achieves consistency, fault tolerance, and predictability. 
+
+It enables the reliable replication of state, proper handling of failures, and the ability to reason about system behavior. 
+
 - How to write deterministic code
 
 ## Single-threaded business logic
