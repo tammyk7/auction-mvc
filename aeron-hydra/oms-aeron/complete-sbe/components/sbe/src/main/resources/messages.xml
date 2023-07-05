@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<sbe:messageSchema xmlns:sbe="http://fixprotocol.io/2016/sbe"
+                   package="com.weareadaptive.sbe"
+                   id="688"
+                   version="1"
+                   semanticVersion="0.1"
+                   description="Aeron OMS SBE Messages"
+                   byteOrder="littleEndian">
+    <types>
+        <composite name="messageHeader" description="Message identifiers and length of message root">
+            <type name="blockLength" primitiveType="uint16"/>
+            <type name="templateId" primitiveType="uint16"/>
+            <type name="correlationId" primitiveType="uint64"/>
+            <type name="schemaId" primitiveType="uint16"/>
+            <type name="version" primitiveType="uint16"/>
+        </composite>
+        <composite name="groupSizeEncoding" description="Repeating group dimensions.">
+            <type name="blockLength" primitiveType="uint16"/>
+            <type name="numInGroup" primitiveType="uint16"/>
+        </composite>
+        <composite name="byteList">
+            <type name="length" primitiveType="uint32" maxValue="1073741824"/>
+            <type name="varData" primitiveType="uint8" length="0" characterEncoding="UTF-8"/>
+        </composite>
+    </types>
+    <sbe:message name="OrderIngress" id="1" description="Ingress for a order placement">
+        <field name="price" id="1" type="double"/>
+        <field name="size" id="2" type="uint64"/>
+        <field name="side" id="3" type="int8"/>
+    </sbe:message>
+    <sbe:message name="OrderEgress" id="2" description="Egress for a order placement">
+        <field name="orderid" id="1" type="uint64"/>
+        <field name="status" id="2" type="int8"/>
+    </sbe:message>
+    <sbe:message name="CancelOrderIngress" id="3" description="Ingress for a order placement">
+        <field name="orderid" id="1" type="uint64"/>
+    </sbe:message>
+    <sbe:message name="CancelOrderEgress" id="4" description="Egress for a cancel order placement">
+        <field name="orderid" id="1" type="uint64"/>
+        <field name="status" id="2" type="int8"/>
+    </sbe:message>
+    <sbe:message name="ClearOrderbookIngress" id="5" description="Ingress for clearing Orderbook">
+    </sbe:message>
+    <sbe:message name="ClearOrderbookEgress" id="6" description="Egress for clearing Orderbook">
+    </sbe:message>
+    <sbe:message name="ResetOrderbookIngress" id="7" description="Ingress for resetting Orderbook">
+    </sbe:message>
+    <sbe:message name="ResetOrderbookEgress" id="8" description="Egress for resetting Orderbook">
+    </sbe:message>
+    <sbe:message name="OrderIdSnapshot" id="9" description="Snapshot storage for current orderID in the orderbook">
+        <field name="orderId" id="1" type="uint64"/>
+    </sbe:message>
+    <sbe:message name="OrderSnapshot" id="10" description="Snapshot storage for orders in the orderbook">
+        <field name="orderId" id="1" type="uint64"/>
+        <field name="price" id="2" type="double"/>
+        <field name="size" id="3" type="uint64"/>
+        <field name="side" id="4" type="int8"/>
+    </sbe:message>
+    <sbe:message name="EndOfSnapshot" id="11" description="Marks end of snapshot"/>
+    <sbe:message name="OrderList" id="12" description="A list of orders">
+        <field name="orderId" id="1" type="uint64"/>
+        <group name="orders" id="2" dimensionType="groupSizeEncoding">
+            <field name="orderId" id="1" type="uint64"/>
+            <field name="price" id="2" type="double"/>
+            <field name="size" id="3" type="uint64"/>
+            <field name="side" id="4" type="int8"/>
+        </group>
+    </sbe:message>
+
+</sbe:messageSchema>

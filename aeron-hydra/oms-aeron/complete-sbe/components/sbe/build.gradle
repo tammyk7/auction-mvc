@@ -1,0 +1,40 @@
+plugins {
+    id 'java'
+}
+
+group = 'weareadaptive.com'
+version = '1.0-SNAPSHOT'
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    implementation 'io.aeron:aeron-all:1.41.2'
+    implementation "uk.co.real-logic:sbe-tool:1.28.3"
+    implementation project(':components:omsLogic')
+}
+
+def generatedDir = file("${buildDir}/generated/src/main/java")
+
+tasks.register('generateMessages', JavaExec) {
+    main = 'uk.co.real_logic.sbe.SbeTool'
+    classpath = sourceSets.main.runtimeClasspath
+    systemProperties('sbe.output.dir': generatedDir,
+            'sbe.target.language': 'Java',
+            'sbe.validation.stop.on.error': 'true',
+            'sbe.validation.xsd': 'src/main/resources/sbe.xsd')
+    args = [
+            'src/main/resources/messages.xml'
+    ]
+}
+
+sourceSets {
+    main {
+        java.srcDir(generatedDir)
+    }
+}
+
+test {
+    useJUnitPlatform()
+}

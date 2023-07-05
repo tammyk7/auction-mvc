@@ -1,0 +1,25 @@
+#!/bin/bash
+
+cd ../
+
+gradle clean
+gradle generateMessages -x compileJava
+gradle build -x test
+
+cd docker
+
+docker rm complete-sbe
+
+#Ensure not using cached builds
+docker builder prune -a
+
+#Build docker images for client and node
+echo "building cluster image..."
+docker build -f Dockerfile.cluster --no-cache -t aeron-cluster-node ../components/cluster
+echo "building basic client image..."
+docker build -f Dockerfile.client --no-cache -t aeron-cluster-client ../components/basicClient
+echo "building gateway image..."
+docker build -f Dockerfile.gateway --no-cache -t aeron-cluster-gateway ../components/gateway
+
+#Run docker compose
+docker-compose -p aeron-sbe-oms up

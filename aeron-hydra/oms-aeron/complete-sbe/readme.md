@@ -77,7 +77,7 @@ Snapshotting command examples:
 
 `java --add-opens java.base/sun.nio.ch=ALL-UNNAMED -cp aeron-cluster.jar io.aeron.cluster.ClusterTool aeronCluster/node-2/cluster snapshot`
 
-`java --add-opens java.base/sun.nio.ch=ALL-UNNAMED -cp aeron-oms-1.0-SNAPSHOT.jar io.aeron.cluster.ClusterTool aeronCluster/node-2/cluster snapshot`
+`java --add-opens java.base/sun.nio.ch=ALL-UNNAMED -cp build/libs/aeron-oms-sbe-1.0-SNAPSHOT.jar io.aeron.cluster.ClusterTool aeronCluster/node-0/cluster snapshot`
 
 #### Obstacle Topics:
 - Encoding/Decoding Java Data structures such as Hashmaps and Treesets
