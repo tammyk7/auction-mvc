@@ -1,9 +1,6 @@
 # Connecting RxJS to React Components: An In-Depth Guide
 
-
->💡 There will be times where you want more control over how the connection and cleanup of observables in React components are handled compared to using `react-rxjs`, and when that time arrives, this will be your guide.
-
-
+> 💡 There will be times where you want more control over how the connection and cleanup of observables in React components are handled compared to using `react-rxjs`, and when that time arrives, this will be your guide.
 
 ## Connecting Observables with React Hooks
 

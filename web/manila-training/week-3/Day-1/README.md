@@ -7,3 +7,7 @@
 - [Thinking in Streams](Thinking-in-Streams.md)
 - [Observables vs. Signals vs. Subjects](Observables-vs-Signals-vs-Subjects.md)
 - [React-RxJS Utilities](React-RxJS-Utilities.md)
+
+## Code challenges
+- [Counter](code-challenges/challenge-1/README.md)
+-  [User Profile](code-challenges/challenge-2/README.md)

@@ -289,15 +289,4 @@ Here are some potential pitfalls and gotchas to keep in mind when using Observab
 - Be careful when using Subjects to share state between components. It can be easy to introduce bugs if you're not careful.
 - Remember that Subjects are not lazy and will start emitting values as soon as they are created. Be sure this behavior is what you want before using a Subject.
 - Avoid using Observables to handle user events. It can be difficult to manage the lifecycle of an Observable in this context and can lead to memory leaks. Use a Subject instead.
-
-###
-
----
-
-### For further reading:
-
-1. "Using RxJS Observables with React" by Ben Lesh (2022): https://blog.nrwl.io/using-rxjs-observables-with-react-8b3c5a1d6de2 This article provides a comprehensive introduction to using RxJS observables with React, including how to create an observable, subscribe to it, and handle errors.
-2. "Managing State in React with RxJS" by Juri Strumpflohner (2021): https://juristr.com/blog/2021/03/managing-state-react-rxjs/ This article explains how to use RxJS subjects to manage state in a React application, including how to create a subject, subscribe to it, and emit values.
-3. "Using RxJS in React" by Aman Mittal (2021): https://www.twilio.com/blog/using-rxjs-react This article provides an overview of using RxJS in a React application, including how to use observables and subjects, as well as how to handle concurrency and cancellation.
-4. "React, RxJS and state management" by Oleg Ilyenko (2021): https://blog.rangle.io/react-rxjs-and-state-management/ This article explores how to use RxJS observables and subjects for state management in a React application, including how to create a subject, subscribe to it, and emit values.
-5. "React, RxJS and Redux" by Jay Phelps (2020): https://www.youtube.com/watch?v=AslncyG8whg This video tutorial explains how to use RxJS observables with Redux, including how to create an observable, subscribe to it, and dispatch actions based on the emitted values.
+****
