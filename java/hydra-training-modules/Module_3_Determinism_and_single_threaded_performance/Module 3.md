@@ -85,8 +85,18 @@ Different machines have different system times because each machine has its own 
 ## How does Aeron use timers in a deterministic way?
 Aeron implements deterministic-safe timers. In order to do that, when a timer expires it will be appended to the log as a TimerEvent and replicated to follower nodes.  Once replicated, all nodes receive the TimerEvent and execute the necessary command like any other command. Note: The timer will be triggered only in the leader node. For more info you can check the [Cluster timers page](https://aeroncookbook.com/aeron-cluster/cluster-timers/) in the Aeron documentation.
 
-- Journalling and replayability
+### Journalling and replayability
+  - **A journal**, or log, is a type of persistence solution where entries are appended and no longer modified afterward. The commands coming into the cluster are persisted in the journal of each individual state machine. Once the commands are executed they result in a certain end state of the replicated state machine.
+  - If our code is deterministic, when we restart our state machine and replay the commands as they are stored in the journal then we would end up in the same exact end-state.
+  - The ability to be able to replay the commands stored in the journal and end up in the desired state is called **replayability**.
+#### Why have replayability?
+- In the event a node fails, replaying of all the commands in the journal allows the node to get upto speed till the point where it dropped off. 
+- In the instance of an undesired end state, Replayability also allows for the user to be able to replay the commands in the journal one at a time in order to debug and locate exactly where and when the issue arose
 
+#### Does our architecture consider journals the source of truth?
+- Yes, our architecture follows command-sourcing principles and the Raft log records the sequence of all commands (messages) received by the cluster. From this log you can replay all commands one by one and recreate any intermediate state between the initial and the final state. How to replay the journal will be discussed in  module 4 after we discuss Snapshotting. 
+
+ 
 ## Things to watch out for
 
 - **External State**: *Only use the model's current state and the command log messages.*
