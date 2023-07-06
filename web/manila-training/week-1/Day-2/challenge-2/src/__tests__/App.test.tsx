@@ -5,7 +5,7 @@ import { vi } from 'vitest';
 describe('CountdownTimer', () => {
   test('should start and stop the timer correctly', () => {
     render(<CountdownTimer />);
-    const input = screen.getByRole('textbox');
+    const input = screen.getByTestId('timer-input');
     const startButton = screen.getByRole('button', { name: 'Start' });
     const stopButton = screen.getByRole('button', { name: 'Stop' });
 
@@ -28,7 +28,7 @@ describe('CountdownTimer', () => {
 
   test('should display "Timer Ended!" when the timer reaches zero', () => {
     render(<CountdownTimer />);
-    const input = screen.getByRole('textbox');
+    const input = screen.getByTestId('timer-input');
     const startButton = screen.getByRole('button', { name: 'Start' });
 
     // Start the timer with 2 seconds duration
