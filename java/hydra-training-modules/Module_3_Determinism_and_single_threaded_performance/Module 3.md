@@ -26,7 +26,27 @@ By ensuring deterministic code, the system achieves consistency, fault tolerance
 
 It enables the reliable replication of state, proper handling of failures, and the ability to reason about system behavior.
 
-- How to write deterministic code
+## How to write deterministic code
+
+As a general rule, for our code to be deterministic we can think of it as deriving state only from the previous state and the command log, taking also into account that inputs to the model must arrive as commands and be journaled.
+Here are some guidelines we can follow to accomplish this:
+
+Avoid randomness:
+
+- Randomness introduces variability in our code which makes it impossible to predict the outputs that we expect, using random number generators or inconsistent time sources can lead to unpredictable outputs. A common example is using system time, Hydra Platform provides you with a TimeSource that you can use to determine the time safely.
+- Another common example is GUIDS, they are by definition non-deterministic. Often we use random numbers and GUIDs for transaction ids as they cannot be guessed in advance by users. Instead, use a deterministic random number generator and seed it with something taken from the Cluster log or snapshot. When there is a security consideration, and users must not be able to guess the ID in advance, the random number should be generated outside the cluster using a non-deterministic source of randomness and passed in as part of a message. This guarantees that when you replay the logic, you will see the same value.
+
+Consistent iteration through collections:
+
+- To ensure determinism during iterations it's recommended to use sorted collections or specify a comparator for consistent order.
+
+Implementing asynchronicity incorrectly:
+
+-  Calling an external system (or disk, or database) directly from the model without re-entering the system through the message journal. If the model needs to query an external system, it doesn't have to log the outbound message, only the response matters and needs to be journaled.
+
+Multi threading:
+
+- Threads can be run in different orders at different times, this leads to our code being non-deterministic due to lack of consistency.
 
 ## Single-threaded business logic
 Concurrency is a popular topic nowadays in the field of software development. However, it's important to note that not all programs can benefit from concurrency, and it may not always be the best solution depending on the specific requirements of the program— especially when building a high-speed, deterministic distributed system.
