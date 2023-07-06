@@ -27,7 +27,7 @@ graph TB
 
 React uses a pull-based architecture where it requests a new value when it needs to re-render. On the other hand, RxJS uses a push-based approach where changes are propagated from one stream to the next. React-RxJS bridges the gap between these two behaviors.
 
-## [[Streams as State](Thinking-in-Streams.md)](Thinking-in-Streams.md)
+## [Streams as State](Thinking-in-Streams.md)
 
 RxJS streams are used to represent events or changing values over time. They are declarative and don't execute the effect until someone subscribes to it. React-RxJS provides `shareLatest` to share the state between many components and keep the latest value.
 
