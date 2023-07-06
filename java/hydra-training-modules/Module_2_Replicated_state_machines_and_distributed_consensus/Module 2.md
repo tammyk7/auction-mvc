@@ -90,10 +90,9 @@ consensus algorithm would be the implementation of this process of achieving con
 
 ### Why do we need consensus?
 
-Consensus enables fault tolerance in distributed systems by ensuring that every node agrees on a common value or state,
-even in the presence of errors and failures. If a node goes down, you can be assured that another node is running with
-the same state prior to the crash. This potentially enables you to resume your application as normal or, at the very
-least, reduce system downtime.
+Consensus enables fault tolerance in distributed systems by ensuring that every node replicates the commands in its log.
+If a node goes down, you can be assured that another node is running with the same state prior to the crash.
+This potentially enables you to resume your application as normal or, at the very least, reduce system downtime.
 
 ### What are some distributed consensus algorithms that I can use?
 
@@ -101,7 +100,8 @@ There are two widely used consensus algorithms for distributed systems that offe
 and Raft. However, we will only be discussing Raft as this relates specifically to Aeron and Hydra.
 
 ### What is Raft?
-Raft was created to be a more clear and simple alternative to Paxos. It divides nodes into leader, follower, and candidate roles and uses leader election and log replication to ensure consistency and fault tolerance.
+Raft was created to be a more clear and simple alternative to Paxos. Its nodes are either into leader, follower or candidate state,
+and uses leader election and log replication to ensure consistency and fault tolerance.
 
 ## Raft leader election
 
@@ -152,26 +152,18 @@ visualization of this process can be [found here](https://thesecretlivesofdata.c
 ### What is Raft Log Replication?
 
 A cluster of nodes managed by Raft consensus algorithm can be either undergoing leader election, or log replication.
-In log replication phase, there is an active leader in the cluster, and when the leader receives a request,
-it appends it in its log and requests the followers to append it to their logs.
-Once a majority of the nodes (leader and followers) have appended the request to their logs,
-that request is considered committed by the leader, which executes it and notifies the followers.
-This ensures that the followers will eventually have the same state as the leader.
+In the log replication phase, there is an active leader in the cluster, and the log of commands is replicated as follows:
 
-The followers then apply the committed entries to their state machines. This means that they update their own state
-based on the entries that the leader has committed. By doing this, they ensure that they are in sync with the leader and
-the rest of the system. Once the followers have applied the committed entries, consensus is reached among the nodes.
-
-### How does it happen?
-
-1. The client process sends the command and the leader accepts client requests. Each client request consists of a
+1. The client process sends the command and the leader accepts client requests (arrow "A" in the image below). Each client request consists of a
    command to be executed by the replicated state machines in the cluster.
-2. The leader consensus module appends the command to the local log. In parallel, the consensus model forwards the
-   commands to the follower nodes as AppendEntries messages to replicate in their local log.
+2. The leader consensus module appends the command to the local log (arrow "B" within the leader). In parallel, the consensus model forwards the
+   commands to the follower nodes as AppendEntries messages to replicate in their local log (arrow "B" to each follower).
 3. Only after it has received an acknowledgement of the replication by more than half of the nodes on their own local
-   logs the request is the command then considered committed.
-4. The committed command is then handed off to the Replicated State Machine for processing(business logic).
-5. After processing, the Replicated State Machine then produces events which are then sent back to the client.
+   logs (arrows "B" from the followers to the leader) the request is the command then considered committed.
+4. The committed command is then handed off to the Replicated State Machine for processing (arrows "C").
+5. After processing, the Replicated State Machine then produces events which are then sent back to the client (arrow "D" from the leader to the client).
+![](images/log_replication.png)
+
 
 ### Safety Rules in Raft
 
@@ -222,6 +214,9 @@ Aeron Cluster has the following capabilities:
 - Reliable, sequenced timers
 - Very high levels of performance
 
+There is a tutorial for Aeron cluster in the file `readme.md` under the folder `code/aeron-concepts-tutorial`. Following this
+tutorial, you can see how this implementation of Raft performs leader election and log replication.
+
 ## Event-driven, event-sourced, command-sourced and command-query responsibility segregation (CQRS) architecture
 
 An event is something that has occurred in the system, which can trigger specific activities in various parts of the
@@ -230,7 +225,7 @@ On the other hand, a command is a request to do some action. Depending on whethe
 different components of a distributed system are commands or events, and how these messages are processed, we can
 classify the different distributed system architectures as follows:
 
-**Event Notification** is a communication paradigm where different software applications communicate with each other
+- **Event Notification** is a communication paradigm where different software applications communicate with each other
 through events.
 A software component generates an event when a state change occurs, a simple event notification (not carrying many
 details about the event itself).
@@ -243,7 +238,8 @@ destination address, and also could
 itself publish an OrderShipped event notification.
 ![](images/event_notification.png)
 
-**Event Sourcing (ES)** is another architecture where all the changes to the state of an application are published as a
+
+- **Event Sourcing (ES)** is another architecture where all the changes to the state of an application are published as a
 sequence of events.
 These events carry enough information to confidently rebuild the system state by processing the events (and **only** the
 events).
@@ -256,12 +252,14 @@ architecture
 might not be able to tell what triggered that event.
 ![](images/event_sourcing.png)
 
-**Command Sourcing (CS)** is an architecture that persists in all requests that change the system's state.
+
+- **Command Sourcing (CS)** is an architecture that persists in all requests that change the system's state.
 The system can then execute the same commands in the same order at a later moment in time, and as long as it does
 have a deterministic behaviour, it will have the same final state.
 ![](images/command_sourcing.png)
 
-**Command Query Responsibility Segregation (CQRS)** architecture segregates all requests into commands that modify
+
+- **Command Query Responsibility Segregation (CQRS)** architecture segregates all requests into commands that modify
 the system state, (i.e. create a new user) and queries that do not (i.e. list all users). In the distributed
 architecture context, Command and Query functions can be segregated into separate applications, therefore enabling
 scaling them separately.
