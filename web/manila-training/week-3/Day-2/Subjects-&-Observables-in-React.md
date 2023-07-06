@@ -289,4 +289,4 @@ Here are some potential pitfalls and gotchas to keep in mind when using Observab
 - Be careful when using Subjects to share state between components. It can be easy to introduce bugs if you're not careful.
 - Remember that Subjects are not lazy and will start emitting values as soon as they are created. Be sure this behavior is what you want before using a Subject.
 - Avoid using Observables to handle user events. It can be difficult to manage the lifecycle of an Observable in this context and can lead to memory leaks. Use a Subject instead.
-
+****

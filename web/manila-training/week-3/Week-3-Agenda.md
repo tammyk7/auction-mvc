@@ -29,6 +29,7 @@ Below you will find an outline for each day's material. Each bullet point with l
 - [Connecting RxJS Observables to React (without react-rxjs)](Day-2/A-Guide-to-Using-Vanilla-RxJS-with-React-Hooks.md)
 
 ### Code challenges
+> *** note that these are going to be refactors from day 1's challenges
 - [Counter](Day-2/code-challenges/challenge-1/README.md)
 -  [User Profile](Day-2/code-challenges/challenge-2/README.md)
 
@@ -36,7 +37,7 @@ Below you will find an outline for each day's material. Each bullet point with l
 ## Day 3: Error Handling and Higher-Order Observables
 
 - [Error Handling with catchError, retry &amp; retryWhen](Day-3/Error-Handling-with-RxJS-Operators.md)
-- [Error Handling with React-RxJS](Day-3/Error-Handling-wDay-5/crypto-search/README.md
+- [Error Handling with React-RxJS](Day-3/Error-Handling-with-React-RxJS.md)
 - [Higher-Order Observables: mergeMap, switchMap &amp; concatMap](Day-3/Higher-Order-Observables.md)
 
 ## Day 4: Review Code Tutorials
@@ -45,6 +46,6 @@ Below you will find an outline for each day's material. Each bullet point with l
 
 ## Day 5: Code Challenge: Real-time Search
 
-- [Implement a real-time search feature with React-RxJS](Day-5/crypto-search/README.md)
+- [Implement a real-time search feature with React-RxJS](Day-4/crypto-search/README.md)
 
 
