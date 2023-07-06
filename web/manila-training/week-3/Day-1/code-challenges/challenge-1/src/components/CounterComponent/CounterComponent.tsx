@@ -1,28 +1,26 @@
-
-import React, { FC } from 'react';
+import React from 'react';
 import { bind } from '@react-rxjs/core';
 import { createSignal } from '@react-rxjs/utils';
 import { merge } from 'rxjs';
 import { scan } from 'rxjs/operators';
 
-type CounterProps = {};
-
 const [increment$, onIncrement] = createSignal();
 const [decrement$, onDecrement] = createSignal();
 const [reset$, onReset] = createSignal();
 
-// TODO: Define increment, decrement, and reset functions
-// TODO: Create useCounter hook using bind
+// TODO: define increment, decrement, and reset functions
+// TODO: merge signals into a signal stream to handle counter logic
+// TODO: create useCounter hook using bind
+// TODO: add TS types for signals, components, and where necessary
 
-const CounterComponent: FC<CounterProps> = (): JSX.Element => {
+function CounterComponent() {
   // TODO: Use useCounter hook to get current count
   return (
     <div>
-      {/* TODO: Add buttons for incrementing, decrementing, and resetting the counter */}
+      {/* TODO: add the current count to the UI */}
+      {/* TODO: add buttons for incrementing, decrementing, and resetting the counter */}
     </div>
   );
 }
 
 export default CounterComponent;
-
-
