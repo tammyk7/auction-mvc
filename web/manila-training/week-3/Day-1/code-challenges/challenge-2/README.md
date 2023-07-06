@@ -26,7 +26,7 @@ const user$ = of<User>({
   email: 'john.doe@example.com'
 });
 
-const useUser = bind(user$);
+const [useUser] = bind(user$, '');
 
 const UserProfileComponent: FC = () => {
   const user = useUser();
