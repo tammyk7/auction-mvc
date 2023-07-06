@@ -8,6 +8,8 @@ We will wrap up the week with two code challenges. The first will be to create a
 
 Below you will find an outline for each day's material. Each bullet point with link to the corresponding file. The order listed each day is the order in which you should go through the material.
 
+** In each day's directory, start with the README file. It will outline the order of the articles for the given day or you can use the outline below.
+
 ## Day 1: Connecting RxJS to React with React-RxJS
 
 - [Problems Using RxJS with React](Day-1/Problems-Using-RxJS-with-React.md)
@@ -17,21 +19,32 @@ Below you will find an outline for each day's material. Each bullet point with l
 - [Observables vs. Signals vs. Subjects](Day-1/Observables-vs-Signals-vs-Subjects.md)
 - [React-RxJS Utilities](Day-1/React-RxJS-Utilities.md)
 
+### Code challenges
+- [Counter](Day-1/code-challenges/challenge-1/README.md)
+-  [User Profile](Day-1/code-challenges/challenge-2/README.md)
+
 ## Day 2: Connecting Observables to React without React-RxJS
 
-- [Subjects & Observables in React](Day-2/Subjects-&-Observables-in-React.md)
-- [Connecting RxJS Observables to React (without react-rxjs)](Day-2/Connecting-Observables-to-React.md)
+- [Subjects &amp; Observables in React](Day-2/Subjects-&-Observables-in-React.md)
+- [Connecting RxJS Observables to React (without react-rxjs)](Day-2/A-Guide-to-Using-Vanilla-RxJS-with-React-Hooks.md)
+
+### Code challenges
+- [Counter](Day-2/code-challenges/challenge-1/README.md)
+-  [User Profile](Day-2/code-challenges/challenge-2/README.md)
+
 
 ## Day 3: Error Handling and Higher-Order Observables
 
-- [Error Handling with catchError, retry & retryWhen](Day-3/Error-Handling-with-RxJS-Operators.md)
-- [Error Handling with React-RxJS](Day-3/Error-Handling-with-React-RxJS.md)
-- [Higher-Order Observables: mergeMap, switchMap & concatMap](Day-3/Higher-Order-Observables.md)
+- [Error Handling with catchError, retry &amp; retryWhen](Day-3/Error-Handling-with-RxJS-Operators.md)
+- [Error Handling with React-RxJS](Day-3/Error-Handling-wDay-5/crypto-search/README.md
+- [Higher-Order Observables: mergeMap, switchMap &amp; concatMap](Day-3/Higher-Order-Observables.md)
 
-## Day 4: Code Challenge: Real-time Search
+## Day 4: Review Code Tutorials
+- [Github Issue Tracker](https://react-rxjs.org/docs/tutorial/github-issues)
+- [ToDo App](https://react-rxjs.org/docs/tutorial/todos)
 
-- [Implement a real-time search feature with React-RxJS](Day-4/crypto-search/README.md)
+## Day 5: Code Challenge: Real-time Search
 
-## Day 5: Mini Project: Building a Reactive Crypto Watchlist
+- [Implement a real-time search feature with React-RxJS](Day-5/crypto-search/README.md)
 
-- Create a cryptocurrency watchlist app using React, RxJS, and react-rxjs hooks with TypeScript
+
