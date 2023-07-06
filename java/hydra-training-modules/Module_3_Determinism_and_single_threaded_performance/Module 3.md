@@ -10,21 +10,21 @@ Deterministic code ensures consistent and predictable behavior across your code.
 
 Here's why determinism is important in Aeron Cluster:
 
-Consensus Algorithm: 
+Consensus Algorithm:
 - Aeron Cluster uses a consensus algorithm to achieve fault-tolerant replicated state machines. Determinism ensures that all nodes in the cluster reach the same decisions and state updates. If different nodes diverge from the same inputs, consensus cannot be achieved, leading to inconsistencies and potential cluster failures.
 
-State Replication: 
+State Replication:
 - Aeron Cluster replicates the state machine across multiple nodes, ensuring that the state is consistent and up-to-date on each node. Determinism is critical to guarantee that the state updates are applied in the same order on all nodes, maintaining the integrity of the replicated state.
 
-Handling Failures: 
+Handling Failures:
 - In the presence of failures, determinism enables nodes to recover and resume consistent operation. By replaying the same sequence of inputs and following the same execution path, failed nodes can catch up with the current state of the cluster without diverging from the correct behavior.
 
-Debugging and Testing: 
+Debugging and Testing:
 - Determinism simplifies debugging and testing of Aeron Cluster applications. With deterministic behavior, issues can be more easily reproduced and analyzed. By replaying the same inputs, developers can investigate and fix problems without worrying about non-deterministic factors.
 
-By ensuring deterministic code, the system achieves consistency, fault tolerance, and predictability. 
+By ensuring deterministic code, the system achieves consistency, fault tolerance, and predictability.
 
-It enables the reliable replication of state, proper handling of failures, and the ability to reason about system behavior. 
+It enables the reliable replication of state, proper handling of failures, and the ability to reason about system behavior.
 
 - How to write deterministic code
 
@@ -45,7 +45,34 @@ No, nodes can still execute multiple tasks simultaneously. Instead of using mult
 In single-threaded asynchronous processing, multiple tasks are executed simultaneously without blocking the main thread of execution. However, unlike multi-threaded asynchronous processing, single-threaded asynchronous processing does not use multiple cores; rather, it uses callbacks or events to notify the program when a task has completed so that the program can continue to execute other tasks while waiting for slow I/O operations or other tasks to complete. This avoids the risk of data inconsistencies or race conditions that can occur with concurrent programming, while still allowing nodes to execute multiple tasks.
 
 - Performance
-- Zero-garbage & flyweight pattern (working with pooled objects)
+
+## Zero-copy & flyweight pattern
+
+### Zero-copy
+"Zero-copy" describes a series of operations in which the CPU won't have to copy data from one place to another.
+This is a very important concept in optimizing the performances of a program, by saving CPU cycles from copying data
+from one place to another.
+Current operating systems have specific system calls that will allow you to do zero-copy operations, such as `sendfile`
+on Linux.
+For example, if you have some data that you want to send it over a network, the traditional approach would involve copying the data from the original memory location to a new buffer (normally from the kernel to the user space), and then transferring that buffer over the network. The receiver on his end, will have to perform the same operation but reverted, from the user space to the kernel.
+This copying operation adds overhead in terms of CPU cycles (4 cycles instead of 2), memory bandwidth, and overall system performance.
+With a zero-copy method you can access directly the memory location of the data, and transfer it.
+For a more in-depth explanation, you can read [this article](https://developer.ibm.com/articles/j-zerocopy/).
+
+#### Kernel space:
+Kernel space refers to the portion of memory where the operating system's kernel resides. It is a privileged area of memory that is protected and inaccessible to most user processes.
+The kernel has direct access to hardware devices, and manages the resources of the computer.
+
+#### User space:
+User space is the memory area where application software and some drivers execute. It is the memory area where all the processes run, and where the applications are executed.
+
+### Flyweight pattern
+The flyweight pattern is a software design pattern that allows you to minimize the memory usage of an application by sharing as much data as possible with other similar objects, instead of storing copies in each of them.
+A flyweight object normally contains intrinsic and extrinsic data. The intrinsic data is the data that is shared between the objects, while the extrinsic data is the data that is unique to each object.
+The usual implementation consists in creating a factory that will create the flyweight objects, and one or multiple clients that will requests the flyweight objects from the factory.
+
+You can find a code example in the `code` folder.
+
 - Working with time
 - Journalling and replayability
 
