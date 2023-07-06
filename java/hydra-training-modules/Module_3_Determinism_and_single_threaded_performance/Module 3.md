@@ -69,11 +69,22 @@ User space is the memory area where application software and some drivers execut
 ### Flyweight pattern
 The flyweight pattern is a software design pattern that allows you to minimize the memory usage of an application by sharing as much data as possible with other similar objects, instead of storing copies in each of them.
 A flyweight object normally contains intrinsic and extrinsic data. The intrinsic data is the data that is shared between the objects, while the extrinsic data is the data that is unique to each object.
-The usual implementation consists in creating a factory that will create the flyweight objects, and one or multiple clients that will requests the flyweight objects from the factory.
+The usual implementation consists in creating a factory that will create the flyweight objects, and one or multiple clients that will request the flyweight objects from the factory.
 
 You can find a code example in the `code` folder.
 
-- Working with time
+## Working with time
+Using methods to get system time such as currentTimeMillis or LocalDateTime.now() creates non-deterministic behavior and divergence of state between cluster nodes. To avoid this, it's important to use a deterministic time source, when developing distributed systems.
+
+### How does SystemTime cause non-deterministic behavior?
+If the SystemTime is used when processing messages, the node may not end up in the same state as it would have been had it not been restarted. For example, consider a trading system that accepts orders only if the market is open. If a user submits an order while the market is open, the order will be accepted, and they will be notified that their order has been placed. If the system is restarted after the market closes, it will replay the log to get back into the correct state. However, if currentTimeMillis is used to determine the time, it will not accept the order, as it thinks it was submitted after market close. The system will then end up in a state where the order was rejected, even though it was originally accepted and the user was notified accordingly.
+
+### How does SystemTime cause divergence of state between cluster nodes?
+Different machines have different system times because each machine has its own internal clock that keeps time based on its own hardware specifications. These clocks can drift apart from each other over time due to factors such as temperature changes, aging of components, and differences in manufacturing tolerances. As a result, even if two machines were initially synchronized, their clocks will eventually become out of sync if they are not periodically adjusted. If a three-node cluster uses currentTimeMillis to determine time, there is no guarantee that all nodes will query for the time at the exact same millisecond, resulting in different states on different nodes.
+
+## How does Aeron use timers in a deterministic way?
+Aeron implements deterministic-safe timers. In order to do that, when a timer expires it will be appended to the log as a TimerEvent and replicated to follower nodes.  Once replicated, all nodes receive the TimerEvent and execute the necessary command like any other command. Note: The timer will be triggered only in the leader node. For more info you can check the [Cluster timers page](https://aeroncookbook.com/aeron-cluster/cluster-timers/) in the Aeron documentation.
+
 - Journalling and replayability
 
 ## Things to watch out for
