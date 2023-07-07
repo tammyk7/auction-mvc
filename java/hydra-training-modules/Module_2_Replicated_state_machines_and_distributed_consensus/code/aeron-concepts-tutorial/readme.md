@@ -55,27 +55,27 @@ From the cluster logs, we can see that the client successfully connected and sen
 
 To start a multi-node Aeron cluster within terminals, you can do this by using the compiled build jar.
 
-- To start, ensure you have run Gradle build, you should have `build/libs/aeron-concepts-1.0-SNAPSHOT.jar`.
+- To start, ensure you have run Gradle build, you should have `build/libs/code-aeron-concepts-tutorial.jar`.
 
 Cluster nodes can be launched via this command format:
 
-`java --add-opens java.base/sun.nio.ch=ALL-UNNAMED -cp build/libs/aeron-concepts-1.0-SNAPSHOT.jar com.weareadaptive.cluster.ClusterMain [NODEID] [MAXNODES] [TESTMODE]`
+`java --add-opens java.base/sun.nio.ch=ALL-UNNAMED -cp build/libs/code-aeron-concepts-tutorial.jar com.weareadaptive.cluster.ClusterMain [NODEID] [MAXNODES] [TESTMODE]`
 
 You should launch the following command in seperate terminal instances
 
-- Node 0 Terminal: `java --add-opens java.base/sun.nio.ch=ALL-UNNAMED -cp build/libs/aeron-concepts-1.0-SNAPSHOT.jar com.weareadaptive.cluster.ClusterMain 0 3 false`
+- Node 0 Terminal: `java --add-opens java.base/sun.nio.ch=ALL-UNNAMED -cp build/libs/code-aeron-concepts-tutorial.jar com.weareadaptive.cluster.ClusterMain 0 3 false`
 
-- Node 1 Terminal: `java --add-opens java.base/sun.nio.ch=ALL-UNNAMED -cp build/libs/aeron-concepts-1.0-SNAPSHOT.jar com.weareadaptive.cluster.ClusterMain 1 3 false`
+- Node 1 Terminal: `java --add-opens java.base/sun.nio.ch=ALL-UNNAMED -cp build/libs/code-aeron-concepts-tutorial.jar com.weareadaptive.cluster.ClusterMain 1 3 false`
 
-- Node 2 Terminal: `java --add-opens java.base/sun.nio.ch=ALL-UNNAMED -cp build/libs/aeron-concepts-1.0-SNAPSHOT.jar com.weareadaptive.cluster.ClusterMain 2 3 false`
+- Node 2 Terminal: `java --add-opens java.base/sun.nio.ch=ALL-UNNAMED -cp build/libs/code-aeron-concepts-tutorial.jar com.weareadaptive.cluster.ClusterMain 2 3 false`
 
 Once all three have launched, you should see that a leadership election has taken place and one of the nodes has been elected leader.
 
 To launch a client to connect to the cluster, you can open a fourth terminal and run the following command:
 
-- Format: `java --add-opens java.base/sun.nio.ch=ALL-UNNAMED -cp build/libs/aeron-concepts-1.0-SNAPSHOT.jar com.weareadaptive.client.ClientMain [MAXNODES]`
+- Format: `java --add-opens java.base/sun.nio.ch=ALL-UNNAMED -cp build/libs/code-aeron-concepts-tutorial.jar com.weareadaptive.client.ClientMain [MAXNODES]`
 
-- Actual: `java --add-opens java.base/sun.nio.ch=ALL-UNNAMED -cp build/libs/aeron-concepts-1.0-SNAPSHOT.jar com.weareadaptive.client.ClientMain 3`
+- Actual: `java --add-opens java.base/sun.nio.ch=ALL-UNNAMED -cp build/libs/code-aeron-concepts-tutorial.jar com.weareadaptive.client.ClientMain 3`
 
 The client will send a ingress to the cluster, which all three nodes log and then respond with a egress.
 
@@ -134,7 +134,7 @@ However, in the scenario in which we could have millions of messages sent to the
 
 In the case of this tutorial, we have a very basic state of the total amount of messages received being stored. After cluster has received numerous ingress messages from clients. You can demonstrate snapshotting by executing this command in a new terminal (You will have to adjust the command to the appropriate leader nodeID):
 
-`java --add-opens java.base/sun.nio.ch=ALL-UNNAMED -cp build/libs/aeron-concepts-1.0-SNAPSHOT.jar io.aeron.cluster.ClusterTool aeronCluster/aeron-node-[NODEID]/cluster snapshot`
+`java --add-opens java.base/sun.nio.ch=ALL-UNNAMED -cp build/libs/code-aeron-concepts-tutorial.jar io.aeron.cluster.ClusterTool aeronCluster/aeron-node-[NODEID]/cluster snapshot`
 
 You should see this reflected in each node terminal across your cluster:
 
