@@ -2,11 +2,32 @@
 
 Goal: To ensure people are aware of how to code for a deterministic, single-threaded system
 
+<details>
+<summary>Contents</summary>
+
+- [Why determinism is important](#why-determinism-is-important)
+- [How to write deterministic code](#how-to-write-deterministic-code)
+- [Single-threaded business logic](#single-threaded-business-logic)
+- [Zero-copy & flyweight pattern](#zero-copy--flyweight-pattern)
+  - [Kernel space](#kernel-space)
+  - [User space](#user-space)
+  - [Flyweight pattern](#flyweight-pattern)
+- [Working with time](#working-with-time)
+  - [How does SystemTime cause non-deterministic behavior?](#how-does-systemtime-cause-non-deterministic-behavior)
+  - [How does Aeron cluster use timers in a deterministic way?](#how-does-aeron-cluster-use-timers-in-a-deterministic-way)
+- [Journaling and replayability](#journaling-and-replayability)
+  - [Why have replayability?](#why-have-replayability)
+  - [Does our architecture consider journals the source of truth?](#does-our-architecture-consider-journals-the-source-of-truth)
+- [Performance](#performance)
+- [Things to watch out for](#things-to-watch-out-for)
+
+</details>
+
 ## Why determinism is important
 
 Deterministic code ensures consistent and predictable behavior across your code.
 
-- Determinism refers to the property of a system where given the same inputs and initial conditions, the system will always produce the same outputs and follow the same execution path.
+- Determinism refers to the property of a system where given the same inputs and initial conditions, the system will always produce the same outputs and will be in the same final state.
 
 Here's why determinism is important in Aeron Cluster:
 
@@ -28,13 +49,13 @@ It enables the reliable replication of state, proper handling of failures, and t
 
 ## How to write deterministic code
 
-As a general rule, for our code to be deterministic we can think of it as deriving state only from the previous state and the command log, taking also into account that inputs to the model must arrive as commands and be journaled.
+As a general rule, for our code to be deterministic we can think of it as **deriving state only from the previous state and the command log**.
 Here are some guidelines we can follow to accomplish this:
 
 Avoid randomness:
 
 - Randomness introduces variability in our code which makes it impossible to predict the outputs that we expect, using random number generators or inconsistent time sources can lead to unpredictable outputs. A common example is using system time, Hydra Platform provides you with a TimeSource that you can use to determine the time safely.
-- Another common example is GUIDS, they are by definition non-deterministic. Often we use random numbers and GUIDs for transaction ids as they cannot be guessed in advance by users. Instead, use a deterministic random number generator and seed it with something taken from the Cluster log or snapshot. When there is a security consideration, and users must not be able to guess the ID in advance, the random number should be generated outside the cluster using a non-deterministic source of randomness and passed in as part of a message. This guarantees that when you replay the logic, you will see the same value.
+- Another common example is GUIDS, they are by definition non-deterministic. Often we use random numbers and GUIDs for transaction ids as they cannot be guessed in advance by users. When there is a security consideration, and users must not be able to guess the ID in advance, the random number should be generated outside the cluster using a non-deterministic source of randomness and passed in as part of a message. This guarantees that when you replay the logic, you will see the same value.
 
 Consistent iteration through collections:
 
@@ -49,21 +70,9 @@ Multi threading:
 - Threads can be run in different orders at different times, this leads to our code being non-deterministic due to lack of consistency.
 
 ## Single-threaded business logic
-Concurrency is a popular topic nowadays in the field of software development. However, it's important to note that not all programs can benefit from concurrency, and it may not always be the best solution depending on the specific requirements of the program— especially when building a high-speed, deterministic distributed system.
+In 1993, Intel released the first Pentium processor, which had a clock speed of 60 MHz and could process about 100 million instructions per second. Since then, processors have only improved, and have multiple cores that developers may want to use implementing concurrent programs.
 
-### Why is single-threaded business logic deterministic?
-As we have discussed in prior modules, deterministic behavior ensures that the system is able to recover from system failures and remain consistent across all nodes. Additionally, deterministic behavior enables the system to be debugged and tested more easily, since the behavior of the system is consistent and predictable. Furthermore, Raft specifically requires that the leader's log be replicated across all nodes, and that the nodes agree on the order in which entries are added to the log. Therefore, since using concurrent business logic in this context can lead to inconsistencies and race conditions, the integrity of the system can be compromised and can lead to conflicting logs. To prevent this, it is important to use single-threaded business logic when building a deterministic, distributed system, ensuring that the system remains consistent and predictable across all nodes.
-
-### Why can single-threaded business logic be faster than multi-threaded business logic in distributed systems?
-In 1993, Intel released the first Pentium processor, which had a clock speed of 60 MHz and could process about 100 million instructions per second. Since then, processors have only improved. Given the significant increase in processing power available today, developers may want to consider utilizing this speed by implementing concurrent programs that can take advantage of the multiple cores offered on many modern CPUs.
-
-Using concurrency can improve performance in some regards by enabling multiple tasks to be executed simultaneously, but as mentioned above, can also cause unpredictable behavior, data inconsistencies, and race conditions. Locking or compare-and-swap (CAS) operations can ensure monotonicity and avoid these problems, but may also slow down a program. This is especially significant in distributed systems, which involve multiple machines communicating with each other over a network. In these systems, acquiring locks and checking memory locations can take even longer, leading to even greater performance issues. To avoid these issues, developers should use single-threaded business logic and avoid locking and CAS operations entirely, allowing systems to take full advantage of high-speed CPUs.
-
-### Does this mean that nodes cannot execute multiple tasks simultaneously at all?
-No, nodes can still execute multiple tasks simultaneously. Instead of using multiple threads on multiple cores, single-threaded asynchronous processing can be used to allow nodes to execute multiple tasks at the same time.
-
-In single-threaded asynchronous processing, multiple tasks are executed simultaneously without blocking the main thread of execution. However, unlike multi-threaded asynchronous processing, single-threaded asynchronous processing does not use multiple cores; rather, it uses callbacks or events to notify the program when a task has completed so that the program can continue to execute other tasks while waiting for slow I/O operations or other tasks to complete. This avoids the risk of data inconsistencies or race conditions that can occur with concurrent programming, while still allowing nodes to execute multiple tasks.
-
+As we have discussed before, deterministic behavior ensures that the system is able to recover from system failures and remain consistent across all nodes. Additionally, deterministic behavior enables the system to be debugged and tested more easily, since the behavior of the system is consistent and predictable. Furthermore, Raft specifically requires that the leader's log be replicated across all nodes, and that the nodes agree on the order in which entries are added to the log. Therefore, since using concurrent business logic in this context can lead to inconsistencies and race conditions, the integrity of the system can be compromised and can lead to conflicting logs. To prevent this, it is important to use single-threaded business logic when building a deterministic, distributed system, ensuring that the system remains consistent and predictable across all nodes.
 
 ## Zero-copy & flyweight pattern
 
@@ -90,7 +99,7 @@ The flyweight pattern is a software design pattern that allows you to minimize t
 A flyweight object normally contains intrinsic and extrinsic data. The intrinsic data is the data that is shared between the objects, while the extrinsic data is the data that is unique to each object.
 The usual implementation consists in creating a factory that will create the flyweight objects, and one or multiple clients that will request the flyweight objects from the factory.
 
-You can find a code example in the `code` folder.
+You can find a code example in the `code/flyweight` folder.
 
 ## Working with time
 Using methods to get system time such as currentTimeMillis or LocalDateTime.now() creates non-deterministic behavior and divergence of state between cluster nodes. To avoid this, it's important to use a deterministic time source, when developing distributed systems.
@@ -98,18 +107,18 @@ Using methods to get system time such as currentTimeMillis or LocalDateTime.now(
 ### How does SystemTime cause non-deterministic behavior?
 If the SystemTime is used when processing messages, the node may not end up in the same state as it would have been had it not been restarted. For example, consider a trading system that accepts orders only if the market is open. If a user submits an order while the market is open, the order will be accepted, and they will be notified that their order has been placed. If the system is restarted after the market closes, it will replay the log to get back into the correct state. However, if currentTimeMillis is used to determine the time, it will not accept the order, as it thinks it was submitted after market close. The system will then end up in a state where the order was rejected, even though it was originally accepted and the user was notified accordingly.
 
-### How does SystemTime cause divergence of state between cluster nodes?
-Different machines have different system times because each machine has its own internal clock that keeps time based on its own hardware specifications. These clocks can drift apart from each other over time due to factors such as temperature changes, aging of components, and differences in manufacturing tolerances. As a result, even if two machines were initially synchronized, their clocks will eventually become out of sync if they are not periodically adjusted. If a three-node cluster uses currentTimeMillis to determine time, there is no guarantee that all nodes will query for the time at the exact same millisecond, resulting in different states on different nodes.
+Also, different nodes might have a slightly different System `currentTime`, causing them to diverge and be in different state after processing the same command.
 
-## How does Aeron use timers in a deterministic way?
-Aeron implements deterministic-safe timers. In order to do that, when a timer expires it will be appended to the log as a TimerEvent and replicated to follower nodes.  Once replicated, all nodes receive the TimerEvent and execute the necessary command like any other command. Note: The timer will be triggered only in the leader node. For more info you can check the [Cluster timers page](https://aeroncookbook.com/aeron-cluster/cluster-timers/) in the Aeron documentation.
+### How does Aeron cluster use timers in a deterministic way?
+Aeron implements deterministic-safe timers. In order to do that, when a timer expires it will be appended to the log as a TimerEvent and replicated to follower nodes.  Once replicated, all nodes receive the TimerEvent and execute the necessary command like any other command. Note: The timer will be triggered only in the leader node. For more info you can check the [Cluster timers page](https://aeroncookbook.com/aeron-cluster/cluster-timers/) in the Aeron documentation and
+the [Safely telling the time](https://docs.hydra.weareadaptive.com/LATEST/Development/Components/HowToSafelyTellTheTime.html#safely-telling-the-time) section of Hydra platform documentation.
 
-### Journalling and replayability
+## Journaling and replayability
   - **A journal**, or log, is a type of persistence solution where entries are appended and no longer modified afterward. The commands coming into the cluster are persisted in the journal of each individual state machine. Once the commands are executed they result in a certain end state of the replicated state machine.
   - If our code is deterministic, when we restart our state machine and replay the commands as they are stored in the journal then we would end up in the same exact end-state.
   - The ability to be able to replay the commands stored in the journal and end up in the desired state is called **replayability**.
 #### Why have replayability?
-- In the event a node fails, replaying of all the commands in the journal allows the node to get upto speed till the point where it dropped off.
+- In the event a node fails, replaying of all the commands in the journal allows the node to get till the point where it dropped off.
 - In the instance of an undesired end state, Replayability also allows for the user to be able to replay the commands in the journal one at a time in order to debug and locate exactly where and when the issue arose
 
 #### Does our architecture consider journals the source of truth?
@@ -146,6 +155,9 @@ advantages over multiple threads. Here are a few reasons why you might consider 
 
 - **False Sharing**: occurs when multiple threads are accessing different variables that reside on the same cache line,
   causing unnecessary cache invalidations and memory transfers, leading to an additional performance overhead.
+
+
+- **Simpler development**: it's easier to write non-multithreaded code.
 
 However, depending on the business problem you are solving, adding more threads or adding more nodes (scaling
 horizontally) may give you significantly better throughput. But not all problems parallelize well (See Amdahl's law). In
