@@ -85,7 +85,7 @@ const CountdownTimer: React.FC = () => {
   return (
     <div className="wrapper">
       <h1>Countdown Timer</h1>
-      <input type="number" ref={inputRef} />
+      <input type="number" ref={inputRef} data-testid="timer-input" />
       <div>
         <button onClick={startTimer}>Start</button>
         <button onClick={stopTimer}>Stop</button>

@@ -16,8 +16,8 @@ const QuoteApp: React.FC = () => {
     <div>
       <h1>Quote of the Day</h1>
       <div>
-        <h2>Genius is one percent inspiration and ninety-nine percent perspiration.</h2>
-        <h3>- Thomas Edison -</h3>
+        <h2 data-testid="quote-text">Quote text here.</h2>
+        <h3 data-testid="quote-author">- Author -</h3>
         <button onClick={() => console.log('generate new quote')}>New Quote</button>
       </div>
     </div>

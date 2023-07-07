@@ -1,12 +1,16 @@
-import { render } from '@testing-library/react';
+import { render, screen, waitFor } from '@testing-library/react';
 import QuoteApp from '../App';
-import "@testing-library/jest-dom";
 
 describe('QuoteApp', () => {
-  it('does not have the hard coded quote', () => {
-    const { getByTestId } = render(<QuoteApp />);
-    expect(getByTestId('quote-text')).not.toHaveTextContent('Quote text here.');
-    expect(getByTestId('quote-author')).not.toHaveTextContent('- Author -');
+  it('does not have the hard coded quote', async () => {
+    render(<QuoteApp />);
+
+    await waitFor(() => {
+      expect(screen.getByTestId("quote-text")).not.toHaveTextContent('Quote text here.');
+      expect(screen.getByTestId("quote-text")).not.toHaveTextContent('- Author -')
+    }, {
+      timeout: 1000
+    });
   });
 });
 
