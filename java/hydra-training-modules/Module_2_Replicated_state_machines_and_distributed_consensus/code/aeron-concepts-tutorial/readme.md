@@ -148,26 +148,6 @@ Now, if you were to restart a node, instead of replaying the previous commands, 
 14:38:18.413 [clustered-service] INFO  i.a.cluster.service.ClusteredService - Cluster has restored snapshot | Messages Received: 5
 ```
 
-## Bonus: Running Aeron Cluster in Docker
-
-- Requires Docker installed (Desktop version is best for visuals)
-
-Once you have Docker installed, you can run the `buildDocker` bash script to Dockerise the cluster and client.
-
-- This script automatically ensures your project has built and turns your cluster nodes/client into containers.
-- It then uses docker compose to setup the cluster configuration such the networking configuration.
-
-It should look like this afterwards in Docker Desktop:
-
-![Docker Desktop](images/DockerExample.png)
-
-Within your docker containers, you should see similar logs to the previous steps indicating the status/messages of your cluster nodes and client.
-
-### Snapshotting in a Dockerised cluster
-You should run the following command in specifically the terminal of the elected leader node in Docker:
-
-`java --add-opens java.base/sun.nio.ch=ALL-UNNAMED -cp aeron-concepts-cluster.jar io.aeron.cluster.ClusterTool aeronCluster/aeron-node-[NODEID]/cluster snapshot`
-
 ## JDK 16/17 Error
 
 If you are JDK 16 / 17+ and encounter this error:
