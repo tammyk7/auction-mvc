@@ -64,7 +64,6 @@ No, nodes can still execute multiple tasks simultaneously. Instead of using mult
 
 In single-threaded asynchronous processing, multiple tasks are executed simultaneously without blocking the main thread of execution. However, unlike multi-threaded asynchronous processing, single-threaded asynchronous processing does not use multiple cores; rather, it uses callbacks or events to notify the program when a task has completed so that the program can continue to execute other tasks while waiting for slow I/O operations or other tasks to complete. This avoids the risk of data inconsistencies or race conditions that can occur with concurrent programming, while still allowing nodes to execute multiple tasks.
 
-- Performance
 
 ## Zero-copy & flyweight pattern
 
@@ -110,13 +109,48 @@ Aeron implements deterministic-safe timers. In order to do that, when a timer ex
   - If our code is deterministic, when we restart our state machine and replay the commands as they are stored in the journal then we would end up in the same exact end-state.
   - The ability to be able to replay the commands stored in the journal and end up in the desired state is called **replayability**.
 #### Why have replayability?
-- In the event a node fails, replaying of all the commands in the journal allows the node to get upto speed till the point where it dropped off. 
+- In the event a node fails, replaying of all the commands in the journal allows the node to get upto speed till the point where it dropped off.
 - In the instance of an undesired end state, Replayability also allows for the user to be able to replay the commands in the journal one at a time in order to debug and locate exactly where and when the issue arose
 
 #### Does our architecture consider journals the source of truth?
-- Yes, our architecture follows command-sourcing principles and the Raft log records the sequence of all commands (messages) received by the cluster. From this log you can replay all commands one by one and recreate any intermediate state between the initial and the final state. How to replay the journal will be discussed in  module 4 after we discuss Snapshotting. 
+- Yes, our architecture follows command-sourcing principles and the Raft log records the sequence of all commands (messages) received by the cluster. From this log you can replay all commands one by one and recreate any intermediate state between the initial and the final state. How to replay the journal will be discussed in  module 4 after we discuss Snapshotting.
 
- 
+## Performance
+
+In a low latency application, where minimizing response times is crucial, using a single thread can offer certain
+advantages over multiple threads. Here are a few reasons why you might consider a single-threaded approach.
+
+- **Synchronization**: In a multithreaded application, threads may contend for access to the same shared resource (i.e.
+  database, file, or a location in memory). When a thread wants to access a locked section of code or a locked resource,
+  it must wait until the lock is released by the thread currently holding it. This waiting and coordination among
+  threads introduce additional computational overhead.
+
+
+- **Context Switching**: When a thread is waiting for a lock, it may be temporarily suspended, and the CPU switches to
+  another thread that can execute. This process is known as a context switch. Context switching adds overhead due to
+  saving and restoring thread state, losing execution context of cached data, and interrupting the execution flow.
+
+
+- **Locking Mechanism**: The actual mechanism used for locking can introduce overhead. Different locking primitives,
+  such as mutexes, semaphores, or spin locks, have varying performance characteristics. These locking mechanisms may
+  involve system calls or kernel involvement.
+
+
+- **Out-of-order execution (OOE)**: is a performance optimization technique used in modern processors to improve
+  instruction throughput and overall system performance. It allows the processor to execute instructions in an order
+  that maximizes the utilization of execution resources, even if the original program order suggests a different
+  sequence. This works without issues in single threaded programs, but has complications in multithreaded programs. OOE
+  across multiple threads is more complex and requires additional mechanisms to ensure correctness and maintain data
+  coherence, causing the application to potentially lose out on the performance optimization that OOE offers.
+
+
+- **False Sharing**: occurs when multiple threads are accessing different variables that reside on the same cache line,
+  causing unnecessary cache invalidations and memory transfers, leading to an additional performance overhead.
+
+However, depending on the business problem you are solving, adding more threads or adding more nodes (scaling
+horizontally) may give you significantly better throughput. But not all problems parallelize well (See Amdahl's law). In
+these cases, you get the parallel slowdown problems described here, which will impact latency.
+
 ## Things to watch out for
 
 - **External State**: *Only use the model's current state and the command log messages.*
