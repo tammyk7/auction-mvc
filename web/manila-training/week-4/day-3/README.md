@@ -34,6 +34,8 @@ The error screens like the one above that we see will only show up in developmen
 
 How can we solve for this? Enter Error Boundaries.
 
+<hr>
+
 ## Using Error Boundaries in React
 
 Error boundaries are React components that offer a way to handle JavaScript errors in React components. With them, we can catch JavaScript runtime errors in our components, act on those errors, and display a fallback UI.
@@ -120,6 +122,8 @@ Then you can wrap a part of your component tree with it:
 
 If `Counter` or its child component throws an error, `ErrorBoundary` will “catch” that error, display a fallback UI with the error message you’ve provided, and send a production error report to your error reporting service.
 
+<hr>
+
 ## Where to place Error Boundaries in the component tree
 
 Error boundaries are special React components and should be used to catch errors only where appropriate. Different error boundaries can be used in different parts of an application to handle contextual errors, though they can be generic — for example, a network connection error boundary.
@@ -129,3 +133,15 @@ You don’t need to wrap every component into a separate error boundary. When yo
 Errors can be tricky, dynamic, and non-deterministic. Data fetching tools like SWR or React Query, or the react-error-boundary package, can help alleviate these kinds of problems.
 
 With the react-error-boundary package specifically, you can reduce the amount of redundant code and uncertainty you encounter with a well-tested abstraction — which, [as Kent Dodds puts it](https://kentcdodds.com/blog/use-react-error-boundary-to-handle-errors-in-react), is the last error boundary component anyone needs.
+
+<hr>
+
+## Error Boundaries with RxJS Observables and React-RxJS
+
+React-RxJS is mindful of Error Boundaries, in a way that if one of the streams emits an error, the components that are subscribed to that stream will propagate that error to the nearest Error Boundary.
+
+When a rxjs stream emits an error, the stream gets immediately closed. This way, if our strategy to recover from the error is to try again, when our Subscribe boundary resubscribes to the stream it will create a new subscription and start over again.
+
+Head over to the [React-RxJS Documentation](https://react-rxjs.org/docs/core-concepts#error-boundaries) Error boundaries section to see an example of this in action.
+
+You can also review more here [Error Handling with React-RxJS](../../week-3/Day-3/Error-Handling-with-React-RxJS.md)
