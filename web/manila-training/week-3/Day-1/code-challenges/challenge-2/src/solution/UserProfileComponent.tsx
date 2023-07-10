@@ -1,47 +1,84 @@
-import React, { FC, useEffect, useState } from 'react';
+import React, { FC } from 'react';
 import { bind } from '@react-rxjs/core';
-import { of } from 'rxjs';
+import { ajax } from 'rxjs/ajax';
+import { map } from 'rxjs/operators';
+import { combineLatest } from 'rxjs';
+import './user-profile-component.css'
 
-// Define the User interface
 interface User {
   name: string;
   email: string | null;
+  avatar: string | null;
 }
 
-// Define the Props interface
-interface Props {
+interface Repo {
+  name: string;
+  url: string;
+  updatedAt: string;
+}
+
+interface GithubResponse {
+  name: string;
+  email: string | null;
+  avatar_url: string | null;
+}
+
+interface RepoResponse {
+  name: string;
+  html_url: string;
+  updated_at: string;
+}
+
+// Fetch user data & repo data from the GitHub API
+const [useGithubUserData] = bind((username: string) =>
+  combineLatest([
+    ajax.getJSON<GithubResponse>(`https://api.github.com/users/${username}`).pipe(
+      map((data: GithubResponse) => ({
+        name: data.name,
+        email: data.email,
+        avatar: data.avatar_url,
+      })),
+    ),
+    ajax.getJSON<RepoResponse[]>(`https://api.github.com/users/${username}/repos?sort=updated&direction=desc&per_page=3`).pipe(
+      map((data: RepoResponse[]) =>
+        data.map((repo: RepoResponse) => ({
+          name: repo.name,
+          url: repo.html_url,
+          updatedAt: new Date(repo.updated_at).toLocaleDateString(),
+        })),
+      ),
+    ),
+  ]),
+);
+
+interface UserProfileProps {
   username: string;
 }
 
-// Fetch user data from the GitHub API
-const fetchUserData = async (username: string): Promise<User> => {
-  const response = await fetch(`https://api.github.com/users/${username}`);
-  const data = await response.json();
-  return {
-    name: data.name,
-    email: data.email,
-  };
-};
-
-// Define the UserProfileComponent
-const UserProfileComponent: FC<Props> = ({ username }) => {
-  const [user, setUser] = useState<User>({ name: '', email: null });
-
-  useEffect(() => {
-    fetchUserData(username).then((userData) => setUser(userData));
-  }, [username]);
-
-  const user$ = of(user);
-  const [useUser] = bind(user$);
-
-  const userData = useUser();
+const UserProfileComponent: FC<UserProfileProps> = ({ username }) => {
+  const combinedUserData: [User, Repo[]] = useGithubUserData(username);
+  const userData = combinedUserData[0];
+  const repoData = combinedUserData[1];
 
   return (
-    <div>
-      <p>Name: {userData.name}</p>
-      <p>Email: {userData.email || 'Email not available'}</p>
+    <div className="wrapper-container">
+      <div className="user-data-container">
+        <p>Name: {userData.name}</p>
+        <p>Email: {userData.email || 'Email not available'}</p>
+        {userData.avatar && <img src={userData.avatar} height="200" width="200" />}
+      </div>
+      <div className="repo-data-container">
+        <h2>Recent Repositories</h2>
+          {repoData.map((repo: Repo, index: number) => (
+            <div className="repo-container" key={index}>
+              <a href={repo.url} target="_blank" rel="noopener noreferrer">{repo.name}</a>
+              <p>Last updated: {repo.updatedAt}</p>
+            </div>
+          ))}
+      </div>
     </div>
   );
 };
 
 export default UserProfileComponent;
+

@@ -7,7 +7,7 @@ import { Subscribe } from '@react-rxjs/core';
 function App() {
   return (
     <Subscribe>
-      <UserProfileComponent usernames={['limerentfox']} />
+      <UserProfileComponent username='limerentfox' />
     </Subscribe>
 
   )
