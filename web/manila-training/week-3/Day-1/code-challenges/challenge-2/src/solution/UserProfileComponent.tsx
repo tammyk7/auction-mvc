@@ -51,6 +51,19 @@ const [useGithubUserData] = bind((username: string) =>
   ]),
 );
 
+/* This code fetches user data and repository data from the GitHub API. It uses a combination of ajax.getJSON requests to retrieve the necessary information.
+
+The bind function is used to bind a username parameter to the inner function that performs the API calls. This allows for easy reuse of the function with different usernames.
+
+The combineLatest function is used to combine the results of the two ajax.getJSON requests into an array. It waits for both requests to complete before emitting the combined result.
+
+The first ajax.getJSON request fetches user data by accessing the GitHub API endpoint for a specific user (https://api.github.com/users/${username}). The response is then mapped to an object containing the user's name, email, and avatar URL.
+
+The second ajax.getJSON request fetches repository data for the same user. It accesses the GitHub API endpoint for user repositories (https://api.github.com/users/${username}/repos?sort=updated&direction=desc&per_page=3) and specifies sorting options for the repositories. The response is mapped to an array of objects, where each object contains the repository name, URL, and the date of the last update formatted as a localized string.
+
+The resulting array of user and repository data is assigned to the useGithubUserData constant variable, which can be used elsewhere in the code.
+*/
+
 interface UserProfileProps {
   username: string;
 }
