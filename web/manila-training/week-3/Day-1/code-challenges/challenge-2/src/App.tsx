@@ -1,11 +1,15 @@
 import React from 'react'
 import UserProfileComponent from './components/UserProfileComponent/UserProfileComponent'
+import { Subscribe } from '@react-rxjs/core';
 
 
 
 function App() {
   return (
-    <UserProfileComponent />
+    <Subscribe>
+      <UserProfileComponent username='limerentfox' />
+    </Subscribe>
+
   )
 }
 

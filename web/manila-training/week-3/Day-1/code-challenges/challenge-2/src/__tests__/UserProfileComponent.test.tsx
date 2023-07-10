@@ -1,33 +1,83 @@
-import { render, screen } from '@testing-library/react';
-import { of } from 'rxjs';
-import { bind } from '@react-rxjs/core';
+import React from 'react';
+import { render, screen, waitFor } from '@testing-library/react';
+import { Subscribe } from '@react-rxjs/core';
+import { setupServer } from 'msw/node';
+import { rest } from 'msw';
 import UserProfileComponent from '../components/UserProfileComponent/UserProfileComponent';
 
-// Mock user data
-const user$ = of({
-  name: 'John Doe',
-  email: 'john.doe@example.com'
+const mockUserData = {
+  name: 'Test User',
+  email: 'test@example.com',
+  avatar_url: 'https://example.com/avatar.jpg',
+};
+
+const mockRepoData = [
+  {
+    name: 'Test Repo 1',
+    html_url: 'https://github.com/test/repo1',
+    updated_at: new Date().toISOString(),
+  },
+  {
+    name: 'Test Repo 2',
+    html_url: 'https://github.com/test/repo2',
+    updated_at: new Date().toISOString(),
+  },
+  {
+    name: 'Test Repo 3',
+    html_url: 'https://github.com/test/repo3',
+    updated_at: new Date().toISOString(),
+  },
+];
+
+const handlers = [
+  rest.get('https://api.github.com/users/:username', (req, res, ctx) => {
+    return res(ctx.json(mockUserData));
+  }),
+  rest.get('https://api.github.com/users/:username/repos', (req, res, ctx) => {
+    return res(ctx.json(mockRepoData));
+  }),
+];
+
+const server = setupServer(...handlers);
+
+beforeAll(() => server.listen());
+afterEach(() => server.resetHandlers());
+afterAll(() => server.close());
+
+test("renders user's name & email, if available", async () => {
+  render(
+    <Subscribe>
+      <UserProfileComponent username="test" />
+    </Subscribe>
+  );
+
+  await waitFor(() => {
+    expect(screen.getByText('Name: Test User')).toBeInTheDocument();
+    expect(screen.getByText('Email: test@example.com')).toBeInTheDocument();
+  });
 });
 
-// Create useUser hook using bind
-const [useUser] = bind(user$, { name: '', email: '' }); // Default value
-
-// Mock UserProfileComponent for testing
-function MockUserProfileComponent() {
-  const user = useUser();
-  return (
-    <div>
-      <p>Name: {user.name}</p>
-      <p>Email: {user.email}</p>
-    </div>
+it('renders user avatar using an img tag', async () => {
+  render(
+    <Subscribe>
+      <UserProfileComponent username="test" />
+    </Subscribe>
   );
-}
+  await waitFor(() => {
+    const img = screen.getByRole('img');
+    expect(img).toHaveAttribute('src', 'https://example.com/avatar.jpg');
+  });
+});
 
-describe('UserProfileComponent', () => {
-  it('displays the user\'s name and email', () => {
-    render(<MockUserProfileComponent />);
-
-    expect(screen.getByText('Name: John Doe')).toBeInTheDocument();
-    expect(screen.getByText('Email: john.doe@example.com')).toBeInTheDocument();
+test('renders a list of 3 repositories with the repo name as a link and the date it was last updated', async () => {
+  render(
+    <Subscribe>
+      <UserProfileComponent username="test" />
+    </Subscribe>
+  );
+  await waitFor(() => {
+    expect(screen.getByText('Test Repo 1')).toBeInTheDocument();
+    expect(screen.getByText('Test Repo 2')).toBeInTheDocument();
+    expect(screen.getByText('Test Repo 3')).toBeInTheDocument();
   });
 });
