@@ -20,9 +20,12 @@ const useToggle = (initialState = false) => {
     setValue((prevValue) => !prevValue);
   };
 
-  return [value, toggle];
+  return [value, toggle] as const;
 };
 ```
+
+> :bulb: If you are returning an array in your Custom Hook, you will want to avoid type inference as TypeScript will infer a union type (when you actually want different types in each position of the array). Read more [here](https://react-typescript-cheatsheet.netlify.app/docs/basic/getting-started/hooks/#custom-hooks).
+
 
 In this example, we define the custom hook `useToggle` using the existing `useState` hook. It accepts an optional initial state and returns an array with two elements: the current boolean value and a `toggle` function to update the value.
 
@@ -111,15 +114,24 @@ Let's walk through the process of creating a custom hook called useForm that enc
 ```jsx
 import { useState } from 'react';
 
-const useForm = (initialValues, onSubmit) => {
+interface FormValues {
+  username?: string
+  email: string
+  password: string
+}
+
+export const useForm = (
+  initialValues: FormValues,
+  onSubmit: (formValues: FormValues) => void
+) => {
   const [values, setValues] = useState(initialValues);
 
-  const handleChange = (event) => {
+  const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = event.target;
     setValues((prevValues) => ({ ...prevValues, [name]: value }));
   };
 
-  const handleSubmit = (event) => {
+  const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     onSubmit(values);
   };
@@ -134,9 +146,10 @@ We can now reuse the form handling logic across multiple components:
 
 ```jsx
 import React from 'react';
-import useForm from './useForm';
+import { useForm } from './useForm';
 
-const Login = () => {
+// login.tsx
+export const Login = () => {
   const { values, handleChange, handleSubmit } = useForm(
     { email: '', password: '' },
     (formData) => {
@@ -166,7 +179,8 @@ const Login = () => {
   );
 };
 
-const Signup = () => {
+// signup.tsx
+export const Signup = () => {
   const { values, handleChange, handleSubmit } = useForm(
     { username: '', email: '', password: '' },
     (formData) => {
@@ -183,6 +197,7 @@ const Signup = () => {
         value={values.username}
         onChange={handleChange}
         placeholder="Username"
+        required
       />
       <input
         type="email"
@@ -262,7 +277,7 @@ interface FetchDataResult<T> {
   error: string | null;
 }
 
-const useFetchData = <T>(options: FetchDataOptions): FetchDataResult<T> => {
+export const useFetchData = <T>(options: FetchDataOptions): FetchDataResult<T> => {
   const [data, setData] = useState<T | null>(null);
   const [loading, setLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
@@ -272,13 +287,12 @@ const useFetchData = <T>(options: FetchDataOptions): FetchDataResult<T> => {
       setLoading(true);
       try {
         const response = await fetch(options.url);
-        const jsonData = await response.json();
+        const jsonData = await response.json() as T;
         setData(jsonData);
       } catch (error) {
-        setError(error.message);
-      } finally {
-        setLoading(false);
+        setError(error as string);
       }
+      setLoading(false);
     };
 
     fetchData();
@@ -296,7 +310,7 @@ Now, let's see how TypeScript interfaces enhance the usage of the custom hook in
 
 ```tsx
 import React from 'react';
-import useFetchData from './useFetchData';
+import { useFetchData } from './useFetchData';
 
 interface User {
   id: number;
@@ -304,7 +318,7 @@ interface User {
   email: string;
 }
 
-const UserDetails = () => {
+export const UserDetails = () => {
   const { data, loading, error } = useFetchData<User>({
     url: 'https://api.example.com/users/1',
   });
