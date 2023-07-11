@@ -2,7 +2,15 @@
 
 Goal: To ensure an understanding of how gateways interact with the cluster
 
-- What is a hub-and-spoke architecture
+## What is a hub-and-spoke architecture?
+
+The hub-and-spoke network architecture is a networking model where a central node or “hub" serves as a central point for
+communication and connects to several outlying nodes or "spokes". In this architecture, the central hub serves as the
+conduit for all communication between the surrounding nodes in the system. However, we don’t purely follow this concept
+as there are scenarios where it may be preferable to communicate directly with another gateway (spoke) without going
+through the cluster (hub).
+
+![](images/hub-and-spoke.png)
 - Why do we need cluster clients?
 - What type of cluster clients are needed / what is the role of gateways
   - Websockets
