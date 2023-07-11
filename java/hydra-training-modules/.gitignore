@@ -23,3 +23,6 @@ aeron-error*
 
 # Ignore error log files
 hs_err_pid*
+
+# Ignore Hydra Training Module 2 aeron files from aeron-concepts-tutorial
+aeronCluster/
