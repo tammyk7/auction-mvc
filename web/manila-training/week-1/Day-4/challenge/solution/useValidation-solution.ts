@@ -49,7 +49,7 @@ export const useValidation = <T extends Record<string, any>>(
     if (Object.keys(validationErrors).length > 0) {
       setErrors(validationErrors);
     } else {
-      console.log('Inputs: ', inputs);
+      // console.log('Inputs: ', inputs);
       onSubmit && onSubmit(inputs);
       setInputs({} as T);
       setErrors({});

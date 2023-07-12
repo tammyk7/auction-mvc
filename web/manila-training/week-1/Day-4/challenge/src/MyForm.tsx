@@ -15,6 +15,7 @@ export const MyForm: React.FC = () => {
         <input
           type="text"
           name="name"
+          data-testid="name-input"
         />
         {/** DISPLAY ERROR HERE */}
       </div>
@@ -23,10 +24,11 @@ export const MyForm: React.FC = () => {
         <input
           type="email"
           name="email"
+          data-testid="email-input"
         />
         {/** DISPLAY ERROR HERE */}
       </div>
-      <button type="submit">Submit</button>
+      <button type="submit" data-testid="submit-button">Submit</button>
     </form>
   );
 };

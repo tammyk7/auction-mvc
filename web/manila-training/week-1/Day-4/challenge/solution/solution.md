@@ -5,7 +5,7 @@ The `useValidation` hook returns four values: `inputs`, `errors`, `handleInputCh
 
 The `MyForm` component renders a form with two input fields: a name field and an email field. The `handleInputChange` function is passed as a callback to the `onChange` event of each input, which allows the input values to be updated as the user types. The `errors` object is used to display any validation errors next to the input fields, and the `handleSubmit` function is called when the form is submitted.
 
-If the form inputs are valid, the `handleSubmit` function logs the inputs in console and shown in a `window.alert` dialog box. If the form inputs are invalid, the `errors` object is updated with the validation errors, which causes the error messages to be displayed next to their respective input fields.
+If the form inputs are **valid**, the `handleSubmit` function logs the inputs in console. If the form inputs are **invalid**, the `errors` object is updated with the validation errors, which causes the error messages to be displayed next to their respective input fields.
 
 This `useValidation` hook takes a validation schema and an onSubmit callback function (optional) as its arguments, and returns an object with `inputs`, `errors`, `handleInputChange`, and `handleSubmit` properties.
 

@@ -21,7 +21,7 @@ export const MyForm: React.FC = () => {
       pattern: /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
     },
   },
-    (formInputs: FormInputs) => window.alert(`name: ${formInputs.name}, email: ${formInputs.email}`)
+    (formInputs: FormInputs) => console.log(`name: ${formInputs.name}, email: ${formInputs.email}`)
   );
 
   return (
@@ -31,22 +31,24 @@ export const MyForm: React.FC = () => {
         <input
           type="text"
           name="name"
-          value={inputs.name}
+          data-testid="name-input"
+          value={inputs.name || ''}
           onChange={handleInputChange}
         />
-        {errors.name && <span>{errors.name}</span>}
+        {errors.name && <span data-testid="name-error">{errors.name}</span>}
       </div>
       <div>
         <label htmlFor="email">Email</label>
         <input
           type="email"
           name="email"
-          value={inputs.email}
+          data-testid="email-input"
+          value={inputs.email || ''}
           onChange={handleInputChange}
         />
-        {errors.email && <span>{errors.email}</span>}
+        {errors.email && <span data-testid="email-error">{errors.email}</span>}
       </div>
-      <button type="submit">Submit</button>
+      <button type="submit" data-testid="submit-button">Submit</button>
     </form>
   );
 };
