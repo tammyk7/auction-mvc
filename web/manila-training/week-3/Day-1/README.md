@@ -9,5 +9,6 @@
 - [React-RxJS Utilities](React-RxJS-Utilities.md)
 
 ## Code challenges
+
 - [Counter](code-challenges/challenge-1/README.md)
--  [User Profile](code-challenges/challenge-2/README.md)
+- [User Profile](code-challenges/challenge-2/README.md)

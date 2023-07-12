@@ -1,5 +1,4 @@
 # Problems Using RxJS with React
-\
 
 Now that we know the core principle of working with React via functional programming and reactive programming via RxJS it is time to learn how to make the two play nicely with one another. Before we dive into specific syntaxes and scenarios, let’s go over why it is difficult to use RxJS with React.
 
