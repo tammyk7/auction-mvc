@@ -11,7 +11,15 @@ as there are scenarios where it may be preferable to communicate directly with a
 through the cluster (hub).
 
 ![](images/hub-and-spoke.png)
-- Why do we need cluster clients?
+## Why do we need cluster clients?
+*Cluster clients* act as intermediaries between incoming messages and the underlying cluster. They are essential in distributed systems with a deterministic cluster because they provide a space for non-deterministic code and additional computation that would otherwise burden the performance of the cluster.
+
+In previous modules, we have stressed the importance of the logic within a cluster being deterministic. However, non-deterministic behavior may still be necessary in a distributed system, and this type of code can be placed into a cluster client outside of the cluster. Examples of non-deterministic code include generating random numbers and making an external call to a 3rd party. By utilizing a cluster client, these actions can be performed and incorporated inside a message passed to the cluster itself. This allows developers to take advantage of non-deterministic code without directly introducing it into the cluster.
+
+Furthermore, utilizing cluster clients also ensures that the cluster does not run non-essential code, which can affect its performance. Running non-essential code can take up resources that are needed for essential tasks, which is why cluster clients employ various optimization techniques to enhance overall performance. This may include validating messages and their authentication outside of the cluster.
+
+Cluster clients can ensure that the cluster only processes the essential tasks required to maintain high throughput and low latency— meaning the cluster clients can take on the burden of converting messages between different kinds of encodings. For example, a REST gateway can handle REST requests, a FIX acceptor gateway can handle FIX messages, and an imperative cluster client gateway could be used to expose REST endpoints. Even having a single gateway that handles both FIX and REST requests would still reduce the cluster's burden since message parsing is moved outside the cluster. In the example below, each gateway would be responsible for converting its incoming messages into the same type of command that is sent to the cluster.![](images/different_cluster_clients.png)
+
 - What type of cluster clients are needed / what is the role of gateways
   - Websockets
   - FIX
