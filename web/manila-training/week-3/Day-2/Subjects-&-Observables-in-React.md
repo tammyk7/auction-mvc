@@ -24,10 +24,10 @@ const PostList = () => {
     const observable = from(fetch(API_URL).then(response => response.json())).pipe(
       map(data => data)
     );
-    const subscription = observable.subscribe(
-      data => setPosts(data),
-      error => console.log(error)
-    );
+    const subscription = observable.subscribe({
+      next: data => setPosts(data),
+      error: error => console.log(error)
+  });
 
     return () => subscription.unsubscribe();
   }, []);
@@ -194,36 +194,44 @@ data$.complete();  // Only now will the fetchedData be emitted
 In a functional React component, we can use both Observables and Subjects to fetch data from an API and handle user events. Here's an example that demonstrates how to use both:
 
 ```jsx
-import React, { useState, useEffect } from 'react';
-import { from, Subject } from 'rxjs';
-import { map } from 'rxjs/operators';
+import React, { useState, useEffect, ChangeEvent, FormEvent } from 'react';
+import { ajax } from 'rxjs/ajax';
+import { Subject, Subscription } from 'rxjs';
+import { switchMap, map } from 'rxjs/operators';
 
 const API_URL = 'https://jsonplaceholder.typicode.com/posts';
 
-const PostList = () => {
-  const [posts, setPosts] = useState([]);
-  const [title, setTitle] = useState('');
+interface Post {
+  id: number;
+  title: string;
+}
 
-  const createPostSubject = new Subject();
+const PostList: React.FC = () => {
+  const [posts, setPosts] = useState<Post[]>([]);
+  const [title, setTitle] = useState<string>('');
+
+  const createPostSubject = new Subject<{ title: string }>();
 
   useEffect(() => {
-    const fetchData = async () => {
-      const response = await fetch(API_URL);
-      const data = await response.json();
-      const observable = from(data).pipe(map(data => data));
-      const subscription = observable.subscribe(
-        data => setPosts(data),
-        error => console.log(error)
-      );
-      return () => subscription.unsubscribe();
-    };
-    fetchData();
-  }, []);
+    const subscription: Subscription = createPostSubject
+      .pipe(
+        switchMap(() => ajax.getJSON<Post[]>(API_URL)),
+        map((data) => data)
+      )
+      .subscribe({
+        next: (data) => {
+          console.log({ data });
+          setPosts(data);
+        },
+        error: (e) => console.error(e),
+      });
 
-  createPostSubject.subscribe(value => console.log(value));
+    return () => subscription.unsubscribe();
+  }, [posts]);
 
-  const handleSubmit = event => {
+  const handleSubmit = (event: FormEvent): void => {
     event.preventDefault();
+    console.log('here');
     createPostSubject.next({ title });
     setTitle('');
   };
@@ -234,12 +242,16 @@ const PostList = () => {
         <input
           type="text"
           value={title}
-          onChange={event => setTitle(event.target.value)}
+          onChange={(event: ChangeEvent<HTMLInputElement>) =>
+            setTitle(event.target.value)
+          }
         />
-        <button type="submit">Create Post</button>
+        <button type="submit" onSubmit={handleSubmit}>
+          Create Post
+        </button>
       </form>
       <ul>
-        {posts.map(post => (
+        {posts.map((post: Post) => (
           <li key={post.id}>{post.title}</li>
         ))}
       </ul>
@@ -248,6 +260,7 @@ const PostList = () => {
 };
 
 export default PostList;
+
 ```
 
 In this example, we're using the `fetch` function to make an HTTP request to the API and returning the response data as a JSON object. We're then using an Observable to convert the JSON data into an observable stream and subscribing to it in the `useEffect` hook. When the observable emits data, we're setting the component state to the emitted values.

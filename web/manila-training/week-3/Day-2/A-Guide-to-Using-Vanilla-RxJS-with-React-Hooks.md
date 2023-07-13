@@ -39,7 +39,9 @@ function WeatherComponent() {
   // when the component mounts. The "setWeather" function is called every time
   // a new value is emitted from the Observable.
   useEffect(() => {
-    const subscription = weatherData$.subscribe(setWeather);
+    const subscription = weatherData$.subscribe({
+      next: weather =>  setWeather(weather)
+    });
     return () => subscription.unsubscribe();
   }, []);
 
@@ -91,7 +93,9 @@ function PostCommentsComponent() {
           return of(updatedComments);
         })
       )
-      .subscribe(setComments);
+      .subscribe({
+        next: comment => setComments(comments)
+        });
 
     return () => subscription.unsubscribe();
   }, []);
@@ -288,7 +292,9 @@ function UserComponent() {
           )
         )
       )
-      .subscribe(user => dispatch({ type: 'FETCH_USER_SUCCESS', payload: user }));
+      .subscribe({
+        next: user => dispatch({ type: 'FETCH_USER_SUCCESS', payload: user })
+        });
 
     return () => subscription.unsubscribe();
   }, []);
@@ -329,10 +335,6 @@ Another thing to keep in mind is that RxJS operators that return observables, su
 
 Finally, it's important to handle errors properly when using RxJS. In the example above, we use the `catchError` operator to catch any errors that occur during the fetch request and dispatch a `FETCH_USER_FAILURE` action to the reducer. This ensures that the state is updated correctly even if an error occurs.
 
-Here's a diagram to illustrate the flow of data in these examples:
-
-https://showme.redstarplugin.com/s/b0YXVonm
-
 ---
 
 ## `useContext` Hook
@@ -355,7 +357,9 @@ function ThemeProvider({ children }) {
   const [theme, setTheme] = useState('light');
 
   useEffect(() => {
-    const subscription = themeData$.subscribe(setTheme);
+    const subscription = themeData$.subscribe({
+     next: theme => setTheme(theme)
+      });
     return () => subscription.unsubscribe();
   }, []);
 
@@ -402,12 +406,16 @@ function DataProvider({ children }) {
   const [state, dispatch] = useReducer(reducer, initialState);
 
   useEffect(() => {
-    const subscription = themeData$.subscribe(theme => dispatch({ type: 'setTheme', payload: theme }));
+    const subscription = themeData$.subscribe({
+      next: theme => dispatch({ type: 'setTheme', payload: theme })
+      });
     return () => subscription.unsubscribe();
   }, []);
 
   useEffect(() => {
-    const subscription = userData$.subscribe(user => dispatch({ type: 'setUser', payload: user }));
+    const subscription = userData$.subscribe({
+      next: user => dispatch({ type: 'setUser', payload: user })
+    });
     return () => subscription.unsubscribe();
   }, []);
 
@@ -551,9 +559,10 @@ function CartComponent() {
   const [cart, setCart] = useState([]);
 
   useEffect(() => {
-    const subscription = cart$.subscribe((item) => {
+    const subscription = cart$.subscribe({
+      next: (item) => {
       setCart((prevCart) => [...prevCart, item]);
-    });
+    }});
     return () => subscription.unsubscribe();
   }, []);
 
@@ -614,7 +623,9 @@ function DataComponent() {
   const transformedData = useMemo(() => data.map(item => item * 2), [data]);
 
   useEffect(() => {
-    const subscription = data$.subscribe(setData);
+    const subscription = data$.subscribe({
+      next: data => setData(data)
+      });
     return () => subscription.unsubscribe();
   }, []);
 
@@ -656,7 +667,9 @@ function DataComponent() {
   }, [data$]);
 
   useEffect(() => {
-    const subscription = transformedData.subscribe(data => setData(data));
+    const subscription = transformedData.subscribe({
+      next: data => setData(data)
+      });
     return () => subscription.unsubscribe();
   }, [transformedData]);
 
@@ -678,23 +691,8 @@ When using `useMemo` with RxJS, it's important to remember that the memoized v
 
 Additionally, be careful when using `useMemo` with synchronous operations. If the computation is cheap, it may not be worth the overhead of memoization. On the other hand, if the computation is expensive, you may want to consider using a web worker or splitting the computation into smaller chunks to avoid blocking the main thread.
 
-Here's a diagram to illustrate the flow of data in these examples:
-
-https://showme.redstarplugin.com/s/JQbY7w1e
+---
 
 By the end of this section, you should have a solid understanding of how to use `useReducer`, `useContext`, `useCallback`, and `useMemo` with RxJS. These hooks can be powerful tools when combined with RxJS, allowing you to create highly reactive and efficient components.
 
 ---
-
-### For further reading, check out the following resources:
-
-1. "RxJS + React Hooks: A Simple Tutorial": This tutorial covers the basics of RxJS and how to integrate it with React Hooks, with code examples and step-by-step instructions.https://www.robinwieruch.de/rxjs-react-hooks-tutorial/
-2. "RxJS and React Hooks": This article provides an overview of what RxJS is and how to integrate it with React applications using React Hooks for state management, with a demo chat application as an example. https://blog.logrocket.com/rxjs-and-react-hooks/
-3. "React + RxJS: Using Observables to Handle State": This video tutorial covers how to use RxJS Observables to manage state in a React application, with code examples and explanations. https://www.youtube.com/watch?v=rdK92pf3abs
-4. "React Hooks and RxJS": This article explores how to use RxJS with React Hooks to manage state, with examples of using useReducer, useContext, useCallback, and useMemo. https://www.smashingmagazine.com/2021/09/react-hooks-rxjs/
-5. "RxJS and React: A Comprehensive Guide": This comprehensive guide covers everything you need to know about using RxJS with React, including basic concepts, advanced techniques, and best practices, with code examples and explanations.https://www.robinwieruch.de/rxjs-react-comprehensive-guide/
-6. "Managing State in React with RxJS" by Andrei Kashcha (2021) - This article explains how to use RxJS to manage state in a React application, including how to create and subscribe to observables, handle concurrency and cancellation, and use RxJS with Redux. https://blog.usejournal.com/managing-state-in-react-with-rxjs-5eabcf487b4d
-7. "RxJS Observables and React" by Ben Lesh (2019) - This video tutorial provides an introduction to RxJS observables and their use in React applications, including how to create observables, subscribe to them, and handle concurrency and cancellation. https://www.youtube.com/watch?v=Jd_nWpKqlz0
-8. "Using RxJS with React" by Jack Hsu (2019) - In this article, the author explains how to use RxJS with React to create functional, reactive components, including how to create and subscribe to observables, handle concurrency and cancellation, and use RxJS with Redux. https://medium.com/@jhsware/using-rxjs-with-react-e6c8c9f4c129
-9. "RxJS with React: An Introduction" byJecelyn Yeen (2019) - This article provides a beginner-friendly introduction to using RxJS with React, including how to create observables, subscribe to them, and handle errors. The author also covers how to use RxJS with React hooks and provides examples of common use cases. https://blog.bitsrc.io/rxjs-with-react-an-introduction-6f8d2d5efb5a
-10. "React + RxJS: Getting Started" by Ryan Chenkie (2019) - In this video tutorial, the author provides a step-by-step guide for getting started with RxJS and React, including how to install and import RxJS, create observables, subscribe to them, and handle errors. The tutorial also covers how to use RxJS with React hooks. https://www.youtube.com/watch?v=PhggNGsSQyg
