@@ -46,6 +46,29 @@ Furthermore, utilizing cluster clients also ensures that the cluster does not ru
 
 Cluster clients can ensure that the cluster only processes the essential tasks required to maintain high throughput and low latency— meaning the cluster clients can take on the burden of converting messages between different kinds of encodings. For example, a REST gateway can handle REST requests, a FIX acceptor gateway can handle FIX messages, and an imperative cluster client gateway could be used to expose REST endpoints. Even having a single gateway that handles both FIX and REST requests would still reduce the cluster's burden since message parsing is moved outside the cluster. In the example below, each gateway would be responsible for converting its incoming messages into the same type of command that is sent to the cluster.![](images/different_cluster_clients.png)
 
+## Ingress vs. egress / inbound vs. outbound gateways
+
+Ingress is the set of inbound message streams clients send to the cluster. All the messages are sequenced into the cluster log.
+Sending too many messages to the cluster can cause backpressure. Normally, if the cluster is not able to accept the
+messages, they will be sent again until it can accept them.
+
+Egress is a channel where the cluster broadcast messages to enabled clients. This is a single channel, every client will
+receive all the messages and will parse them in two cases:
+- The message contains the matching cluster client session id (The specific field is `targetSessionId` in the header message).
+- The message is a broadcast.
+If a client can't process the egress at the same speed of the other clients, it will be disconnected.
+
+Both the ingress and egress are stored to disk thanks to the archive. In case of a cluster restart, the
+ingress will be replayed from the last snapshot or from the beginning of the log. The egress will query the position and
+compare it with the recording end position. If they match, the new messages will be appended to the recording. If they
+don't [the behaviour will depend on the set strategy](https://docs.hydra.weareadaptive.com/LATEST/HydraCluster/Egress.html#if-the-cluster-is-restarted).
+
+### Divergence Monitor
+
+The divergence monitor is a tool that checks the content of the egress channel and reports any divergence between the
+nodes. For more information you can check
+the [Divergence Monitor page](https://docs.hydra.weareadaptive.com/LATEST/Operations/DivergenceMonitor.html).
+
 ## Divergence
 We previously stressed the importance of all the nodes behaving in a deterministic way: the outcome of applying each command of
 the log to the state machine must be the same in all the nodes, and when this is not the case, we say the nodes have diverged.
