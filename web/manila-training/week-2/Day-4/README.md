@@ -79,7 +79,7 @@ To explain how operators work, textual descriptions are often not enough. Many o
 
 > _In a marble diagram, time flows to the right, and the diagram describes how values ("marbles") are emitted on the Observable execution._
 
-![marble-diagram](../images/marble-diagram.svg)
+![marble-diagram](../images/marble-diagram.png)
 
 ## Understanding Generics with RxJS
 
