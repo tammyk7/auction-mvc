@@ -2,6 +2,8 @@
 ### Challenge 2: User Profile Component
 This coding challenge involves creating a React component that fetches and displays data from the GitHub API. The component should display a user's name, email, avatar, and a list of their 3 most recent repositories.
 
+**Note**: The UserProfileComponent is already imported into App.tsx with the prop `username` filled in with a user's GitHub username.
+
 ### Instructions
 
 Import necessary dependencies: You will need to import the necessary functions and operators from `@react-rxjs/core`, `rxjs/ajax`, `rxjs/operators`, and `rxjs`.

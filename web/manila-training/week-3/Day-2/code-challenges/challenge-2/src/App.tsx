@@ -5,7 +5,7 @@ import UserProfileComponent from './components/UserProfileComponent/UserProfileC
 
 function App() {
   return (
-    <UserProfileComponent />
+    <UserProfileComponent username="limerentfox" />
   )
 }
 
