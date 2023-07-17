@@ -10,7 +10,14 @@ MISSING (REMOVE ENTRIES OF THIS LIST AS YOU MERGE THAT SECTION):
   - Database
   - Custom (imperative clients)
 - Ingress vs. egress / inbound vs. outbound gateways
-- Snapshotting
+
+
+## Snapshotting
+Sometimes the command log can become too long and thus begin slowing down the nodes when replaying the commands. A solution for this is to take a snapshot.
+- A snapshot is a record of the entire system current state.
+- When a snapshot is taken, it is encoded into messages and published to the snapshotPublication to be stored through the Aeron Archive.
+- Now  the node does not need to replay all the commands in order to get to the final state. It is able to skip over all the logs before the snapshot and only has to replay the commands after the snapshot.
+- The snapshot saves the nodes processing time since they can jump to a certain state without having to replay all the commands that led the system to that state.
 
 
 ## What is a hub-and-spoke architecture?
