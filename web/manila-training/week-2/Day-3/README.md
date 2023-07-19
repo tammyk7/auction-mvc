@@ -125,19 +125,98 @@ When you subscribe to an observable, the subscribe method returns a Subscription
 
    ```JavaScript
     useEffect(() => {
-    const subscription1$ = observable$.subscribe((value) => {
-      console.log('Subscription 1:', value);
-    })
+      const subscription1$ = observable$.subscribe((value) => {
+        console.log('Subscription 1:', value);
+      })
 
-    const subscription2$ = observable$.subscribe((value) => {
-    console.log('Subscription 2:', value);
-    })
+      const subscription2$ = observable$.subscribe((value) => {
+        console.log('Subscription 2:', value);
+      })
 
-    return () => {
-    subscription1$.unsubscribe()
-    subscription2$.unsubscribe()
-    }
+      return () => {
+        subscription1$.unsubscribe();
+        subscription2$.unsubscribe();
+      }
     }, [])
    ```
 
-# Typescript and RxJS
+# Using TypeScript types with observables and subscriptions
+
+Leveraging TypeScript with Observables in RxJS offers several advantages, including improved type safety, better tooling support, and enhanced code readability. TypeScript's strong static typing enables you to catch errors early in the development process, making it easier to work with Observables - ensuring that your code is more reliable and maintainable.
+
+1. **Specifying Types for Observables:**
+
+    TypeScript allows you to specify the type values emitted by an Observable using generics. By defining the type of an Observable, you ensure that the emitted values are of the correct type, reducing the risk of runtime errors caused by incorrect data types.
+
+    ```ts
+    import { Observable } from 'rxjs';
+
+    const numberObservable: Observable<number> = new Observable<number>((subscriber) => {
+      subscriber.next(1);
+      subscriber.next(2);
+      subscriber.next(3);
+      subscriber.complete();
+    });
+    ```
+
+    In the example, we have defined an Observable `numberObservable` that emits numbers of type `number`. TypeScript will enforce that only numbers can be emitted by this Observable.
+
+<br/>
+
+2. **Type Inference from Operators:**
+
+    RxJS operators propagate types through the operator chain, allowing TypeScript to infer the types of values emitted by intermedia and final Observables. This enables concise and expressive code without sacrificing type safety.
+
+    ```ts
+    import { from } from 'rxjs';
+    import { map } from 'rxjs/operators';
+
+    const source$ = from([1, 2, 3]);
+
+    const doubled$ = source$.pipe(
+      map((value) => value * 2)
+    );
+    ```
+
+    In this example, TypeScript infers that the `doubled$` Observable will emit numbers, as the `map` operator transforms each value into a new number.
+
+<br />
+
+3. **Typed Subscriptions:**
+
+    When subscribing to an Observable, TypeScript allows you to specify the type of values received in the subscription callback, ensuring that you handle the emitted values correctly.
+
+    ```ts
+    import { Observable } from 'rxjs';
+
+    const numberObservable: Observable<number> = ...
+
+    const subscription = numberObservable.subscribe((value: number) => {
+      console.log(value);
+    });
+    ```
+
+    In this example, we have a subscription to the numberObservable, and we explicitly define that the subscription will receive numbers in the subscription callback.
+
+<br />
+
+4. **Unsubscribing and Resource Management:**
+
+    TypeScript can help you manage subscriptions and prevent memory leaks by handling unsubscribing from Observables. Storing the subscription in a variable allows you to call `unsubscribe()` when it is no longer needed.
+
+    ```ts
+    import { Observable, Subscription } from 'rxjs';
+
+    const numberObservable: Observable<number> = ...
+
+    const subscription: Subscription = numberObservable.subscribe((value: number) => {
+      console.log(value);
+    });
+
+    // Unsubscribe when no longer needed
+    subscription.unsubscribe();
+    ```
+
+    By calling unsubscribe(), you release resources associated with the subscription and prevent potential memory leaks, especially when dealing with long-lived Observables.
+
+Leveraging TypeScript with Observables in RxJS provides a more robust and maintainable reactive codebase. TypeScript's type system catches many potential issues during development, leading to a smoother development process and better quality code. When combined with the powerful features of RxJS, TypeScript makes it easier to build complex and scalable applications while ensuring type safety and developer productivity.
