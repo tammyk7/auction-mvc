@@ -1,10 +1,10 @@
 import React, { FC } from 'react'
 import { Link } from 'react-router-dom'
-import { Character } from '../services/thronesApi'
+import { useCharacters } from '../services/useCharacters'
 
-const CharacterList: FC<{ characters: Character[] }> = ({
-  characters,
-}): JSX.Element => {
+const CharacterList: FC = (): JSX.Element => {
+  const characters = useCharacters()
+
   return (
     <>
       <h1>Game of Thrones Characters</h1>
