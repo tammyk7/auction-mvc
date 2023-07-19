@@ -2,12 +2,11 @@ import React, { FC } from 'react'
 import { Link, useParams } from 'react-router-dom'
 
 import { useCharacterData } from '../utils/useCharacterData'
-import { Character } from '../services/thronesApi'
+import { useCharacters } from '../services/useCharacters'
 
-const CharacterPage: FC<{ characters: Character[] }> = ({
-  characters,
-}): JSX.Element => {
+const CharacterPage: FC = (): JSX.Element => {
   const { id } = useParams()
+  const characters = useCharacters()
 
   if (
     id === undefined ||
