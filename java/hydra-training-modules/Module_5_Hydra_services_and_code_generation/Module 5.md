@@ -4,7 +4,26 @@ Goal: To ensure proficiency with hy-lang and designing Hydra platform services
 
 - How to send/receive messages
 - Understanding generated service code
-- Interaction models
+
+## Interaction models
+In the [Module 1 Streaming API](../Module_1_Distributed_system_basics#streaming-apis) section we described the different interaction models between clients and Hydra services, listed here:
+
+- Fire and forget: when a response is not expected
+- Request and response: when a single response is expected
+- Streaming based: when either the request or the response are a stream
+
+(refer to [Hydra doc](https://docs.hydra.weareadaptive.com/LATEST/Development/Services/InteractionModels.html) for more details).
+
+In Hydra the call to a service is asynchronous (i.e. non-blocking), allowing the caller to perform other tasks immediately after the method call.
+Unless the service method is a fire and forget (which doesn't have a response), its response must be handled in a different method (implementing the method of the [NAME_OF_SERVICE]ServiceClient interface that handles
+the result).
+
+In order to facilitate relating the method that handles the response to the request that did call the service method,
+Hydra API uses the same "correlationId" value which was passed when calling the method in the call to the service client method
+implementation.
+
+
+
 - Passthrough services
 - Backwards and forwards compatible services
 - Hydra Tooling and IDE plugins
