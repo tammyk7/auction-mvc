@@ -15,9 +15,8 @@ import io.vertx.core.Vertx;
 public class InboundIntegrationGatewayMain
 {
     private static final Logger LOGGER = LoggerFactory.getNotThreadSafeLogger(InboundIntegrationGateway.class);
-    private static final CountDownLatch COUNT_DOWN_LATCH = new CountDownLatch(1);
 
-    public static void main(final String[] args) throws InterruptedException, IOException
+    public static void main(final String[] args)
     {
         // Start a connection and get ChatRoomServiceProxy from it
         final InboundIntegrationGatewayConnection conn = InboundIntegrationGateway.instance().run();
@@ -29,14 +28,12 @@ public class InboundIntegrationGatewayMain
 
         conn.services().channelToCluster().registerChatRoomServiceClient(service);
 
-        callbackToCluster(conn);
-        COUNT_DOWN_LATCH.await();
-        service.start();
+        callbackToCluster(conn, service);
     }
 
-    private static void callbackToCluster(final InboundIntegrationGatewayConnection conn)
+    private static void callbackToCluster(final InboundIntegrationGatewayConnection conn, final MessageService service)
     {
-        conn.services().lifecycle().onAvailable(COUNT_DOWN_LATCH::countDown);
+        conn.services().lifecycle().onAvailable(service::start);
         conn.services().lifecycle().onUnavailable(() ->
         {
             LOGGER.info("Disconnected from the cluster").log();
