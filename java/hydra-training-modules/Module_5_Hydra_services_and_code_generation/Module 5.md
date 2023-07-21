@@ -26,6 +26,51 @@ implementation.
 
 - Passthrough services
 - Backwards and forwards compatible services
+
+## Backwards compatible services
+
+backward compatibility ensures that newer versions of a service can coexist with previous versions without breaking existing functionality. Key aspects include:
+
+- **Preserving Functionality**: Existing features should remain unchanged.
+- **Handling Deprecated Features**: Clear communication and support for deprecated features.
+- **Versioning**: Incremental versioning to indicate compatibility.
+- **Testing and Validation**: Rigorous testing to avoid regressions.
+- **Documentation and Communication**: Clear documentation and communication of changes.
+
+Maintaining backward compatibility eases adoption of updates, reduces costs, and enhances user experience.
+
+#### Changing the contract
+In response to new requirements or an urge to refactor, we might need to change the service contract. Hydra can track changes to the service contract over time if we annotate the service as a "migration root".
+```hydra
+@MigrationRoot(id: "Calculator")
+service CalculatorService = {
+  sum(Terms): Result
+}
+```
+Upon annotating the service, the code generator will check that we do not accidentally break the compatibility of the service contract.
+_For example, if we change _**sum**_ to accept a stream of **Terms**_:
+```hydra
+@MigrationRoot(id: "Calculator")
+service CalculatorService = {
+  sum(Terms stream): Result
+}
+```
+
+#### Types of deployment restriction
+The kinds of change we can make to a service contract depends, in part, on how we intend to deploy our initiator and acceptor:
+- **Same version**: If we always deploy the initiator and acceptor simultaneously.
+- **Acceptor ahead by one**: If we always upgrade the acceptor first but at most one version ahead of the initiator.
+- **Acceptor ahead by N**: If we always upgrade the acceptor before the initiator.
+- **Initiator ahead by one**: If we always upgrade the initiator first but at most one version ahead of the acceptor.
+- **Initiator ahead by N**: If we always upgrade the initiator before the acceptor.
+- **Either ahead by one**: If we always upgrade either the initiator or the acceptor at most one version ahead of the other.
+- **None**: If we can deploy the initiator and acceptor with any version of the contract, the acceptor must understand all versions of the request and the initiator must understand all versions of the response.
+
+
+For further reference, Hydra documentation includes sections on
+[Evolve a Service Contract](https://docs.hydra.weareadaptive.com/LATEST/Development/Services/Versioning/EvolveAServiceContract.html)
+
+
 - Hydra Tooling and IDE plugins
 
 ## How to Define Service Contracts
