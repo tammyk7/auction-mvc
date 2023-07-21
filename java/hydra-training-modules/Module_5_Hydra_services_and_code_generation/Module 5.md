@@ -24,7 +24,6 @@ implementation.
 
 
 
-- Passthrough services
 - Backwards and forwards compatible services
 
 ## Backwards compatible services
@@ -145,3 +144,17 @@ web-gateway MyGateway = {
    }
 }
 ```
+
+## Passthrough Services
+
+A passthrough service typically refers to a type of service that acts as intermediary or proxy, allowing data or
+requests to pass through it without modifying or processing them. It simply forwards the data from one point to another,
+without any manipulation.
+
+In the context of Hydra, to send data to the cluster it must first come from a cluster client. Web-gateways (a type of
+cluster client) often implements validation, processing, or mutation of data prior to passing data to the cluster.
+However, what if you want to pass data to the cluster without any of this logic in a web-gateway? Hydra web-gateways
+support this in a feature
+called [pass-through](https://docs.hydra.weareadaptive.com/LATEST/Development/GettingStarted/Tutorial/Exercises/Passthrough.html).
+This feature allows you to register a Hydra generated service proxy or client proxy rather than your own implementation
+to handle an message, effectively simplifying your code.
