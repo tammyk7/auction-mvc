@@ -18,6 +18,7 @@ out/
 
 applied_upgrades.lock
 hydra-data
+.hydra
 aeron-stat*
 aeron-error*
 

@@ -3,6 +3,7 @@ pluginManagement {
         id 'com.github.ben-manes.versions' version "${pluginVersionBenManesVersions}"
         id 'com.github.node-gradle.node' version "${pluginVersionNodeGradle}"
         id 'com.gradle.enterprise' version "${pluginVersionEnterpriseGradle}"
+        id 'com.google.cloud.tools.jib' version "${pluginVersionJib}"
     }
     repositories {
         gradlePluginPortal {
@@ -49,3 +50,11 @@ include 'Module_1_Distributed_system_basics:code:websockets'
 include 'Module_2_Replicated_state_machines_and_distributed_consensus:code:aeron-concepts-tutorial'
 include 'Module_2_Replicated_state_machines_and_distributed_consensus:code:state_machines'
 include 'Module_3_Determinism_and_single_threaded_performance:code:flyweight'
+include 'Module_4_Hub_and_spoke_architecture:code'
+include 'Module_4_Hub_and_spoke_architecture:code:engine'
+include 'Module_4_Hub_and_spoke_architecture:code:engine:api'
+include 'Module_4_Hub_and_spoke_architecture:code:engine:impl'
+include 'Module_4_Hub_and_spoke_architecture:code:rest'
+include 'Module_4_Hub_and_spoke_architecture:code:rest:api'
+include 'Module_4_Hub_and_spoke_architecture:code:rest:impl'
+

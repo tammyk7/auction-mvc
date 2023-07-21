@@ -261,7 +261,7 @@ To facilitate developers' usage and adoption, REST APIs often include comprehens
 Authentication and authorization mechanisms play a vital role in securing REST APIs. Developers can employ techniques like API keys, OAuth, or JSON Web Tokens (JWT) to verify the identity of the clients and restrict access to sensitive resources.
 
 ### REST Code Sample
-Run the `com.weareadaptive.rest.Main` class in folder `code/rest`.
+Run the `com.weareadaptive.chatroom.rest.Main` class in folder `code/rest`.
 
 - The code sample uses a Vertx REST Server and client to communicate.
 

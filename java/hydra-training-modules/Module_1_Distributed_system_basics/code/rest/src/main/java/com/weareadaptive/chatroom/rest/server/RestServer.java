@@ -1,4 +1,4 @@
-package com.weareadaptive.rest.server;
+package com.weareadaptive.chatroom.rest.server;
 
 import com.weareadaptive.hydra.logging.Logger;
 import com.weareadaptive.hydra.logging.LoggerFactory;

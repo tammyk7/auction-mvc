@@ -1,10 +1,10 @@
-package com.weareadaptive.rest;
+package com.weareadaptive.chatroom.rest;
 
 import java.util.concurrent.CountDownLatch;
 
+import com.weareadaptive.chatroom.rest.server.RestServer;
 import com.weareadaptive.hydra.logging.Logger;
 import com.weareadaptive.hydra.logging.LoggerFactory;
-import com.weareadaptive.rest.server.RestServer;
 
 import io.vertx.core.Vertx;
 import io.vertx.core.buffer.Buffer;

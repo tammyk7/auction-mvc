@@ -179,6 +179,31 @@ Gateway which includes an Imperative Cluster Client to allow it to communicate w
 See [How To Use The Imperative Client](https://docs.hydra.weareadaptive.com/LATEST/Development/Components/HowToUseTheImperativeClient.html)
 for more details.
 
+In the folder Code of this module you have an example of an Imperative Cluster Client, here's a guide on how to navigate it:
+  - Engine Module
+    - api: Here is where your hydra files live.
+      - In the "engine.hy" file we defined our Cluster and passed the service we will be using.
+      - In the "chat-room-service.hy" we defined the types we need to build message requests and responses, and the service we will expose.
+      - Refer to the [Hydra Documentation](https://docs.hydra.weareadaptive.com/LATEST/Development/CodeGen/CodeGenOverview.html) for more information on the Hydra Language.
+    - impl: Here is where we implement our code using the Generated Code from Hydra.
+      - We have our EngineMain which is the entry point of the engine (a hydra single cluster node)
+      - We also have our services folder that contains the implementation of the service we defined in "chat-room-service.hy"
+
+
+  - Rest Module
+    - api: Same as the Engine module.
+      - In this case we have a "rest-gateway.hy" file, in here we will be defining what type of Cluster Client we are using and who it connects to, as described previously.
+    - impl: Same as the Engine Module.
+      - In this case we will be creating a REST connection using Vertx and sending a message through the MessageService Class, since we are expecting a response from the Cluster, we will also be handling the responses to the requests we make. 
+      
+To test how all this is working you will follow these steps:
+  1. Run the main method on EngineMain (if you get an InaccessibleObjectException, refer to the [Hydra Documentation](https://docs.hydra.weareadaptive.com/LATEST/ReleaseNotes/UpgradingToJava17.html) and follow step 4. )
+  2. Run the main method on InboundIntegrationGatewayMain (If you get the same error as step 1, edit this configuration as well) 
+  3. To try this out with through the console write the following command:
+
+     3.1 curl -d '{ "message": "Hello from Console" }' -H "Content-Type: application/json" -X POST http://localhost:8080/sendMessage
+  4. Check the Cluster Log to see that the message has been received.
+
 ## Ingress vs. egress / inbound vs. outbound gateways
 
 Ingress is the set of inbound message streams clients send to the cluster. All the messages are sequenced into the
