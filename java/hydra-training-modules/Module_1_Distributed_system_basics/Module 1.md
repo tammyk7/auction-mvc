@@ -23,14 +23,14 @@ This initial module covers important concepts of distributed systems in the case
 ## RPC
 
 RPC (Remote Procedure Call) is a communication protocol that allows a client to call a method on a remote server.
-It facilitates communication between distinct processes or systems by enabling them to interact over a network as if they were executing operations within the same local environment.
-The requesting process is called the client, and the process that provides the requested service is called the server.
+It facilitates communication between distinct systems by enabling them to interact over a network as if they were executing operations within the same local environment.
+The requesting system is called the client, and the system that provides the requested service is called the server.
 
 Here's an overview of how RPC works:
 1. The client sends the request through the client stub.
 2. The client stub marshals the parameters and sends them to the server stub.
 3. The server stub receives the request and unmarshals the parameters.
-4. The server executes the procedure and sends the results back to the server stub.
+4. The server executes the procedure and sends the results back through the server stub.
 5. The server stub marshals the results and sends them back to the client stub.
 6. The client stub receives the results and unmarshals them.
 
@@ -84,12 +84,12 @@ Automatic versioning aids in recognizing and adjusting for changes in serialised
 but it requires access to the previous version's serialisation details for accurate comparison, therefore
 all service changes need to be tracked.
 
-As discussed in [the prior section](#security-and-authentication), when considering an RPC system, there are also security issues like permissions, encryption,
+As discussed later in [section](#security-and-authentication), when considering an RPC system, there are also security issues like permissions, encryption,
 data integrity, confidentiality, privacy, and non-repudiation which sometimes are important for
 business reasons and need to be considered.
 
 ### RPC Code Sample
-Run the `com.weareadaptive.grpc.Main` class in folder `code/grpc`. 
+Run the `com.weareadaptive.grpc.Main` class in folder `code/grpc`.
 - This starts a thread for a server and a separate thread for a client that communicates a greet message.
 
 ## Message Passing in Distributed Systems
@@ -144,7 +144,7 @@ legitimate components.
 
 ## UDP
 
-[UDP (User Datagram Protocol)](https://en.wikipedia.org/wiki/User_Datagram_Protocol), is a internet protocol. It is used for sending messages, or datagrams, over a network.
+[UDP (User Datagram Protocol)](https://en.wikipedia.org/wiki/User_Datagram_Protocol), is an internet protocol. It is used for sending messages, or datagrams, over a network.
 
 - UDP is a connectionless protocol, meaning that it does not establish a connection before sending data.
 - It simply sends the data out without ensuring that it reaches its destination, or the order in which it is received.
