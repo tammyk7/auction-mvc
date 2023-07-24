@@ -3,7 +3,28 @@
 Goal: To ensure proficiency with hy-lang and designing Hydra platform services
 
 - How to send/receive messages
-- Understanding generated service code
+
+## Understanding generated service code
+
+- `*Driver`: The 'Context' is an object present in both the engine and the various components and can give access to various services
+  such as:
+    - channelToCluster: This is a channel from the component to the cluster, it allows the component to send messages to
+      the
+      cluster
+    - channelToWebSockets: This is a channel from the component to the various applications connected through
+      websockets. It
+      allows the component to reply to connected clients.
+    - channelToInitiators: Same as the previous one but for FIX connections
+    - replayChannelToCluster: Create a channel that can replay all the messages for the consumer. This is useful during
+      priming on startup.
+
+  For more info you can check [here](https://docs.hydra.weareadaptive.com/LATEST/Development/Services/UnderstandingGeneratedServiceCodeBasics.html)
+- `*ServiceProxy`: These classes are useful to communicate with the Service they represent.
+- `*ServiceClientProxy`: Like the `ServiceProxy` ones, they are used to send a response from the Service to the client
+- `Mutable*` : Every generated data class has a mutable and immutable version of it. The mutable ones have the same name
+  as the immutable but with the `Mutable` prefix.
+- `Test*`: It's a version of the data class that directly allocate space in the heap without taking advantage of
+  the [Flyweight pattern](../Module_3_Determinism_and_single_threaded_performance/Module%203.md#flyweight-pattern).
 
 ## Interaction models
 In the [Module 1 Streaming API](../Module_1_Distributed_system_basics#streaming-apis) section we described the different interaction models between clients and Hydra services, listed here:
@@ -21,10 +42,6 @@ the result).
 In order to facilitate relating the method that handles the response to the request that did call the service method,
 Hydra API uses the same "correlationId" value which was passed when calling the method in the call to the service client method
 implementation.
-
-
-
-- Backwards and forwards compatible services
 
 ## Backwards compatible services
 
