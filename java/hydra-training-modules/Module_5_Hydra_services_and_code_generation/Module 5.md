@@ -2,7 +2,296 @@
 
 Goal: To ensure proficiency with hy-lang and designing Hydra platform services
 
-- How to send/receive messages
+## How to send/receive messages
+
+In this example, the following cluster and web-gateway are created to communicate with each other, where the engine
+hosts a service called EchoService.
+
+```lisp
+cluster Engine = {
+    services: {
+        EchoService
+    }
+}
+```
+
+```lisp
+client EchoGateway = {
+    connectsTo: Engine
+}
+```
+
+Below, we have our `EchoService` defined in `echo.hy`. Using the command `./gradlew generateCodecs`, the hydra gradle plugin generates some classes that we will use.
+
+```lisp
+service EchoService = {
+    echoFireAndForget()
+    echoFireAndForgetWithMessage(Echo)
+    echoWithReply(EchoRequest): EchoResponse
+    echoRespondManyTimes(EchoRequest): EchoResponse stream
+    echoToEverybody: Echo stream
+}
+```
+
+In the following text, we will show how to implement these classes for the most commonly used interaction models as well
+as how to implement client to client communication.
+
+### Fire-and-forget
+
+#### Sending a message
+
+For a service client to communicate with a service, it must access the service proxy. This is done by accessing the
+corresponding channel where the service is located, and retrieving the service proxy. In the context of our example,
+that can be achieved using the following line of code, where the context is the bootstrapper for our gateway.
+
+```
+final EchoServiceProxy echoServiceProxy = context.channelToCluster().getEchoServiceProxy();
+```
+
+This `EchoServiceProxy` will have a method for each method offered in the `.hy` file for `EchoService`. In order to use
+the fire-and-forget method `echoFireAndForget` of `EchoService`, a correlation ID will need to be allocated for
+this specific message. This can be done using the `EchoServiceProxy`’s `allocateCorrelationId()` method. Therefore,
+sending a message can be achieved in the following code snippet:
+
+```
+final EchoServiceProxy echoServiceProxy = context.channelToCluster().getEchoServiceProxy();
+final UniqueId correlationId = echoServiceProxy.allocateCorrelationId();
+echoServiceProxy.echoFireAndForget(correlationId);
+```
+
+#### Sending an object with a message
+
+In some cases, it may be necessary to send an object with additional information to the service, as seen
+in `echoFireAndForgetWithMessage(Echo)`. In order to do this, the `Echo` object will also need to be accessed from
+the `EchoServiceProxy` in addition to the `UniqueId`. Note that only accessing the `Echo` object must be done from a
+try-with-resources block because of Hydra’s use of flyweights— flyweights implement `Closable` and therefore must be
+closed once they are done being used.
+
+```
+try (var echo = echoServiceProxy.acquireEcho())
+{
+    final UniqueId correlationId1 = echoServiceProxy.allocateCorrelationId();
+    echo.message("Hello from fire-and-forget!");
+    echoServiceProxy.echoFireAndForgetWithMessage(correlationId1, echo);
+}
+```
+
+#### Receiving the message
+
+This message must then be received by the cluster. As is, the message is sent to the cluster and will be received by the
+ingress. However, to properly handle any of the incoming messages, a proper service class will need to be implemented in
+the cluster. Thanks to Hydra’s code generation, we are given a `EchoService` interface that we can implement and therefore handle
+the incoming messages.
+
+In the case of `echoFireAndForget` and `echoFireAndForgetWithMessage`, the methods that we will need to override will be
+the following:
+
+```
+public class EchoServiceImpl implements EchoService
+{
+    @Override
+    public void echoFireAndForget(final UniqueId correlationId)
+    {
+        // potentially state-changing logic here
+    }
+
+    @Override
+    public void echoFireAndForgetWithMessage(final UniqueId correlationId, final Echo echo)
+    {
+        // potentially state-changing logic handling Echo object here
+    }
+}
+```
+
+In order to have our cluster actually use this service implementation, it should be instantiated and registered with the
+cluster bootstrapper using the following lines of code.
+
+```
+final EchoServiceImpl echoService = new EchoServiceImpl();
+context.channelToClients().registerEchoService(echoService);
+```
+
+Now, you may be asking— what if we want our cluster to respond to the message?
+
+### Request-response
+
+As described in the section on interaction models, request-response is similar to fire-and-forget in how the client
+contacts a service— however, in request-response, the service responds to the request.
+
+In our `EchoService` example, `echo(EchoRequest)` is an example of a request-response interaction model. Sending a
+message from the client to the service is identical to the fire-and-forget section, as mentioned, but to respond to the
+request, we will need a `EchoServiceClientProxy` to contact our clients. Similar to how we originally acquired the `EchoServiceProxy` from
+the `channelToCluster().getEchoServiceProxy()` method, we will now be able to access the `EchoServiceClientProxy`.
+We pass this client proxy as a constructor argument of the `EchoServiceImpl` class because its request-response method implementations
+will need it to send the response back to the client.
+
+```
+final EchoServiceImpl echoService = new EchoServiceImpl(context.channelToClients().getEchoServiceClientProxy());
+context.channelToClients().registerEchoService(echoService);
+```
+
+Now, in order to use this proxy to send messages to the client, we will use the
+`EchoServiceClientProxy`’s `onEchoWithReplyResponse` method. This method takes a correlation ID and, because the method
+responds with an `EchoResponse` object, an `EchoResponse`.
+
+This correlation ID must match up with the correlation ID of the message sent to the service in order to complete the
+interaction. If a new correlation ID is generated from the service side, the interaction will not be completed and your
+tests may fail. Furthermore, like when accessing the `Echo` object in [this](#sending-an-object-with-a-message) section,
+the `EchoResponse` object must be acquired from a try-with-resources block. Therefore, in the simplest case where we
+want to send echo the message sent to the service, the implementation would look like the following—
+
+```
+public class EchoServiceImpl implements EchoService
+{
+    private final EchoServiceClientProxy echoServiceClientProxy;
+
+    public EchoServiceImpl(EchoServiceClientProxy echoServiceClientProxy)
+    {
+        this.echoServiceClientProxy = echoServiceClientProxy;
+    }
+
+    @Override
+    public void echoWithReply(final UniqueId correlationId, final EchoRequest echoRequest)
+    {
+    try (var echoResponse = echoServiceClientProxy.acquireEchoResponse())
+        {
+            echoResponse.message(echoRequest.message() + " This is a reply from the service!");
+            echoServiceClientProxy.onEchoWithReplyResponse(correlationId, echoResponse);
+        }
+    }
+
+    // other method implementations
+}
+```
+
+#### Receiving a response from the cluster
+
+In order to receive responses from a service, a client for the given service must be registered. In order to keep the
+EchoGateway code clean, a new class `EchoServiceClientImpl.java` should be created that implements the Hydra-generated
+class `EchoServiceClient`:
+
+```
+context.channelToCluster().registerEchoServiceClient(new EchoServiceClientImpl());
+```
+
+For a service that contains a request-response method, the service’s client interface will automatically have generated
+a method that will be named `onNameOfMethodResponse`. When implementing a client, this method will need to be defined
+and the response will need to be handled as needed. As the client sends out a response to the request, the response will
+arrive and be handled by this method. In the case of our `echoWithReply` method, it would look like the following:
+
+```
+@Override
+public void onEchoWithReplyResponse(final UniqueId id, final EchoResponse echoResponse)
+{
+    // logic to handle resulting response
+}
+```
+
+#### Requested streams
+
+How about sending multiple messages as a response to a client’s message in the case of requested streams, such as
+with `EchoService`’s `EchoRespondManyTimes` method?
+
+Like when sending an individual message, sending a messages over a non-broadcast stream requires a proxy (whether it
+must be a client proxy or a service proxy is dependent on where the message is coming from and being sent to), a
+correlation ID, and the mutable version of the message type intended to be sent over to the cluster. However, there are
+some differences when sending messages in a request stream or a bidirectional stream compared to fire-and-forget,
+request-response.
+
+In the table below, you’ll find the methods that can be used with the proxy when sending messages over a stream, whether
+it's from the cluster to a client or a client to the cluster. In all of these cases, if the stream is a response, the
+correlationId will need to match the one of the original message. For information on these methods,
+go [here](https://docs.hydra.weareadaptive.com/LATEST/Development/Services/InteractionModels.html#requested-stream).
+
+| Method generated                                             | Use case                                                                                                                                                                                                                                                 |
+|--------------------------------------------------------------|----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| onNameOfServiceMethod(correlationId, requestType)            | Used to send RequestType object over stream with given correlationId.                                                                                                                                                                                    |
+| onNameOfServiceMethodError(correlationId, errorNotification) | Used to inform the recipient that an error has occurred on the client side for that given method. More information on errors can be found https://docs.hydra.weareadaptive.com/LATEST/Development/Services/InteractionModels.html#errors.                |
+| onNameOfServiceMethodCompleted(correlationId)                | Used to inform the recipient that the stream that was sending over messages has now been completed and that no other messages will be passed through that stream. If this is a bi-directional stream, this does closes the stream only in one direction. |
+
+In the case of `echoRespondManyTimes` in our `EchoService`, sending three messages into the stream and then completing
+it. If `onEchoRespondManyTimesResponseCompleted` was not used, the stream would remain open and additional messages
+could be sent.
+
+```
+@Override
+public void echoRespondManyTimes(final UniqueId correlationId, final EchoRequest echoRequest)
+{
+    LOGGER.info("Received following Echo message from echoRespondManyTimes: ".concat(echoRequest.message().toString())).log();
+    try (final MutableEchoResponse echoResponse = echoServiceClientProxy.acquireEchoResponse())
+    {
+        for (int i = 0; i < 3; i++)
+        {
+            echoResponse.message(echoRequest.message() + " This is a stream reply from the service!");
+            echoServiceClientProxy.onEchoRespondManyTimesResponse(correlationId, echoResponse);
+        }
+    }
+    echoServiceClientProxy.onEchoRespondManyTimesResponseCompleted(correlationId);
+}
+```
+
+### How to receive responses from a stream
+
+To accept messages from a stream, additional methods will need to be implemented in our `EchoServiceImpl.java` class.
+Any of the following can be implemented in order to provide behavior for our client in response to receiving a response
+from the service.
+
+| Method name                                                                   | Use case                                                                                       |
+|-------------------------------------------------------------------------------|------------------------------------------------------------------------------------------------|
+| onNameOfStreamResponse(final UniqueId id, final ResponseType response)        | Implement client behavior to handle object sent over the stream by a responding service        |
+| onNameOfStreamErrorResponse(final UniqueId id, final ErrorNotification error) | Implement client behavior to handle Error Notification that occurred in the responding service |
+| onNameOfStreamCompleted(final UniqueId id)                                    | Implement client behavior for when stream sent by the service has been completed               |
+
+In the case of our echoRespondManyTimes method, the client-side handling of response would look like the following:
+
+```
+@Override
+public void onEchoRespondManyTimesResponse(UniqueId correlationId, EchoResponse echoResponse)
+{
+    LOGGER.info("Received EchoResponse from echoRespondManyTimes: ".concat(echoResponse.message().toString())).log();
+}
+
+@Override
+public void onEchoRespondManyTimesResponseCompleted(UniqueId correlationId)
+{
+    LOGGER.info("Received echoRespondManyTimes completion").log();
+}
+```
+
+Note that the client can cancel an incoming stream using the service proxy’s `cancelEchoRespondManyTimes` method, given
+the corresponding correlation ID. For more information on stream cancellation from the recipient side,
+go [here](https://docs.hydra.weareadaptive.com/LATEST/Development/Services/InteractionModels.html#stream-cancellation).
+
+#### How to use broadcast streams
+
+These streams, unlike other kinds of stream-based messaging, are always infinite, cannot be cancelled by the recipient, 
+and do not need a correlation ID. In the case of `echoToEverybody`, it is currently configured to send out a broadcast 
+message upon receiving an `echoFireAndForget` message using the following code—
+
+```
+try (final MutableEcho echo = echoServiceClientProxy.acquireEcho())
+{
+    echoServiceClientProxy.onEchoToEverybody(echo.message("This Echo broadcast message was triggered by the echoFireAndForget"));
+}
+```
+
+### How to send messages between clients
+
+Cluster bypass has been covered in a prior section— the process of sending messages to and from the EchoService provided
+in the EchoGateway is similar as described above, and an example of it can be found
+in `java/com/weareadaptive/echo/client/PeerClientMain.java`
+
+```lisp
+client PeerClient = {
+    connectsTo: {
+        Engine
+        EchoGateway
+    }
+}
+```
+When running the code sample, notice that the `PeerClient` is able to communicate with the cluster without using
+the `ClientToEngineChannel` directly— it sends a message through the `EchoGateway` and is received by the service in the
+cluster, which then responds, which is then logged in the gateway.
 
 ## Understanding generated service code
 
@@ -88,6 +377,7 @@ For further reference, Hydra documentation includes sections on
 
 
 - Hydra Tooling and IDE plugins
+
 
 ## How to Define Service Contracts
 

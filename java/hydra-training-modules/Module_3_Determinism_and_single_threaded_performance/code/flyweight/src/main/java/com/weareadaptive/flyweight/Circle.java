@@ -1,7 +1,5 @@
 package com.weareadaptive.flyweight;
 
-import java.io.IOException;
-
 import com.weareadaptive.hydra.logging.Logger;
 import com.weareadaptive.hydra.logging.LoggerFactory;
 

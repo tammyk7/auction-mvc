@@ -1,8 +1,5 @@
 package com.weareadaptive.chatroom.rest;
 
-import java.io.IOException;
-import java.util.concurrent.CountDownLatch;
-
 import com.weareadaptive.chatroom.rest.components.InboundIntegrationGateway;
 import com.weareadaptive.chatroom.rest.components.InboundIntegrationGatewayConnection;
 import com.weareadaptive.chatroom.rest.services.MessageService;
