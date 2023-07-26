@@ -264,8 +264,8 @@ go [here](https://docs.hydra.weareadaptive.com/LATEST/Development/Services/Inter
 
 #### How to use broadcast streams
 
-These streams, unlike other kinds of stream-based messaging, are always infinite, cannot be cancelled by the recipient, 
-and do not need a correlation ID. In the case of `echoToEverybody`, it is currently configured to send out a broadcast 
+These streams, unlike other kinds of stream-based messaging, are always infinite, cannot be cancelled by the recipient,
+and do not need a correlation ID. In the case of `echoToEverybody`, it is currently configured to send out a broadcast
 message upon receiving an `echoFireAndForget` message using the following code—
 
 ```
@@ -376,7 +376,6 @@ For further reference, Hydra documentation includes sections on
 [Evolve a Service Contract](https://docs.hydra.weareadaptive.com/LATEST/Development/Services/Versioning/EvolveAServiceContract.html)
 
 
-- Hydra Tooling and IDE plugins
 
 
 ## How to Define Service Contracts
@@ -465,3 +464,40 @@ support this in a feature
 called [pass-through](https://docs.hydra.weareadaptive.com/LATEST/Development/GettingStarted/Tutorial/Exercises/Passthrough.html).
 This feature allows you to register a Hydra generated service proxy or client proxy rather than your own implementation
 to handle an message, effectively simplifying your code.
+
+## Hydra Tooling and IDE Plugin
+
+### [hydra](https://docs.hydra.weareadaptive.com/LATEST/Operation/Docker/ToolsAndUtilities.html#hydra): A CLI tool for managing a local hydra instance
+
+- **cat**: Outputs ingress/egress streams in human-readable form.
+- **cluster**: General purpose cluster management. Allows exports of recovery packages, truncation of the log, setting
+  of the cluster ineligibility flag. Additionally, it has monitoring tools that output the state of the cluster and
+  lists leadership terms in the cluster recording log.
+- **recordings**: Interact with recordings in the archive. Outputs a list of the recordings as well as recording
+  details. Also allows for modification of a recording, enabling the user to attach, detach, purge, and truncate
+  segments of a recording.
+- **snapshots**: Interact with snapshots. Allows for importing/exporting, injecting, listing, and triggering snapshots.
+
+### [Maintenance Scripts](https://docs.hydra.weareadaptive.com/LATEST/Operation/Docker/ToolsAndUtilities.html#maintenancesh)
+
+- **maintenance.sh**: A script that is called for scheduled maintenance. It executes a couple of other maintenance
+  scripts (maintenance_snapshot.sh, maintenance_export.sh, maintenance_archive.sh, etc.) some of which execute according
+  to certain flags.
+- **maintenance_snapshot.sh**: Requests that the cluster takes a snapshot, however this is only valid on the leader
+  node. If executed on a follower node, will only report information on whether the snapshot was a success/failure.
+- **maintenance_export.sh**: Calls an internal Hydra library to create an export (backup) in a ZIP file that can be used
+  to restore the system/cluster. The export can be copied out of a docker container and used to replay all the commands
+  in a local cluster node.
+- **maintenance_archive.sh**: Calls an internal Hydra library to identify journal files that are no longer needed, due
+  to snapshots. These journals are then zipped, to save disc space.
+- **maintenance_backup.sh**: If configured, sends exports and archived journals to AWS S3.
+- **maintenance_cleanup.sh**: If configured, removes all exports and archived journals that are older than a set amount
+  of days.
+- **maintenance_restore.sh**: Can take a hydra export from different sources (i.e. local file, HTTP, S3 URL) and primes
+  the node to start with this data. Old data is moved to a separate folder. All nodes need to be restored in this manner
+  and will finally be started afterward with `supervisorctl start all`.
+
+### [IntelliJ Plugin](https://docs.hydra.weareadaptive.com/LATEST/tools/IntelliJ.html)
+
+- Hydra provides an IntelliJ plugin to assist development of hydra platform projects, providing syntax highlighting and
+  code navigation support for .hy files.
