@@ -7,7 +7,7 @@ Goal: To ensure proficiency with hy-lang and designing Hydra platform services
 In this example, the following cluster and web-gateway are created to communicate with each other, where the engine
 hosts a service called EchoService.
 
-```lisp
+```fsharp
 cluster Engine = {
     services: {
         EchoService
@@ -15,7 +15,7 @@ cluster Engine = {
 }
 ```
 
-```lisp
+```fsharp
 client EchoGateway = {
     connectsTo: Engine
 }
@@ -23,7 +23,7 @@ client EchoGateway = {
 
 Below, we have our `EchoService` defined in `echo.hy`. Using the command `./gradlew generateCodecs`, the hydra gradle plugin generates some classes that we will use.
 
-```lisp
+```fsharp
 service EchoService = {
     echoFireAndForget()
     echoFireAndForgetWithMessage(Echo)
@@ -277,11 +277,12 @@ try (final MutableEcho echo = echoServiceClientProxy.acquireEcho())
 
 ### How to send messages between clients
 
-Cluster bypass has been covered in a prior section— the process of sending messages to and from the EchoService provided
-in the EchoGateway is similar as described above, and an example of it can be found
-in `java/com/weareadaptive/echo/client/PeerClientMain.java`
+Cluster bypass has been covered in a prior section— the process of sending messages to and from the `EchoService`
+provided
+in the `EchoGateway` is similar as described above, and an example of it can be found
+in `java/com/weareadaptive/echo/client/PeerClientMain.java`.
 
-```lisp
+```fsharp
 client PeerClient = {
     connectsTo: {
         Engine
@@ -289,19 +290,22 @@ client PeerClient = {
     }
 }
 ```
-When running the code sample, notice that the `PeerClient` is able to communicate with the cluster without using
-the `ClientToEngineChannel` directly— it sends a message through the `EchoGateway` and is received by the service in the
-cluster, which then responds, which is then logged in the gateway.
+
+When running the code sample, notice that the `PeerClient` is able to use the `EchoService` without using the cluster—
+hence it being cluster bypass messaging— because a separate `EchoService` was registered for the peer channel in
+the `EchoGateway` bootstrapper. The `PeerClient` sends a message to the `EchoGateway` and is received by the
+`EchoService` registered in `EchoGateway`, which then responds and the response is logged in the `PeerClient`.
 
 ## Understanding generated service code
 
-- `*Driver`: The 'Context' is an object present in both the engine and the various components and can give access to various services
+- `*Driver`: The 'Context' is an object present in both the engine and the various components and can give access to
+  various services
   such as:
-    - channelToCluster: This is a channel from the component to the cluster, it allows the component to send messages to
-      the
-      cluster
-    - channelToWebSockets: This is a channel from the component to the various applications connected through
-      websockets. It
+  - channelToCluster: This is a channel from the component to the cluster, it allows the component to send messages to
+    the
+    cluster
+  - channelToWebSockets: This is a channel from the component to the various applications connected through
+    websockets. It
       allows the component to reply to connected clients.
     - channelToInitiators: Same as the previous one but for FIX connections
     - replayChannelToCluster: Create a channel that can replay all the messages for the consumer. This is useful during

@@ -1,0 +1,26 @@
+import com.weareadaptive.hydraplatform.gradle.Dependencies
+import com.weareadaptive.hydraplatform.gradle.plugins.ConfigureJavaLibraryPlugin
+
+ext {
+    checkstyleDisabled = true
+}
+
+apply plugin: ConfigureJavaLibraryPlugin
+apply plugin: 'com.weareadaptive.hydra-code-gen-plugin'
+
+dependencies {
+    implementation Dependencies.HYDRA_WS()
+    implementation Dependencies.HYDRA_PLATFORM_CORE()
+    implementation project(':Module_5_Hydra_services_and_code_generation:code:sending_and_receiving:engine:api')
+    implementation project(':Module_5_Hydra_services_and_code_generation:code:sending_and_receiving:wg:api')
+}
+
+codecs {
+    defaultGeneratorVersion = "v4"
+    markdownOutDir = [
+            'main': file("$buildDir/docs/main")
+    ]
+    plantUmlOutDir = [
+            'main': file("$buildDir/uml/main")
+    ]
+}

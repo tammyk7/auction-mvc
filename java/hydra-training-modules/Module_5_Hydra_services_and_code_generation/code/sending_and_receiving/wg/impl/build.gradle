@@ -1,0 +1,12 @@
+import com.weareadaptive.hydraplatform.gradle.Dependencies
+import com.weareadaptive.hydraplatform.gradle.plugins.ConfigureJavaLibraryPlugin
+
+apply plugin: ConfigureJavaLibraryPlugin
+
+dependencies {
+    implementation Dependencies.HYDRA_WS()
+    implementation Dependencies.HYDRA_PLATFORM_WEB()
+    implementation Dependencies.HYDRA_LOGGING_SLF4J()
+    implementation project(':Module_5_Hydra_services_and_code_generation:code:sending_and_receiving:engine:api')
+    implementation project(':Module_5_Hydra_services_and_code_generation:code:sending_and_receiving:wg:api')
+}
