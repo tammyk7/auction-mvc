@@ -1,0 +1,25 @@
+import com.weareadaptive.hydraplatform.gradle.Dependencies
+import com.weareadaptive.hydraplatform.gradle.plugins.ConfigureJavaLibraryPlugin
+
+plugins {
+    id 'java'
+}
+
+group = 'org.example'
+version = 'unspecified'
+
+repositories {
+    mavenCentral()
+}
+
+apply plugin: ConfigureJavaLibraryPlugin
+
+dependencies {
+    implementation Dependencies.HYDRA_LOGGING_SLF4J()
+    implementation Dependencies.HYDRA_CLUSTER_CORE()
+    implementation Dependencies.HYDRA_LOGGING_API()
+    implementation Dependencies.HYDRA_LOGGING_IMPL()
+    implementation Dependencies.HYDRA_PLATFORM_ENGINE()
+    implementation project(':Module_6_Hydra_components:code:assignment_a:engine:api')
+    implementation project(':Module_6_Hydra_components:code:assignment_a:trading:api')
+}
