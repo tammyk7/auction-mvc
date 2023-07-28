@@ -29,6 +29,9 @@ PlaceOrderRequest to the cluster. In the previous assignment (A) you implemented
 (we provide an implementation in this assignment, the UserServiceClientImpl) that receives each UserEvent broadcasted.
 
 - Rename the class `UserServiceClientImpl` to `UserCache` and make sure you save the `username` of each UserEvent in a cache.
+- Make sure that the UserCache is primed everytime the `trading` gateway starts. For this, you will have to define a new
+  method in the UserService that gets you the list of all current users (i.e. `listAllUsers(): UserEvent stream`) and call it
+  as part of the bootstrapping of the `trading` gateway.
 - Write a `TradingGatewayOrderServiceImpl` class that implements OrderService (defined in [order-service.hy](code/assignment_b/trading/api/src/main/resources/order-service.hy)), and register it (instead of the pass-through that you
   implemented in the `trading` gateway in the previous step). This class must validate that the `user` field in the `PlaceOrderRequest` exists in the cache
   before sending the `PlaceOrderRequest` to the cluster. If the user does not exist, reject the PlaceOrderRequest and do not send it to the cluster.
