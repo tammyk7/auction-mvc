@@ -10,6 +10,9 @@ If you do not already have access to Adaptive's Udemy Account, please email help
 
 ---
 
+In addition to the Udemy course, please also take a look at the following video from Victor:
+- [RxJS](https://weareadaptive.zoom.us/rec/share/NgYtDPr5suDGucFPB_Cp1EAkGcr36iXedhCOxNBSRSjWxSrpIMnf52t5ppciNs6k.wjn2Nutn76HWtIw_): (Passcode: wBr!KgD5)
+
 
 ## [Day 1: Reactive Programming Fundamentals](week-2/Day-1/README.md)
 
