@@ -2,10 +2,7 @@
 
 - [RxJS Marble Testing](RxJS-Marble-Testing.md)
 - [Integration tests for React and RxJS applications](React-and-RxJS-Integration-Tests.md)
-
-**TODO:**
-
-- Testing error handling and Suspense with RxJS observables and react-rxjs
+- [Testing Error Boundaries and Suspense](Testing-Error-Boundaries-and-Suspense.md)
 
 ## Advance Testing
 
