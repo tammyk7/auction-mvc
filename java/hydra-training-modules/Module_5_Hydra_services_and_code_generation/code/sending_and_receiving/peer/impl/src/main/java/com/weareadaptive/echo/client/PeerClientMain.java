@@ -22,7 +22,7 @@ public class PeerClientMain
         echoGatewayChannel.registerEchoServiceClient(new EchoServiceClient()
         {
             @Override
-            public void onEchoWithReplyResponse(UniqueId correlationId, EchoResponse echoResponse)
+            public void onEchoWithReplyResponse(final UniqueId correlationId, final EchoResponse echoResponse)
             {
                 LOGGER.info("Received response from EchoService: ").append(echoResponse.message()).log();
             }
