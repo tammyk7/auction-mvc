@@ -2,6 +2,8 @@
 
 Goal: To embed knowledge about Hydra platform component usage
 
+## Bootstrapping components
+
 ## Lifecycle events
 The `Context` provides Lifecycles methods that can be used to set up or clean up your application. The methods can be divided into two groups:
 - Cluster lifecycle events:
@@ -31,8 +33,33 @@ Code snippet:
     conn.connect();
 ```
 
-- Threadsafe vs. non-threadsafe logging
-- Bootstrapping components
+## Thread-safe vs. Non-thread-safe logging
+
+In Hydra, logging plays a crucial role, and the framework provides a custom logging solution to minimize unnecessary
+garbage collection, which can be explored in
+detail [here](https://docs.hydra.weareadaptive.com/LATEST/Development/HydraLogging/Overview.html). The implementation of
+this framework utilizes fixed-size buffers.
+
+The framework offers two logging options: a thread-safe logger and a non-thread-safe logger. In most cases, it is
+recommended to use the non-thread-safe logger. The reason behind this lies in the fact that the thread-safe logger consumes
+more resources, maintaining multiple buffers instead of a single buffer used by the non-thread-safe logger.
+Considering [Hydra's single-threaded approach in the cluster](https://docs.hydra.weareadaptive.com/LATEST/HydraArchitecture/SingleThreadedBusinessLogic.html#warning-never-block-the-model-thread)
+and [in gateways](https://docs.hydra.weareadaptive.com/LATEST/Development/Components/WebGatewayOverview.html#thread-model),
+using the thread-safe logger is typically unnecessary.
+
+Below, you can find a code snippet demonstrating how to log (i.e. an error message).
+
+```java
+public class Foo
+{
+    private Logger logger = LoggerFactory.getNotThreadSafeLogger(Foo.class);
+
+    private void myMethod()
+    {
+        logger.error("Method not yet implemented").log();
+    }
+}
+```
 
 ## Assignments
 We have covered a good part of Hydra functionality, it's time to put this knowledge into practice with some assignments:
