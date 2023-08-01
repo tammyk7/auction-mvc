@@ -646,36 +646,7 @@ To summarize:
 
 
 ## Creation Functions
-  ### of
-  ### from
-  ### fromEvent
-  ### timer
-  ### interval
-  ### forkJoin - Handle multiple HTTP
-  ### forkJoin - Error Scenario
-  ### combineLatest - Reacting to multiple input changes
 
 ## Pipeable Operators
-  ### Operator Stacking
-  ### Importing Operators
-  ### filter
-  ### map
-  ### tap
-  ### debounceTime
-  ### catchError
-  ### Flattening Operators
-  ### Flattening Operators - Static Example
-  ### Flattening Operators - Dynamic HTTP Request
-  ### Flattening Operators - Error Handling (First Solution)
-  ### Flattening Operators - Error Handling (Second Solution)
-  ### Flattening Operators - Concurrency - concatMap
-  ### Flattening Operators - switchMap
-  ### Flattening Operators - mergeMap
-  ### Flattening Operators - Side by Side Comparison
 
 ## Subjects
-  ### Multicasting
-  ### Subject vs Observable vs Observer
-  ### Subject in Action
-  ### BehaviorSubject - Concept
-  ### BehaviorSubject in Action
