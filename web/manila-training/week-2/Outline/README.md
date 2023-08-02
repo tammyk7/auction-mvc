@@ -36,7 +36,7 @@ Examples of streams:
 
 ---
 
-## Observable, Subscription, Observer - Key Elements
+## Observable, Observer, Subscription - Key Elements
 
 ### Observable
 The idea of an Observable is simple. It's based around a single callback function with a set of rules and guarantees regarding the interface and behavior.
@@ -123,7 +123,7 @@ const observable$ = new Observable<string>(subscriber => {
 observable$.subscribe();
 ```
 
-In this snippet, we create a new Observable using the `new Observable` constructor - importing it from `rxjs`. As we've seen previously, this constructor accepts a function which is run when we subscribe to this Observable. This callback function provides us with a subscriber object on which we can call the `next` method to emit 'Alice', 'Ben' and 'Charlie' string values.
+In this snippet, we create a new Observable using the `new Observable` constructor - importing it from `rxjs`. As we've seen previously, this constructor accepts a function which is run when we subscribe to this Observable. This callback function provides us with a subscriber object on which we can call the `next` method to emit 'Alice', 'Ben' and 'Charlie' string values. Let's also add a console log to indicate the start of the Observable.
 
 If we run this as it is, we can see that only `Observable executed` is logged. To provide some reaction, we need to create a handler for the `next` notifications. So let's create an Observer object which console logs the value and pass our Observer to the subscribe method to execute the Observable's logic with our new Observer.
 
@@ -168,7 +168,7 @@ setTimeout(() => {
 }, 3000);
 ```
 
-If we run this code now, we can see that only 'Alice' and 'Ben' were emitted since the subscription gets closed before the next notification (Charlie) gets emitted.
+If we run this code now, we can see that only 'Alice' and 'Ben' were emitted since the subscription gets closed before the next notification, Charlie, gets emitted.
 
 <br />
 
@@ -197,7 +197,7 @@ setTimeout(() => {
 }, 1000);
 ```
 
-We've modified our code for subscription 1 to start immediately and for subscription 2 to start after 1 second delay. We've also added some labels to recognize which subscription is which.
+We've modified our code for subscription 1 to start immediately and for subscription 2 to start after a 1 second delay. We've also added some labels to recognize which subscription is which.
 
 These subscriptions will execute our Observable's logic independently from each other. And as the second Subscription is made a second later, we see a one second difference between the emitted values in the console.
 
@@ -276,7 +276,7 @@ This one takes some time and immediately completes. This could be an HTTP reques
 
 <br />
 
-![marbles-error](./images/marbles-error.png)
+![marbles-error](./images/marbles-failed.png)
 This one takes some time as well and then emits an error, nothing else. This could have been a failed HTTP request.
 
 > it can be difficult to distinguish the source of emissions from a marble diagram since they can all behave similarly
