@@ -194,17 +194,17 @@ In the folder Code of this module you have an example of an Imperative Cluster C
     - api: Same as the Engine module.
       - In this case we have a "rest-gateway.hy" file, in here we will be defining what type of Cluster Client we are using and who it connects to, as described previously.
     - impl: Same as the Engine Module.
-      - In this case we will be creating a REST connection using Vertx and sending a message through the MessageService Class, since we are expecting a response from the Cluster, we will also be handling the responses to the requests we make. 
-      
+      - In this case we will be creating a REST connection using Vertx and sending a message through the MessageService Class, since we are expecting a response from the Cluster, we will also be handling the responses to the requests we make.
+
 To test how all this is working you will follow these steps:
   1. Run the main method on EngineMain (if you get an InaccessibleObjectException, refer to the [Hydra Documentation](https://docs.hydra.weareadaptive.com/LATEST/ReleaseNotes/UpgradingToJava17.html) and follow step 4. )
-  2. Run the main method on InboundIntegrationGatewayMain (If you get the same error as step 1, edit this configuration as well) 
+  2. Run the main method on InboundIntegrationGatewayMain (If you get the same error as step 1, edit this configuration as well)
   3. To try this out with through the console write the following command:
 
      3.1 curl -d '{ "message": "Hello from Console" }' -H "Content-Type: application/json" -X POST http://localhost:8080/sendMessage
   4. Check the Cluster Log to see that the message has been received.
 
-## Ingress vs. egress / inbound vs. outbound gateways
+## Ingress vs. egress channels / inbound vs. outbound gateways
 
 Ingress is the set of inbound message streams clients send to the cluster. All the messages are sequenced into the
 cluster log.
@@ -222,8 +222,11 @@ receive all the messages and will parse them in two cases:
 Both the ingress and egress are stored to disk thanks to the archive. In case of a cluster restart, the
 ingress will be replayed from the last snapshot or from the beginning of the log. The egress will query the position and
 compare it with the recording end position. If they match, the new messages will be appended to the recording. If they
-don't [the behaviour will depend on the set strategy](https://docs.hydra.weareadaptive.com/LATEST/HydraCluster/Egress.html#if-the-cluster-is-restarted)
-.
+don't [the behaviour will depend on the set strategy](https://docs.hydra.weareadaptive.com/LATEST/HydraCluster/Egress.html#if-the-cluster-is-restarted).
+
+The ingress and egress channel should not be confused with inbound and outbound gateways. For instance, an inbound integration gateway could call to a
+cluster service request-response method. The request would be sent through the ingress channel to the cluster, and the response from the cluster would be sent back to
+the gateway through the egress channel.
 
 ## Divergence
 
