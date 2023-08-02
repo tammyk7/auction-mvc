@@ -32,6 +32,9 @@ PlaceOrderRequest to the cluster. In the previous assignment (A) you implemented
 - Make sure that the UserCache is primed everytime the `trading` gateway starts. For this, you will have to define a new
   method in the UserService that gets you the list of all current users (i.e. `listAllUsers(): UserEvent stream`) and call it
   as part of the bootstrapping of the `trading` gateway.
+
+The recommended approach is to use the Lifecycle callbacks to call the method that primes the UserCache when the cluster is available:
+- Register the Lifecycle callback `onAvailable` so that it calls `listAllUsers` and primes UserCache.
 - Write a `TradingGatewayOrderServiceImpl` class that implements OrderService (defined in [order-service.hy](code/assignment_b/trading/api/src/main/resources/order-service.hy)), and register it (instead of the pass-through that you
   implemented in the `trading` gateway in the previous step). This class must validate that the `user` field in the `PlaceOrderRequest` exists in the cache
   before sending the `PlaceOrderRequest` to the cluster. If the user does not exist, reject the PlaceOrderRequest and do not send it to the cluster.
