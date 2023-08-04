@@ -1,6 +1,6 @@
 # Java Training Guide
 
-## Tech Stack
+## Tech Stack
 
 We use the following back-end technologies at Adaptive, it may be worth looking into these if you don't know them:
 
@@ -19,7 +19,7 @@ We use the following back-end technologies at Adaptive, it may be worth looking 
   - RAFT consensus algorithm
   - FIX (Hydra Platform/Artio)
 
-## Java Features
+## Java Features
 
 You should know the following modern Java features well at Adaptive:
 
