@@ -9,7 +9,7 @@ Source code: https://github.com/AdaptiveConsulting/ReactiveTraderCloud
 
 To give some context, let’s take a look at the Reactive Trader UI in action and try to map that to an underlying logical architecture.
 
-https://github.com/AdaptiveConsulting/academy-guides/raw/main/java/hydra-exercises/hydra-reactive-trader/media/reactive_trader_in_action.mp4
+https://github.com/AdaptiveConsulting/academy-guides/assets/3295115/2612c3f5-fcb9-4651-a1c9-303883230745
 
 From this simple demo we can summarise the functionality thus:
 
