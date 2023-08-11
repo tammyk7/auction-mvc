@@ -9,7 +9,7 @@ Source code: https://github.com/AdaptiveConsulting/ReactiveTraderCloud
 
 To give some context, let’s take a look at the Reactive Trader UI in action and try to map that to an underlying logical architecture.
 
-![reactive_trader_in_action.mp4](./media/reactive_trader_in_action.mp4)
+https://github.com/AdaptiveConsulting/academy-guides/raw/main/java/hydra-exercises/hydra-reactive-trader/media/reactive_trader_in_action.mp4
 
 From this simple demo we can summarise the functionality thus:
 
@@ -208,13 +208,14 @@ Currently there is no record of trade events outside of the cluster other than w
 
 - As a stakeholder I want access to a downstream CSV file with a record of trade events.
   - Every time a trade is executed (whether accepted or rejected) I want it to be written to a file, in CSV format
-  - The intra-day file should be updated in close to real-time, new trades should be appended at the bottom
+  - The intra-day file should be updated in as close to real-time as possible, new trades should be appended at the bottom.
   - All relevant trade information should be recorded, including the trade id, trade time, etc.
   - At the start of every new trading day, the records of the previous day should be archived
     to a separate file with the date in the name, and a new file should be started for the current day.
   - There must not be any duplicates in the file.
   - There should be no gaps in the file, i.e. even if the report writer goes down for some reason,
     it should be able to catch up on missed trades.
+- As a stakeholder I would like to be able to configure how often the CSV trade report "rolls", e.g. daily, hourly, etc., and what naming pattern is used for the file.
 
 #### Tips
 
