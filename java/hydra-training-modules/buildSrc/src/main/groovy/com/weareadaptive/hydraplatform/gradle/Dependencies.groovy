@@ -15,6 +15,7 @@ class Dependencies {
         static final def AERON= '1.41.2'
         static final def SLF4J= '2.0.7'
         static final def LOGBACK= '1.4.7'
+        static final def AGRONA = '1.19.1'
     }
 
     static final def HYDRA_CLUSTER_CORE() {
@@ -93,6 +94,18 @@ class Dependencies {
         hydraModule("hydra-ws-cluster-gateway")
     }
 
+    static final def HYDRA_CODECS() {
+        return hydraModule("hydra-codecs")
+    }
+
+    static final def HYDRA_MEMORY() {
+        return hydraModule("hydra-memory")
+    }
+
+    static final def HYDRA_MEMORY_INDEXES() {
+        return hydraModule("hydra-memory-indexes")
+    }
+
     private static def hydraModule(String name) {
         return "com.weareadaptive:${name}:${Versions.HYDRA}"
     }
@@ -154,4 +167,7 @@ class Dependencies {
         return "ch.qos.logback:logback-classic:${Versions.LOGBACK}"
     }
 
+    static final def AGRONA() {
+        return "org.agrona:agrona:${Versions.AGRONA}"
+    }
 }

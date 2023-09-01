@@ -1,0 +1,27 @@
+import com.weareadaptive.hydraplatform.gradle.Dependencies
+import com.weareadaptive.hydraplatform.gradle.plugins.ConfigureJavaLibraryPlugin
+
+ext {
+    checkstyleDisabled = true
+}
+
+apply plugin: ConfigureJavaLibraryPlugin
+apply plugin: 'com.weareadaptive.hydra-code-gen-plugin'
+
+dependencies {
+
+    implementation Dependencies.AGRONA()
+    implementation Dependencies.HYDRA_MEMORY()
+
+    testImplementation Dependencies.HYDRA_MEMORY_INDEXES()
+}
+
+codecs {
+    defaultGeneratorVersion = "v4"
+    markdownOutDir = [
+            'main': file("$buildDir/docs/main")
+    ]
+    plantUmlOutDir = [
+            'main': file("$buildDir/uml/main")
+    ]
+}
