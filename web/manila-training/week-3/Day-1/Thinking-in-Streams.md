@@ -80,7 +80,7 @@ const priceData$ = merge(
 Finally, we'll use the `bind` function from react-rxjs to connect this observable to our React component. **The `bind` function returns a hook that we can use in our component to subscribe to the observable and get the current value.**
 
 ```jsx
-const usePriceData = bind(priceData$, { type: "real-time", data: { price: "N/A" } });
+const [usePriceData] = bind(priceData$, { type: "real-time", data: { price: "N/A" } });
 
 function PriceDisplay() {
   const priceData = usePriceData();
