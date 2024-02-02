@@ -1,4 +1,4 @@
-package com.weareadaptive.auction.model;
+package com.weareadaptive.auction;
 
 public final class StringUtil
 {

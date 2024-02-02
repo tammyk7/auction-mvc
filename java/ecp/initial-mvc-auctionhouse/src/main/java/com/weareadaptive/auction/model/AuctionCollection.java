@@ -1,6 +1,9 @@
 package com.weareadaptive.auction.model;
 
-public class AuctionState extends State<Auction>
+import org.springframework.stereotype.Component;
+
+@Component
+public class AuctionCollection extends State<Auction>
 {
     public void addAuction(final Auction auction)
     {
@@ -15,5 +18,10 @@ public class AuctionState extends State<Auction>
     public void closeAuction(final int id)
     {
         get(id).closeAuction();
+    }
+
+    public Auction getAuction(final int id)
+    {
+        return get(id);
     }
 }

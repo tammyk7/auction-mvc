@@ -1,4 +1,4 @@
-package com.weareadaptive.auctionhouse.model;
+package com.weareadaptive.auction.model;
 
 import java.math.BigDecimal;
 import java.time.Instant;
@@ -6,9 +6,9 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 
-import static com.weareadaptive.auctionhouse.StringUtil.isNullOrEmpty;
+import static com.weareadaptive.auction.StringUtil.isNullOrEmpty;
 
-public class Auction implements Model
+public class Auction implements Entity
 {
     private final int id;
     private final List<Bid> bids;

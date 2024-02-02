@@ -1,4 +1,4 @@
-package com.weareadaptive.auctionhouse.model;
+package com.weareadaptive.auction.model;
 
 import java.time.Instant;
 

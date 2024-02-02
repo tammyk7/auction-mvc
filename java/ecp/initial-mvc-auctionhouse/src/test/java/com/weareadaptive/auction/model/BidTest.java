@@ -1,12 +1,11 @@
-package com.weareadaptive.auctionhouse.model;
+package com.weareadaptive.auction.model;
 
-import com.weareadaptive.auctionhouse.TestData;
+import com.weareadaptive.auction.TestData;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
-
-import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class BidTest
 {

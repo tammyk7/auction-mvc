@@ -1,16 +1,12 @@
-package com.weareadaptive.auctionhouse.model;
+package com.weareadaptive.auction.model;
 
-import com.weareadaptive.auctionhouse.TestData;
+import com.weareadaptive.auction.TestData;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 import java.math.BigDecimal;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.junit.jupiter.api.Assertions.assertAll;
+import static org.junit.jupiter.api.Assertions.*;
 
 public class AuctionTest
 {

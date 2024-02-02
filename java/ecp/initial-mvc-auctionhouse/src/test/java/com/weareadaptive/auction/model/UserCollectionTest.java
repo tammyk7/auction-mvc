@@ -10,14 +10,14 @@ import java.util.stream.Stream;
 import static com.weareadaptive.auction.TestData.*;
 import static org.junit.jupiter.api.Assertions.*;
 
-public class UserStateTest
+public class UserCollectionTest
 {
-    private UserState state;
+    private UserCollection state;
 
     @BeforeEach
     public void initState()
     {
-        state = new UserState();
+        state = new UserCollection();
         Stream.of(
                 ADMIN,
                 USER1,
@@ -42,6 +42,6 @@ public class UserStateTest
     {
         BusinessException thrown = assertThrows(BusinessException.class,
                 () -> state.add(USER1));
-        assertEquals(UserState.ITEM_ALREADY_EXISTS, thrown.getMessage());
+        assertEquals(UserCollection.ITEM_ALREADY_EXISTS, thrown.getMessage());
     }
 }

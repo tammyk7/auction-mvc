@@ -18,7 +18,7 @@ To run the application, run in a terminal:
 ## Security
 
 It is disabled for now, to enable, see instructions on top of `AuctionHouseMvcApplication.java` and `SecurityConfiguration.java`
-Tests are disabled since security is disabled for now
+Tests are disabled since [README.md](README.md)security is disabled for now
 
 Once enabled, security for this project uses a custom authentication provider implemented to respond to UsernamePasswordAuthenticationToken authentication requests.
 The username and password are validated against the data defined here `src/main/java/com/weareadaptive/auction/configuration/ApplicationInit.java`.
