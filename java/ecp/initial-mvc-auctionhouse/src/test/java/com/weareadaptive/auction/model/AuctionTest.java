@@ -150,11 +150,15 @@ public class AuctionTest
     public void closingSummary()
     {
         final Auction auction = new Auction(1, TestData.USER2, TestData.USDJPY, 100, 2.45);
-        auction.makeBid(10, 10, TestData.USER1);
+        auction.makeBid(100, 3.00, TestData.USER1);
 
         auction.closeAuction();
 
-        assertEquals(1, auction.getWinningBids().size());
+        assertEquals(1, auction.getWinningBids(TestData.USER1).size());
+        assertEquals(100, auction.getTotalSoldQuantity());
+
+        final BigDecimal expectedRevenue = BigDecimal.valueOf(100 * 3.00);
+        assertEquals(0, expectedRevenue.compareTo(auction.getTotalRevenue()));
     }
 
     @Test
@@ -168,7 +172,8 @@ public class AuctionTest
 
         auction.closeAuction();
 
-        assertEquals(2, auction.getWinningBids().size());
+        assertEquals(1, auction.getWinningBids(TestData.USER1).size());
+        assertEquals(1, auction.getWinningBids(TestData.USER3).size());
         assertEquals(100, auction.getTotalSoldQuantity());
 
         final BigDecimal expectedRevenue = BigDecimal.valueOf(60 * 3.00 + 40 * 2.50);
@@ -187,11 +192,13 @@ public class AuctionTest
 
         auction.closeAuction();
 
-        assertEquals(2, auction.getWinningBids().size());
-        assertTrue(auction.getWinningBids().stream().anyMatch(bid -> bid.user().equals(TestData.USER1)));
-        assertTrue(auction.getWinningBids().stream().anyMatch(bid -> bid.user().equals(TestData.USER4)));
-        assertFalse(auction.getWinningBids().stream().anyMatch(bid -> bid.user().equals(TestData.USER3)));
+        assertEquals(1, auction.getWinningBids(TestData.USER4).size());
+        assertEquals(1, auction.getWinningBids(TestData.USER1).size());
+        assertEquals(1, auction.getLostBids(TestData.USER3).size());
         assertEquals(100, auction.getTotalSoldQuantity());
+
+        final BigDecimal expectedRevenue = BigDecimal.valueOf(50 * 3.10 + 50 * 3.00);
+        assertEquals(0, expectedRevenue.compareTo(auction.getTotalRevenue()));
     }
 
     @Test
@@ -205,7 +212,7 @@ public class AuctionTest
 
         auction.closeAuction();
 
-        assertEquals(1, auction.getWinningBids().size());
-        assertTrue(auction.getWinningBids().stream().allMatch(bid -> bid.user().equals(TestData.USER1)));
+        assertEquals(1, auction.getWinningBids(TestData.USER1).size());
+        assertEquals(1, auction.getLostBids(TestData.USER3).size());
     }
 }

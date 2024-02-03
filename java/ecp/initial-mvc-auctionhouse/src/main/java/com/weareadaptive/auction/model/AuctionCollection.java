@@ -2,6 +2,8 @@ package com.weareadaptive.auction.model;
 
 import org.springframework.stereotype.Component;
 
+import java.util.List;
+
 @Component
 public class AuctionCollection extends State<Auction>
 {
@@ -20,8 +22,38 @@ public class AuctionCollection extends State<Auction>
         get(id).closeAuction();
     }
 
-    public Auction getAuction(final int id)
+    public List<BidLost> findLostBids(final User user)
     {
-        return get(id);
+        if (user == null)
+        {
+            throw new BusinessException("user cannot be null");
+        }
+        return stream()
+                .filter(auction -> Auction.AuctionStatus.CLOSED == auction.getStatus())
+                .flatMap(auction -> auction.getLostBids(user).stream()
+                        .map(lostBid -> new BidLost(
+                                auction.getId(),
+                                auction.getSymbol(),
+                                lostBid.quantity(),
+                                lostBid.price()))
+                ).toList();
+    }
+
+    public List<BidWon> findWonBids(final User user)
+    {
+        if (user == null)
+        {
+            throw new BusinessException("user cannot be null");
+        }
+        return stream()
+                .filter(auction -> Auction.AuctionStatus.CLOSED == auction.getStatus())
+                .flatMap(auction -> auction.getWinningBids(user).stream()
+                        .map(winningBid -> new BidWon(
+                                auction.getId(),
+                                auction.getSymbol(),
+                                winningBid.quantity(),
+                                winningBid.bid().quantity(),
+                                winningBid.bid().price()))
+                ).toList();
     }
 }

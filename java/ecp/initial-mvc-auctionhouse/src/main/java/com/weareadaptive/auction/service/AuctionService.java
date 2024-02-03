@@ -40,7 +40,7 @@ public class AuctionService
 
     public Auction getAuctionById(final int id)
     {
-        return auctionCollection.getAuction(id);
+        return auctionCollection.get(id);
     }
 
     //getAllBids

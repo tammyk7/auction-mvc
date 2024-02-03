@@ -19,8 +19,7 @@ public class Auction implements Entity
     private AuctionStatus status;
     private BigDecimal totalRevenue;
     private int totalSoldQuantity;
-    private List<Bid> winningBids;
-    private List<Bid> losingBids;
+    private final List<WinningBid> winningBids;
 
 
     public Auction(final int id, final User user, final String symbol, final int quantity, final double minPrice)
@@ -51,6 +50,7 @@ public class Auction implements Entity
         this.bids = new ArrayList<>();
         this.totalRevenue = new BigDecimal(0);
         this.totalSoldQuantity = 0;
+        this.winningBids = new ArrayList<>();
     }
 
 
@@ -75,24 +75,29 @@ public class Auction implements Entity
         this.bids.add(new Bid(quantity, price, Instant.now(), user));
     }
 
-    public List<Bid> getWinningBids()
+    public List<WinningBid> getWinningBids(final User user)
     {
         if (status == AuctionStatus.OPEN)
         {
             throw new BusinessException("You can only obtain the winning bids on a closed auction");
         }
 
-        return new ArrayList<>(winningBids);
+        return winningBids.stream()
+                .filter(winningBid -> winningBid.bid().user().equals(user))
+                .toList();
     }
 
-    public List<Bid> getLostBids()
+    public List<Bid> getLostBids(final User user)
     {
         if (status == AuctionStatus.OPEN)
         {
             throw new BusinessException("You can only obtain the losing bids on a closed auction");
         }
 
-        return new ArrayList<>(losingBids);
+        return bids.stream()
+                .filter(bid -> bid.user().equals(user))
+                .filter(bid -> winningBids.stream().noneMatch(winningBid -> winningBid.bid().equals(bid)))
+                .toList();
 
     }
 
@@ -100,14 +105,12 @@ public class Auction implements Entity
     {
         this.status = AuctionStatus.CLOSED;
 
-        // Calculate winning bids
         final var sortedBids =
                 bids.stream().sorted(Comparator.comparingDouble(Bid::price).reversed()
                                 .thenComparing(Bid::timestamp))
                         .toList();
 
         int remainingQuantity = this.quantity;
-        final var calculatedWinningBids = new ArrayList<Bid>();
 
         for (final Bid bid : sortedBids)
         {
@@ -115,22 +118,12 @@ public class Auction implements Entity
             {
                 break;
             }
-            int filledQuantity = Math.min(bid.quantity(), remainingQuantity);
-            calculatedWinningBids.add(bid);
-            remainingQuantity -= filledQuantity;
-        }
 
-        // Store winning and losing bids
-        this.winningBids = new ArrayList<>(calculatedWinningBids);
-        this.losingBids = new ArrayList<>(bids);
-        this.losingBids.removeAll(this.winningBids);
-
-        // Calculate totalSoldQuantity and totalRevenue
-        for (final Bid bid : this.winningBids)
-        {
-            int filledQuantity = Math.min(bid.quantity(), this.quantity - this.totalSoldQuantity);
-            this.totalSoldQuantity += filledQuantity;
-            this.totalRevenue = this.totalRevenue.add(BigDecimal.valueOf(bid.price() * filledQuantity));
+            final int bidQuantity = Math.min(remainingQuantity, bid.quantity());
+            remainingQuantity -= bidQuantity;
+            totalRevenue = totalRevenue.add(BigDecimal.valueOf(bid.price()).multiply(BigDecimal.valueOf(bidQuantity)));
+            totalSoldQuantity += bidQuantity;
+            winningBids.add(new WinningBid(bid, bidQuantity));
         }
     }
 
