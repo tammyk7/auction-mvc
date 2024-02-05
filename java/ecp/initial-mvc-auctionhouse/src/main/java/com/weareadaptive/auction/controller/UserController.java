@@ -1,5 +1,7 @@
 package com.weareadaptive.auction.controller;
 
+import com.weareadaptive.auction.configuration.Response;
+import com.weareadaptive.auction.controller.RequestsResponses.UserResponse;
 import com.weareadaptive.auction.model.User;
 import com.weareadaptive.auction.service.UserService;
 import org.springframework.http.ResponseEntity;
@@ -38,16 +40,21 @@ public class UserController
     }
 
     @GetMapping("/{userId}")
-    public ResponseEntity<User> findByUserId(@PathVariable final int userId)
+    public ResponseEntity<UserResponse> findByUserId(@PathVariable final int userId)
     {
-        return ResponseEntity.ok().body(userService.getUserById(userId));
+        final User user = userService.getUserById(userId);
+        final UserResponse userResponse = new UserResponse(user.getId(), user.getUsername(), user.getFirstName(),
+                user.getLastName(),
+                user.getOrganisation());
+        return ResponseEntity.ok().body(userResponse);
     }
 
     @PutMapping("/{userId}/status")
-    public ResponseEntity<String> blockByUsername(@PathVariable final int userId,
-                                                  @RequestBody final HashMap<String, Boolean> body)
+    public ResponseEntity<Response<String>> blockByUsername(@PathVariable final int userId,
+                                                            @RequestBody final HashMap<String, Boolean> body)
     {
         userService.updateUserStatus(userId, body.get("isBlocked"));
-        return ResponseEntity.ok().body("Update successful");
+        final Response<String> response = new Response<>("Update successful");
+        return ResponseEntity.ok().body(response);
     }
 }

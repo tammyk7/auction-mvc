@@ -51,7 +51,7 @@ public class AuctionStateTest
     public void findWonBidsForUser()
     {
         // Create an auction and add bids
-        final Auction auction = new Auction(1, TestData.USER2, TestData.AAPL, 100, 2.45);
+        final Auction auction = new Auction(1, TestData.USER2, TestData.FB, 100, 2.45);
         auction.makeBid(100, 3.00, TestData.USER1);
         auction.makeBid(60, 2.50, TestData.USER4);
 
@@ -68,7 +68,7 @@ public class AuctionStateTest
         assertEquals(1, wonBids.size());
         final BidWon bidWon = wonBids.get(0);
         assertEquals(1, bidWon.auctionId());
-        assertEquals(TestData.AAPL, bidWon.symbol());
+        assertEquals(TestData.FB, bidWon.symbol());
         assertEquals(100, bidWon.wonQuantity());
         assertEquals(100, bidWon.bidQuantity());
         assertEquals(3.00, bidWon.price());

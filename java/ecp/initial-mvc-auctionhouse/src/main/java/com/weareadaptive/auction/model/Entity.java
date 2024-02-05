@@ -1,6 +1,6 @@
 package com.weareadaptive.auction.model;
 
-public class Utils
+public interface Entity
 {
-
+    int getId();
 }

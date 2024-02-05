@@ -15,7 +15,8 @@ public class AuctionExceptionHandling extends ResponseEntityExceptionHandler
     protected ResponseEntity<Response<Object>> handleBadRequest(
             final RuntimeException exception)
     {
-        final Response<Object> response = new Response<>(exception.getMessage(), null);
+        final Response<Object> response = new Response<>(
+                exception.getMessage());
         return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
     }
 
@@ -23,7 +24,8 @@ public class AuctionExceptionHandling extends ResponseEntityExceptionHandler
     protected ResponseEntity<Response<Object>> handleNotFound(
             final RuntimeException exception)
     {
-        final Response<Object> response = new Response<>(exception.getMessage(), null);
+        final Response<Object> response = new Response<>(
+                exception.getMessage());
         return new ResponseEntity<>(response, HttpStatus.NOT_FOUND);
     }
 }

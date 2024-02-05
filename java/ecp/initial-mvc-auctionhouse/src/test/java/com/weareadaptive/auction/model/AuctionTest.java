@@ -205,7 +205,7 @@ public class AuctionTest
     @DisplayName("Two identical bids to fill the order")
     public void twoIdenticalBidsToFillOrder()
     {
-        final Auction auction = new Auction(1, TestData.USER2, TestData.USDJPY, 50, 2.45);
+        final Auction auction = new Auction(1, TestData.USER2, TestData.EBAY, 50, 2.45);
 
         auction.makeBid(50, 3.00, TestData.USER1);
         auction.makeBid(50, 3.00, TestData.USER3);

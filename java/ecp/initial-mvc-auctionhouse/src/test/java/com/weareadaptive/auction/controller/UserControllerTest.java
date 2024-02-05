@@ -66,7 +66,7 @@ public class UserControllerTest
                 .put("/{userId}/status", 1)
                 .then()
                 .statusCode(HttpStatus.OK.value())
-                .body(equalTo("Update successful"));
+                .body("message", equalTo("Update successful"));
     }
 
 }
