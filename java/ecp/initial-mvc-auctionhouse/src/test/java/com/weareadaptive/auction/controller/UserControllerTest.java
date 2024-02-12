@@ -10,8 +10,10 @@ import org.springframework.http.HttpStatus;
 import java.util.HashMap;
 import java.util.Map;
 
+import static com.weareadaptive.auction.TestData.ADMIN_AUTH_TOKEN;
 import static io.restassured.RestAssured.given;
 import static org.hamcrest.Matchers.*;
+import static org.springframework.http.HttpHeaders.AUTHORIZATION;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 public class UserControllerTest
@@ -30,43 +32,110 @@ public class UserControllerTest
     @DisplayName("Get all users")
     public void getAllUsers()
     {
-        given().baseUri(uri)
-                .when()
+        //@formatter:off
+        given()
+                .baseUri(uri)
+        .when()
+                .header(AUTHORIZATION, ADMIN_AUTH_TOKEN)
                 .get("/")
-                .then()
+        .then()
                 .statusCode(HttpStatus.OK.value())
-                .body("users", hasSize(2));
+                .body("$", hasSize(3));
+        //@formatter:on
+    }
+
+    @Test
+    @DisplayName("Create a new user")
+    public void createUser()
+    {
+        Map<String, String> requestBody = new HashMap<>();
+        requestBody.put("username", "newUser");
+        requestBody.put("password", "password");
+        requestBody.put("firstname", "First");
+        requestBody.put("lastname", "Last");
+        requestBody.put("organisation", "Organisation");
+
+        //@formatter:off
+        given()
+                .baseUri(uri)
+                .contentType("application/json")
+        .when()
+                .header(AUTHORIZATION, ADMIN_AUTH_TOKEN)
+                .body(requestBody)
+                .post("/")
+        .then()
+                .statusCode(HttpStatus.OK.value());
+        //@formatter:on
     }
 
     @Test
     @DisplayName("Get user by userId")
     public void getUserById()
     {
-        given().baseUri(uri)
-                .when()
+        //@formatter:off
+        given()
+                .baseUri(uri)
+        .when()
+                .header(AUTHORIZATION, ADMIN_AUTH_TOKEN)
                 .get("/1")
-                .then()
+        .then()
                 .statusCode(HttpStatus.OK.value())
                 .body("username", notNullValue());
+        //@formatter:on
+    }
+
+    @Test
+    @DisplayName("Should throw an exception when grabbing user with a negative id")
+    public void shouldThrowBusinessExceptionWhenGrabbingNonExistentUser()
+    {
+        //@formatter:off
+        given()
+                .baseUri(uri)
+        .when()
+                .header(AUTHORIZATION, ADMIN_AUTH_TOKEN)
+                .get("/-1")
+        .then()
+                .statusCode(HttpStatus.BAD_REQUEST.value());
+        //@formatter:on
     }
 
     @Test
     @DisplayName("Update user status")
     public void updateUserStatus()
     {
-        //Prepare request body
         final Map<String, Boolean> requestBody = new HashMap<>();
         requestBody.put("isBlocked", true);
 
+        //@formatter:off
         given()
                 .baseUri(uri)
                 .contentType("application/json")
+        .when()
+                .header(AUTHORIZATION, ADMIN_AUTH_TOKEN)
                 .body(requestBody)
-                .when()
                 .put("/{userId}/status", 1)
-                .then()
-                .statusCode(HttpStatus.OK.value())
-                .body("message", equalTo("Update successful"));
+        .then()
+                .statusCode(HttpStatus.OK.value());
+        //@formatter:on
     }
 
+    @Test
+    @DisplayName("Should throw an exception when updating a non existent user")
+    public void shouldThrowBusinessExceptionWhenUpdatingNonExistentUser()
+    {
+        final Map<String, Boolean> requestBody = new HashMap<>();
+        requestBody.put("isBlocked", true);
+
+        //@formatter:off
+        given()
+                .baseUri(uri)
+                .contentType("application/json")
+        .when()
+                .header(AUTHORIZATION, ADMIN_AUTH_TOKEN)
+                .body(requestBody)
+                .put("/{userId}/status", -1)
+        .then()
+                .statusCode(HttpStatus.BAD_REQUEST.value());
+        //@formatter:on
+    }
 }

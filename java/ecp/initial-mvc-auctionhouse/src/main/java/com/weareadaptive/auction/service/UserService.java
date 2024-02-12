@@ -1,8 +1,6 @@
 package com.weareadaptive.auction.service;
 
-import com.weareadaptive.auction.model.BusinessException;
-import com.weareadaptive.auction.model.User;
-import com.weareadaptive.auction.model.UserCollection;
+import com.weareadaptive.auction.model.*;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -12,22 +10,19 @@ import java.util.Optional;
 public class UserService
 {
     private final UserCollection userCollection;
+    private final AuctionCollection auctionCollection;
+    private final BidCollection bidCollection;
 
-    public UserService(final UserCollection userCollection)
+    public UserService(final UserCollection userCollection, final AuctionCollection auctionCollection, final BidCollection bidCollection)
     {
         this.userCollection = userCollection;
+        this.auctionCollection = auctionCollection;
+        this.bidCollection = bidCollection;
     }
 
-    public User create(final String username, final String password, final String firstName, final String lastName,
-                       final String organisation)
+    public User create(final String username, final String password, final String firstName, final String lastName, final String organisation)
     {
-        final User user = new User(
-                userCollection.nextId(),
-                username,
-                password,
-                firstName,
-                lastName,
-                organisation);
+        final User user = new User(userCollection.nextId(), username, password, firstName, lastName, organisation);
         userCollection.add(user);
         return user;
     }
@@ -78,5 +73,15 @@ public class UserService
         }
         return userCollection.stream().filter(user -> user.getUsername().equalsIgnoreCase(username)).filter(
                 user -> user.validatePassword(password)).findFirst();
+    }
+
+    public List<Bid> getUserBids(final int userId)
+    {
+        if (userCollection.getUser(userId) == null)
+        {
+            throw new BusinessException("user does not exist");
+        }
+        final User user = userCollection.getUser(userId);
+        return bidCollection.getUserBids(user.getId());
     }
 }

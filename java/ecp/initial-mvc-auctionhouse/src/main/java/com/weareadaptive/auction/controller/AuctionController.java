@@ -1,25 +1,20 @@
 package com.weareadaptive.auction.controller;
 
+import com.weareadaptive.auction.controller.RequestsResponses.AuctionResponse;
+import com.weareadaptive.auction.controller.RequestsResponses.BidRequest;
+import com.weareadaptive.auction.controller.RequestsResponses.CreateAuctionRequest;
 import com.weareadaptive.auction.model.Auction;
+import com.weareadaptive.auction.model.Bid;
 import com.weareadaptive.auction.service.AuctionService;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
-//get all auctions
-//create auctions -> symbol,minPrice,quantity and then return the auction
-//based on auction id -> should return the specific auction information
-// get all bids -> must be the owner
-// Close an auction -> must be owner, must be open and return summary
-// Get closing summary of the auction
 @RestController
 @RequestMapping("/auctions")
 public class AuctionController
 {
-    AuctionService auctionService;
+    final AuctionService auctionService;
 
     public AuctionController(final AuctionService auctionService)
     {
@@ -27,8 +22,64 @@ public class AuctionController
     }
 
     @GetMapping("/")
-    public ResponseEntity<List<Auction>> getAllAuctions()
+    public List<AuctionResponse> getAllAuctions()
     {
-        return ResponseEntity.ok().body(auctionService.getAll());
+        final List<Auction> auctions = auctionService.getAll();
+
+        return auctions.stream()
+                .map(auction -> new AuctionResponse(
+                        auction.getSymbol(),
+                        auction.getQuantity(),
+                        auction.getMinPrice()
+                )).toList();
+    }
+
+    @PostMapping("/")
+    public AuctionResponse createAuction(@RequestBody final CreateAuctionRequest createAuctionRequest)
+    {
+        final Auction auctionCreated = auctionService.create(createAuctionRequest);
+
+        return new AuctionResponse(
+                auctionCreated.getSymbol(),
+                auctionCreated.getQuantity(),
+                auctionCreated.getMinPrice()
+        );
+    }
+
+    @GetMapping("/{auctionId}")
+    public AuctionResponse findByAuctionId(@PathVariable final int auctionId)
+    {
+        final Auction auction = auctionService.getAuctionById(auctionId);
+        return new AuctionResponse(
+                auction.getSymbol(),
+                auction.getQuantity(),
+                auction.getMinPrice()
+        );
+    }
+
+    @GetMapping("/{auctionId}/{userId}/winningBids")
+    public List<Bid> getWinningBids(@PathVariable final int auctionId,
+                                    @PathVariable final int userId)
+    {
+        return auctionService.getWinningBids(auctionId, userId);
+    }
+
+    @PostMapping("/{auctionId}/bids")
+    public void bidOnAuction(@PathVariable final int auctionId,
+                             @RequestBody final BidRequest bidRequest)
+    {
+        auctionService.bidOnAuction(auctionId, bidRequest);
+    }
+
+    @PutMapping("/{auctionId}/close")
+    public void closeAuction(@PathVariable final int auctionId)
+    {
+        auctionService.closeAuction(auctionId);
+    }
+
+    @PutMapping("/{auctionId}/remove")
+    public void removeAuction(@PathVariable final int auctionId)
+    {
+        auctionService.removeAuction(auctionId);
     }
 }

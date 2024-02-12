@@ -1,4 +1,4 @@
-package com.weareadaptive.auction.configuration;
+package com.weareadaptive.auction.exception;
 
 import com.weareadaptive.auction.model.BusinessException;
 import com.weareadaptive.auction.model.NotFoundException;
@@ -12,20 +12,20 @@ import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExcep
 public class AuctionExceptionHandling extends ResponseEntityExceptionHandler
 {
     @ExceptionHandler(value = {BusinessException.class, NullPointerException.class})
-    protected ResponseEntity<Response<Object>> handleBadRequest(
+    protected ResponseEntity<ExceptionHandlingResponse<Object>> handleBadRequest(
             final RuntimeException exception)
     {
-        final Response<Object> response = new Response<>(
+        final ExceptionHandlingResponse<Object> exceptionHandlingResponse = new ExceptionHandlingResponse<>(
                 exception.getMessage());
-        return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
+        return new ResponseEntity<>(exceptionHandlingResponse, HttpStatus.BAD_REQUEST);
     }
 
     @ExceptionHandler(NotFoundException.class)
-    protected ResponseEntity<Response<Object>> handleNotFound(
+    protected ResponseEntity<ExceptionHandlingResponse<Object>> handleNotFound(
             final RuntimeException exception)
     {
-        final Response<Object> response = new Response<>(
+        final ExceptionHandlingResponse<Object> exceptionHandlingResponse = new ExceptionHandlingResponse<>(
                 exception.getMessage());
-        return new ResponseEntity<>(response, HttpStatus.NOT_FOUND);
+        return new ResponseEntity<>(exceptionHandlingResponse, HttpStatus.NOT_FOUND);
     }
 }

@@ -5,6 +5,7 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 import java.math.BigDecimal;
+import java.time.Instant;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -76,7 +77,7 @@ public class AuctionTest
 
         final BusinessException exception = assertThrows(
                 BusinessException.class,
-                () -> auction.makeBid(10, 2.45, TestData.USER1));
+                () -> auction.makeBid(new Bid(1, 10, 2.45, Instant.now(), TestData.USER1)));
         assertTrue(exception.getMessage().contains("price"));
     }
 
@@ -90,7 +91,7 @@ public class AuctionTest
                 {
                     final Auction auction = new Auction(1, TestData.USER2, TestData.USDJPY, 100,
                             2.45);
-                    auction.makeBid(100, 1.45, TestData.USER1);
+                    auction.makeBid(new Bid(1, 100, 1.45, Instant.now(), TestData.USER1));
                 });
         assertTrue(exception.getMessage().contains("price"));
     }
@@ -114,7 +115,7 @@ public class AuctionTest
                 {
                     final Auction auction = new Auction(1, TestData.USER2, TestData.USDJPY, 100,
                             2.45);
-                    auction.makeBid(-1, 3, TestData.USER1);
+                    auction.makeBid(new Bid(1, -1, 3, Instant.now(), TestData.USER1));
                 });
         assertTrue(exception.getMessage().contains("quantity"));
     }
@@ -125,11 +126,11 @@ public class AuctionTest
     {
         final Auction auction = new Auction(1, TestData.USER2, TestData.USDJPY, 100, 2.45);
 
-        auction.closeAuction();
+        auction.close();
 
         final BusinessException exception = assertThrows(
                 BusinessException.class,
-                () -> auction.makeBid(10, 3, TestData.USER1));
+                () -> auction.makeBid(new Bid(1, 10, 3, Instant.now(), TestData.USER1)));
         assertTrue(exception.getMessage().contains("closed"));
     }
 
@@ -141,7 +142,7 @@ public class AuctionTest
 
         final BusinessException exception = assertThrows(
                 BusinessException.class,
-                () -> auction.makeBid(10, 3, TestData.USER2));
+                () -> auction.makeBid(new Bid(1, 10, 3, Instant.now(), TestData.USER2)));
         assertTrue(exception.getMessage().contains("own auction"));
     }
 
@@ -150,11 +151,11 @@ public class AuctionTest
     public void closingSummary()
     {
         final Auction auction = new Auction(1, TestData.USER2, TestData.USDJPY, 100, 2.45);
-        auction.makeBid(100, 3.00, TestData.USER1);
+        auction.makeBid(new Bid(1, 100, 3.00, Instant.now(), TestData.USER1));
 
-        auction.closeAuction();
+        auction.close();
 
-        assertEquals(1, auction.getWinningBids(TestData.USER1).size());
+        assertEquals(1, auction.getWinningBids().size());
         assertEquals(100, auction.getTotalSoldQuantity());
 
         final BigDecimal expectedRevenue = BigDecimal.valueOf(100 * 3.00);
@@ -167,13 +168,12 @@ public class AuctionTest
     {
         final Auction auction = new Auction(1, TestData.USER2, TestData.USDJPY, 100, 2.45);
 
-        auction.makeBid(60, 3.00, TestData.USER1);
-        auction.makeBid(50, 2.50, TestData.USER3);
+        auction.makeBid(new Bid(1, 60, 3.00, Instant.now(), TestData.USER1));
+        auction.makeBid(new Bid(1, 50, 2.50, Instant.now(), TestData.USER3));
 
-        auction.closeAuction();
+        auction.close();
 
-        assertEquals(1, auction.getWinningBids(TestData.USER1).size());
-        assertEquals(1, auction.getWinningBids(TestData.USER3).size());
+        assertEquals(2, auction.getWinningBids().size());
         assertEquals(100, auction.getTotalSoldQuantity());
 
         final BigDecimal expectedRevenue = BigDecimal.valueOf(60 * 3.00 + 40 * 2.50);
@@ -186,15 +186,14 @@ public class AuctionTest
     {
         final Auction auction = new Auction(1, TestData.USER2, TestData.USDJPY, 100, 2.45);
 
-        auction.makeBid(50, 3.00, TestData.USER1);
-        auction.makeBid(100, 2.50, TestData.USER3);
-        auction.makeBid(50, 3.10, TestData.USER4);
+        auction.makeBid(new Bid(1, 50, 3.00, Instant.now(), TestData.USER1));
+        auction.makeBid(new Bid(2, 100, 2.50, Instant.now(), TestData.USER3));
+        auction.makeBid(new Bid(3, 50, 3.10, Instant.now(), TestData.USER4));
 
-        auction.closeAuction();
+        auction.close();
 
-        assertEquals(1, auction.getWinningBids(TestData.USER4).size());
-        assertEquals(1, auction.getWinningBids(TestData.USER1).size());
-        assertEquals(1, auction.getLostBids(TestData.USER3).size());
+        assertEquals(2, auction.getWinningBids().size());
+        assertEquals(1, auction.getLostBids().size());
         assertEquals(100, auction.getTotalSoldQuantity());
 
         final BigDecimal expectedRevenue = BigDecimal.valueOf(50 * 3.10 + 50 * 3.00);
@@ -207,12 +206,12 @@ public class AuctionTest
     {
         final Auction auction = new Auction(1, TestData.USER2, TestData.EBAY, 50, 2.45);
 
-        auction.makeBid(50, 3.00, TestData.USER1);
-        auction.makeBid(50, 3.00, TestData.USER3);
+        auction.makeBid(new Bid(1, 50, 3.00, Instant.now(), TestData.USER1));
+        auction.makeBid(new Bid(2, 50, 3.00, Instant.now(), TestData.USER3));
 
-        auction.closeAuction();
+        auction.close();
 
-        assertEquals(1, auction.getWinningBids(TestData.USER1).size());
-        assertEquals(1, auction.getLostBids(TestData.USER3).size());
+        assertEquals(1, auction.getWinningBids().size());
+        assertEquals(1, auction.getLostBids().size());
     }
 }

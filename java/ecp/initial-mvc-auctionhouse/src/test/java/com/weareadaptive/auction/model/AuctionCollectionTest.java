@@ -6,11 +6,12 @@ import org.junit.jupiter.api.Test;
 import com.weareadaptive.auction.TestData;
 
 
+import java.time.Instant;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-public class AuctionStateTest
+public class AuctionCollectionTest
 {
     private AuctionCollection auctionCollection;
 
@@ -26,24 +27,23 @@ public class AuctionStateTest
     {
         // Create an auction and add bids
         final Auction auction = new Auction(1, TestData.USER2, TestData.AAPL, 100, 2.45);
-        auction.makeBid(100, 3.00, TestData.USER1);
-        auction.makeBid(60, 2.50, TestData.USER4);
+        auction.makeBid(new Bid(1, 100, 3.00, Instant.now(), TestData.USER1));
+        auction.makeBid(new Bid(1, 60, 2.50, Instant.now(), TestData.USER4));
 
         // Close the auction
-        auction.closeAuction();
+        auction.close();
 
         // Add the auction to the state
         auctionCollection.addAuction(auction);
 
         // Find lost bids for TestData.USER4
-        final List<BidLost> lostBids = auctionCollection.findLostBids(TestData.USER4);
+        final List<Bid> lostBids = auctionCollection.getAuction(1).getLostBids();
 
         assertEquals(1, lostBids.size());
-        BidLost bidLost = lostBids.get(0);
-        assertEquals(1, bidLost.auctionId());
-        assertEquals(TestData.AAPL, bidLost.symbol());
-        assertEquals(60, bidLost.quantity());
-        assertEquals(2.50, bidLost.price());
+        final Bid bidLost = lostBids.get(0);
+        assertEquals(TestData.USER4, bidLost.getUser());
+        assertEquals(60, bidLost.getQuantity());
+        assertEquals(2.50, bidLost.getPrice());
     }
 
     @Test
@@ -52,25 +52,23 @@ public class AuctionStateTest
     {
         // Create an auction and add bids
         final Auction auction = new Auction(1, TestData.USER2, TestData.FB, 100, 2.45);
-        auction.makeBid(100, 3.00, TestData.USER1);
-        auction.makeBid(60, 2.50, TestData.USER4);
+        auction.makeBid(new Bid(1, 100, 3.00, Instant.now(), TestData.USER1));
+        auction.makeBid(new Bid(1, 60, 2.50, Instant.now(), TestData.USER4));
 
         // Close the auction
-        auction.closeAuction();
+        auction.close();
 
         // Add the auction to the state
         auctionCollection.addAuction(auction);
 
         // Find won bids for TestData.USER1
-        final List<BidWon> wonBids = auctionCollection.findWonBids(TestData.USER1);
+        final List<Bid> wonBids = auctionCollection.getAuction(1).getWinningBids();
 
         // Verify that TestData.USER1 has won bids
         assertEquals(1, wonBids.size());
-        final BidWon bidWon = wonBids.get(0);
-        assertEquals(1, bidWon.auctionId());
-        assertEquals(TestData.FB, bidWon.symbol());
-        assertEquals(100, bidWon.wonQuantity());
-        assertEquals(100, bidWon.bidQuantity());
-        assertEquals(3.00, bidWon.price());
+        final Bid bidWon = wonBids.get(0);
+        assertEquals(TestData.USER1, bidWon.getUser());
+        assertEquals(100, bidWon.getQuantity());
+        assertEquals(3.00, bidWon.getPrice());
     }
 }

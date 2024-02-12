@@ -1,7 +1,9 @@
 package com.weareadaptive.auction;
 
 import com.github.javafaker.Faker;
+import com.weareadaptive.auction.controller.RequestsResponses.CreateAuctionRequest;
 import com.weareadaptive.auction.model.User;
+import com.weareadaptive.auction.service.AuctionService;
 import com.weareadaptive.auction.service.UserService;
 import org.springframework.boot.context.event.ApplicationReadyEvent;
 import org.springframework.context.event.EventListener;
@@ -28,12 +30,15 @@ public class TestData
     public static final String ADMIN_AUTH_TOKEN = "Bearer ADMIN:adminpassword";
 
     private final UserService userService;
+    private final AuctionService auctionService;
+
     private final Faker faker;
     private User user1;
 
-    public TestData(UserService userService)
+    public TestData(UserService userService, final AuctionService auctionService)
     {
         this.userService = userService;
+        this.auctionService = auctionService;
         faker = new Faker();
     }
 
@@ -41,6 +46,25 @@ public class TestData
     public void createInitData()
     {
         user1 = createRandomUser();
+
+        userService.create(
+                "USER",
+                "userpassword",
+                "user",
+                "user",
+                "Adaptive1");
+
+        auctionService.create(new CreateAuctionRequest(
+                1,
+                "aapl",
+                20,
+                3.00));
+
+        auctionService.create(new CreateAuctionRequest(
+                2,
+                "fb",
+                20,
+                3.00));
     }
 
     public String user1Token()
@@ -59,6 +83,7 @@ public class TestData
                 name.lastName(),
                 faker.company().name()
         );
+
     }
 
     public String getToken(User user)

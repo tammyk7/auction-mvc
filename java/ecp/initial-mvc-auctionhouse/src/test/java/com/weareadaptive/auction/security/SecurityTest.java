@@ -1,21 +1,20 @@
 package com.weareadaptive.auction.security;
 
-import static com.weareadaptive.auction.TestData.ADMIN_AUTH_TOKEN;
-import static io.restassured.RestAssured.given;
-import static org.hamcrest.Matchers.equalTo;
-import static org.springframework.http.HttpHeaders.AUTHORIZATION;
-
 import com.weareadaptive.auction.TestData;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.web.server.LocalServerPort;
 import org.springframework.http.HttpStatus;
 
+import static com.weareadaptive.auction.TestData.ADMIN_AUTH_TOKEN;
+import static io.restassured.RestAssured.given;
+import static org.hamcrest.Matchers.equalTo;
+import static org.springframework.http.HttpHeaders.AUTHORIZATION;
+
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
-@Disabled("Security not enabled")
+//@Disabled("Security not enabled")
 public class SecurityTest {
   @Autowired
   private TestData testData;

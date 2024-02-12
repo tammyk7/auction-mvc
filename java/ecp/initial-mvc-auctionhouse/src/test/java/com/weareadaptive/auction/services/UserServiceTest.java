@@ -1,8 +1,6 @@
 package com.weareadaptive.auction.services;
 
-import com.weareadaptive.auction.model.BusinessException;
-import com.weareadaptive.auction.model.User;
-import com.weareadaptive.auction.model.UserCollection;
+import com.weareadaptive.auction.model.*;
 import com.weareadaptive.auction.service.UserService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -21,7 +19,7 @@ public class UserServiceTest
     @BeforeEach
     public void beforeEach()
     {
-        this.userService = new UserService(new UserCollection());
+        this.userService = new UserService(new UserCollection(), new AuctionCollection(), new BidCollection());
         userService.create("username1", "password1", "First1",
                 "Last1", "Org1");
     }
@@ -61,7 +59,7 @@ public class UserServiceTest
 
     @Test
     @DisplayName("Should throw an exception when getting user by a negative id")
-    public void shouldThrowBusinessExceptionWhenGrabbingUserByNegativeId()
+    public void shouldThrowBusinessExceptionWhenGrabbingNonExistentUser()
     {
         final BusinessException exception = assertThrows(
                 BusinessException.class,

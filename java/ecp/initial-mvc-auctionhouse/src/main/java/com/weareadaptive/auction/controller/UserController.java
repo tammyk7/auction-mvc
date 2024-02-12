@@ -1,29 +1,20 @@
 package com.weareadaptive.auction.controller;
 
-import com.weareadaptive.auction.configuration.Response;
+import com.weareadaptive.auction.controller.RequestsResponses.CreateUserRequest;
 import com.weareadaptive.auction.controller.RequestsResponses.UserResponse;
+import com.weareadaptive.auction.model.Bid;
 import com.weareadaptive.auction.model.User;
 import com.weareadaptive.auction.service.UserService;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.HashMap;
-import java.util.Map;
+import java.util.List;
 
-/* Indicates that this class is a controller for a RESTful web service. It tells Spring that this
-class will handle HTTP requests and return responses as JSON or XML l*/
 @RestController
-/* Sets a base URL path for all the endpoints in this controller. In this case, it specifies that
-all the endpoints in this controller should start with "/users". */
 @RequestMapping("/users")
 public class UserController
 {
-    UserService userService;
+    final UserService userService;
 
     public UserController(final UserService userService)
     {
@@ -31,30 +22,62 @@ public class UserController
     }
 
     @GetMapping("/")
-    //The ResponseEntity is used to control the HTTP response, including the status code and body.
-    public ResponseEntity<Map<String, Object>> getAllUsers()
+    public List<UserResponse> getAllUsers()
     {
-        final Map<String, Object> response = new HashMap<>();
-        response.put("users", userService.getAll());
-        return ResponseEntity.ok(response);
+        final List<User> users = userService.getAll();
+        return users.stream()
+                .map(user -> new UserResponse(
+                        user.getId(),
+                        user.getUsername(),
+                        user.getFirstName(),
+                        user.getLastName(),
+                        user.getOrganisation())
+                ).toList();
+    }
+
+    @PostMapping("/")
+    public UserResponse createUser(@RequestBody final CreateUserRequest createUserRequest)
+    {
+        final User userCreated = userService.create(
+                createUserRequest.username(),
+                createUserRequest.password(),
+                createUserRequest.firstname(),
+                createUserRequest.lastname(),
+                createUserRequest.organisation()
+        );
+
+        return new UserResponse(
+                userCreated.getId(),
+                userCreated.getUsername(),
+                userCreated.getFirstName(),
+                userCreated.getLastName(),
+                userCreated.getOrganisation()
+        );
     }
 
     @GetMapping("/{userId}")
-    public ResponseEntity<UserResponse> findByUserId(@PathVariable final int userId)
+    public UserResponse findByUserId(@PathVariable final int userId)
     {
         final User user = userService.getUserById(userId);
-        final UserResponse userResponse = new UserResponse(user.getId(), user.getUsername(), user.getFirstName(),
+        return new UserResponse(user.getId(),
+                user.getUsername(),
+                user.getFirstName(),
                 user.getLastName(),
-                user.getOrganisation());
-        return ResponseEntity.ok().body(userResponse);
+                user.getOrganisation()
+        );
     }
 
     @PutMapping("/{userId}/status")
-    public ResponseEntity<Response<String>> blockByUsername(@PathVariable final int userId,
-                                                            @RequestBody final HashMap<String, Boolean> body)
+    public void blockByUsername(@PathVariable final int userId,
+                                @RequestBody final HashMap<String, Boolean> body)
     {
         userService.updateUserStatus(userId, body.get("isBlocked"));
-        final Response<String> response = new Response<>("Update successful");
-        return ResponseEntity.ok().body(response);
+    }
+
+    @GetMapping("/{userId}/bids")
+    public List<Bid> getUserBids(@PathVariable final int userId)
+    {
+        final User user = userService.getUserById(userId);
+        return userService.getUserBids(user.getId());
     }
 }

@@ -3,14 +3,30 @@ package com.weareadaptive.auction.model;
 import java.time.Instant;
 
 
-public record Bid(int quantity, double price, Instant timestamp, User user)
+public class Bid implements Entity
 {
-    public Bid
+    private final int id;
+    private final int quantity;
+    private final double price;
+    private final Instant timestamp;
+    private final User user;
+//    private BidStatus status;
+
+    public Bid(final int id, final int quantity, final double minPrice, final Instant timestamp, final User user)
     {
         if (timestamp == null)
         {
             throw new BusinessException("timestamp cannot be null");
         }
+        if (quantity <= 0)
+        {
+            throw new BusinessException("quantity has to be above 0");
+        }
+        this.id = id;
+        this.quantity = quantity;
+        this.price = minPrice;
+        this.timestamp = timestamp;
+        this.user = user;
     }
 
     @Override
@@ -18,4 +34,43 @@ public record Bid(int quantity, double price, Instant timestamp, User user)
     {
         return "Bid{" + "quantity=" + quantity + ", price=" + price + ", user='" + user + '\'' + '}';
     }
+
+    @Override
+    public int getId()
+    {
+        return id;
+    }
+
+    public int getQuantity()
+    {
+        return quantity;
+    }
+
+    public double getPrice()
+    {
+        return price;
+    }
+
+    public Instant getTimestamp()
+    {
+        return timestamp;
+    }
+
+    public User getUser()
+    {
+        return user;
+    }
+//    public BidStatus getStatus() {
+//        return status;
+//    }
+//
+//    public void setStatus(BidStatus status) {
+//        this.status = status; // Allow status to be updated
+//    }
+
+    public enum BidStatus
+    {
+        WON, LOSS, PENDING, CANCELLED
+    }
+
 }

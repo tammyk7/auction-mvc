@@ -1,7 +1,6 @@
 package com.weareadaptive.auction.model;
 
 import java.math.BigDecimal;
-import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
@@ -19,7 +18,8 @@ public class Auction implements Entity
     private AuctionStatus status;
     private BigDecimal totalRevenue;
     private int totalSoldQuantity;
-    private final List<WinningBid> winningBids;
+    private final List<Bid> winningBids;
+    private final List<Bid> losingBids;
 
 
     public Auction(final int id, final User user, final String symbol, final int quantity, final double minPrice)
@@ -51,63 +51,54 @@ public class Auction implements Entity
         this.totalRevenue = new BigDecimal(0);
         this.totalSoldQuantity = 0;
         this.winningBids = new ArrayList<>();
+        this.losingBids = new ArrayList<>();
     }
 
-
-    public void makeBid(final int quantity, final double price, final User user)
+    public void makeBid(final Bid bid)
     {
-        if (price <= minPrice)
-        {
-            throw new BusinessException("price has to be above the minimum accepted price: " + this.minPrice);
-        }
-        if (quantity <= 0)
-        {
-            throw new BusinessException("quantity has to be above 0");
-        }
         if (status == AuctionStatus.CLOSED)
         {
-            throw new BusinessException("you can not place a bid on a closed auction");
+            throw new BusinessException("auction is closed");
         }
-        if (user == this.user)
+
+        if (bid.getPrice() <= minPrice)
         {
-            throw new BusinessException("user can not bid on it own auction");
+            throw new BusinessException("offer price is too low");
         }
-        this.bids.add(new Bid(quantity, price, Instant.now(), user));
+        if (bid.getUser() == user)
+        {
+            throw new BusinessException("user can not bid on its own auction");
+        }
+        this.bids.add(bid);
     }
 
-    public List<WinningBid> getWinningBids(final User user)
+    public List<Bid> getWinningBids()
     {
         if (status == AuctionStatus.OPEN)
         {
             throw new BusinessException("You can only obtain the winning bids on a closed auction");
         }
 
-        return winningBids.stream()
-                .filter(winningBid -> winningBid.bid().user().equals(user))
-                .toList();
+        return winningBids;
     }
 
-    public List<Bid> getLostBids(final User user)
+    public List<Bid> getLostBids()
     {
         if (status == AuctionStatus.OPEN)
         {
             throw new BusinessException("You can only obtain the losing bids on a closed auction");
         }
-
-        return bids.stream()
-                .filter(bid -> bid.user().equals(user))
-                .filter(bid -> winningBids.stream().noneMatch(winningBid -> winningBid.bid().equals(bid)))
-                .toList();
-
+        return losingBids;
     }
 
-    public void closeAuction()
+    public void close()
     {
         this.status = AuctionStatus.CLOSED;
 
         final var sortedBids =
-                bids.stream().sorted(Comparator.comparingDouble(Bid::price).reversed()
-                                .thenComparing(Bid::timestamp))
+                bids.stream().sorted(Comparator.comparingDouble(Bid::getPrice)
+                                .reversed()
+                                .thenComparing(Bid::getTimestamp))
                         .toList();
 
         int remainingQuantity = this.quantity;
@@ -116,14 +107,18 @@ public class Auction implements Entity
         {
             if (remainingQuantity <= 0)
             {
-                break;
+                losingBids.add(bid);
+            } else
+            {
+                final int bidQuantity = Math.min(remainingQuantity, bid.getQuantity());
+                remainingQuantity -= bidQuantity;
+                totalRevenue = totalRevenue.add(
+                        BigDecimal.valueOf(bid.getPrice())
+                                .multiply(BigDecimal.valueOf(bidQuantity))
+                );
+                totalSoldQuantity += bidQuantity;
+                winningBids.add(bid);
             }
-
-            final int bidQuantity = Math.min(remainingQuantity, bid.quantity());
-            remainingQuantity -= bidQuantity;
-            totalRevenue = totalRevenue.add(BigDecimal.valueOf(bid.price()).multiply(BigDecimal.valueOf(bidQuantity)));
-            totalSoldQuantity += bidQuantity;
-            winningBids.add(new WinningBid(bid, bidQuantity));
         }
     }
 
