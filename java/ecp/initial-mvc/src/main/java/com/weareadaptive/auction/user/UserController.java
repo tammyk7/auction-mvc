@@ -1,10 +1,8 @@
-package com.weareadaptive.auction.controller;
+package com.weareadaptive.auction.user;
 
-import com.weareadaptive.auction.controller.RequestsResponses.CreateUserRequest;
-import com.weareadaptive.auction.controller.RequestsResponses.UserResponse;
-import com.weareadaptive.auction.model.Bid;
-import com.weareadaptive.auction.model.User;
-import com.weareadaptive.auction.service.UserService;
+import com.weareadaptive.auction.RequestsResponses.CreateUserRequest;
+import com.weareadaptive.auction.RequestsResponses.UserResponse;
+import com.weareadaptive.auction.bid.Bid;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 

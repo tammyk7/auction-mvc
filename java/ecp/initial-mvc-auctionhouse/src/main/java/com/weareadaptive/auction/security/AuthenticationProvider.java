@@ -2,9 +2,6 @@ package com.weareadaptive.auction.security;
 
 import com.weareadaptive.auction.model.UserCollection;
 import jakarta.validation.constraints.NotNull;
-
-import java.util.Optional;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -13,6 +10,8 @@ import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
+
+import java.util.Optional;
 
 public class AuthenticationProvider extends AbstractUserDetailsAuthenticationProvider
 {
@@ -42,7 +41,7 @@ public class AuthenticationProvider extends AbstractUserDetailsAuthenticationPro
             throws AuthenticationException
     {
 
-        Object token = usernamePasswordAuthenticationToken.getCredentials();
+        final Object token = usernamePasswordAuthenticationToken.getCredentials();
         return Optional
                 .ofNullable(token)
                 .map(s -> getUser(String.valueOf(s)))
@@ -56,10 +55,10 @@ public class AuthenticationProvider extends AbstractUserDetailsAuthenticationPro
         {
             throw new BadCredentialsException("Bad token");
         }
-        var username = token.substring(0, splitIndex);
-        var password = token.substring(splitIndex + 1);
-        var user = userCollection.validateUsernamePassword(username, password);
-
+        final var username = token.substring(0, splitIndex);
+        final var password = token.substring(splitIndex + 1);
+        final var user = userCollection.validateUsernamePassword(username, password);
+        System.out.println(user);
         if (user.isEmpty())
         {
             throw new UsernameNotFoundException("Bad token");
@@ -68,7 +67,7 @@ public class AuthenticationProvider extends AbstractUserDetailsAuthenticationPro
                 .username(user.get().getUsername())
                 .password(password)
                 .roles(user.get().isAdmin() ? "ADMIN" : "USER")
-                // .disabled(user.get().isBlocked())
+//                 .disabled(user.get().isBlocked())
                 .build();
     }
 

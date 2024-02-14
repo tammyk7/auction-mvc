@@ -25,7 +25,7 @@ public class UserControllerTest
     @BeforeEach
     public void beforeEach()
     {
-        uri = "http://localhost:" + port + "/users";
+        uri = "http://localhost:" + port + "/api/users";
     }
 
     @Test

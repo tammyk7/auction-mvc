@@ -1,4 +1,4 @@
-package com.weareadaptive.auction.controller;
+package com.weareadaptive.auction.authentication;
 
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;

@@ -1,14 +1,9 @@
 package com.weareadaptive.auction.security;
 
-import static org.springframework.http.HttpHeaders.AUTHORIZATION;
-
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-
-import java.io.IOException;
-
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -16,6 +11,10 @@ import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.authentication.AbstractAuthenticationProcessingFilter;
 import org.springframework.security.web.util.matcher.RequestMatcher;
+
+import java.io.IOException;
+
+import static org.springframework.http.HttpHeaders.AUTHORIZATION;
 
 public class AuthenticationFilter extends AbstractAuthenticationProcessingFilter
 {
@@ -39,8 +38,10 @@ public class AuthenticationFilter extends AbstractAuthenticationProcessingFilter
         {
             throw new BadCredentialsException("Invalid Credentials");
         }
+        System.out.println("ello");
         token = token.substring(BEARER.length());
-        Authentication requestAuthentication = new UsernamePasswordAuthenticationToken(token, token);
+        final Authentication requestAuthentication = new UsernamePasswordAuthenticationToken(token, token);
+        System.out.println("bye");
         return getAuthenticationManager().authenticate(requestAuthentication);
     }
 

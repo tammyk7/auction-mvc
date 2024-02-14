@@ -32,4 +32,11 @@ public class AuthenticationExceptionHandling implements AuthenticationEntryPoint
                 "Internal Server Error : " + exception.getMessage());
     }
 
+    public static class BusinessException extends RuntimeException
+    {
+        public BusinessException(final String message)
+        {
+            super(message);
+        }
+    }
 }

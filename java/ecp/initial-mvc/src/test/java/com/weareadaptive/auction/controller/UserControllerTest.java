@@ -1,6 +1,5 @@
 package com.weareadaptive.auction.controller;
 
-import com.weareadaptive.auction.TestData;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -13,12 +12,12 @@ import java.util.Map;
 
 import static com.weareadaptive.auction.TestData.ADMIN_AUTH_TOKEN;
 import static io.restassured.RestAssured.given;
-import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.hasSize;
+import static org.hamcrest.Matchers.notNullValue;
 import static org.springframework.http.HttpHeaders.AUTHORIZATION;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
-public class AuctionControllerTest
+public class UserControllerTest
 {
     @LocalServerPort
     int port;
@@ -27,12 +26,12 @@ public class AuctionControllerTest
     @BeforeEach
     public void beforeEach()
     {
-        uri = "http://localhost:" + port + "/api/auctions";
+        uri = "http://localhost:" + port + "/api/users";
     }
 
     @Test
-    @DisplayName("Get all auctions")
-    public void getAllAuctions()
+    @DisplayName("Get all users")
+    public void getAllUsers()
     {
         //@formatter:off
         given()
@@ -42,7 +41,7 @@ public class AuctionControllerTest
                 .get("/")
         .then()
                 .statusCode(HttpStatus.OK.value())
-                .body("$", hasSize(2));
+                .body("$", hasSize(3));
         //@formatter:on
     }
 
@@ -50,11 +49,12 @@ public class AuctionControllerTest
     @DisplayName("Create a new user")
     public void createUser()
     {
-        final Map<String, String> requestBody = new HashMap<>();
-        requestBody.put("userId", "1");
-        requestBody.put("symbol", TestData.FB);
-        requestBody.put("quantity", "10");
-        requestBody.put("minPrice", "3.50");
+        Map<String, String> requestBody = new HashMap<>();
+        requestBody.put("username", "newUser");
+        requestBody.put("password", "password");
+        requestBody.put("firstname", "First");
+        requestBody.put("lastname", "Last");
+        requestBody.put("organisation", "Organisation");
 
         //@formatter:off
         given()
@@ -65,19 +65,47 @@ public class AuctionControllerTest
                 .body(requestBody)
                 .post("/")
         .then()
-                .statusCode(HttpStatus.OK.value())
-                .body("symbol", equalTo(TestData.FB));
+                .statusCode(HttpStatus.OK.value());
         //@formatter:on
     }
 
     @Test
-    @DisplayName("Bid on an auction")
-    public void bidOnAuction()
+    @DisplayName("Get user by userId")
+    public void getUserById()
     {
-        final Map<String, Object> requestBody = new HashMap<>();
-        requestBody.put("quantity", "10");
-        requestBody.put("minPrice", "4.50");
-        requestBody.put("userId", "1");
+        //@formatter:off
+        given()
+                .baseUri(uri)
+        .when()
+                .header(AUTHORIZATION, ADMIN_AUTH_TOKEN)
+                .get("/1")
+        .then()
+                .statusCode(HttpStatus.OK.value())
+                .body("username", notNullValue());
+        //@formatter:on
+    }
+
+    @Test
+    @DisplayName("Should throw an exception when grabbing user with a negative id")
+    public void shouldThrowBusinessExceptionWhenGrabbingNonExistentUser()
+    {
+        //@formatter:off
+        given()
+                .baseUri(uri)
+        .when()
+                .header(AUTHORIZATION, ADMIN_AUTH_TOKEN)
+                .get("/-1")
+        .then()
+                .statusCode(HttpStatus.BAD_REQUEST.value());
+        //@formatter:on
+    }
+
+    @Test
+    @DisplayName("Update user status")
+    public void updateUserStatus()
+    {
+        final Map<String, Boolean> requestBody = new HashMap<>();
+        requestBody.put("isBlocked", true);
 
         //@formatter:off
         given()
@@ -86,55 +114,27 @@ public class AuctionControllerTest
         .when()
                 .header(AUTHORIZATION, ADMIN_AUTH_TOKEN)
                 .body(requestBody)
-                .post("/{auctionId}/bids", 2)
+                .put("/{userId}/status", 1)
         .then()
                 .statusCode(HttpStatus.OK.value());
         //@formatter:on
     }
 
     @Test
-    @DisplayName("Close an auction")
-    public void closeAuction()
+    @DisplayName("Should throw an exception when updating a non existent user")
+    public void shouldThrowBusinessExceptionWhenUpdatingNonExistentUser()
     {
-        //@formatter:off
-        given()
-                .baseUri(uri)
-        .when()
-                .header(AUTHORIZATION, ADMIN_AUTH_TOKEN)
-                .put("/{auctionId}/close", 1)
-        .then()
-                .statusCode(HttpStatus.OK.value());
-        //@formatter:on
-    }
-
-    @Test
-    @DisplayName("Remove an auction")
-    public void removeAuction()
-    {
-        //@formatter:off
-        given()
-                .baseUri(uri)
-        .when()
-                .header(AUTHORIZATION, ADMIN_AUTH_TOKEN)
-                .put("/{auctionId}/remove", 1)
-        .then()
-                .statusCode(HttpStatus.OK.value());
-        //@formatter:on
-    }
-
-    @Test
-    @DisplayName("Get winning bids with invalid auction or user")
-    public void shouldNotGetWinningBidsNonExistentAuctionUser()
-    {
-        int invalidAuctionId = -1;
-        int invalidUserId = -1;
+        final Map<String, Boolean> requestBody = new HashMap<>();
+        requestBody.put("isBlocked", true);
 
         //@formatter:off
         given()
                 .baseUri(uri)
+                .contentType("application/json")
         .when()
                 .header(AUTHORIZATION, ADMIN_AUTH_TOKEN)
-                .get("/{auctionId}/{userId}/winningBids", invalidAuctionId, invalidUserId)
+                .body(requestBody)
+                .put("/{userId}/status", -1)
         .then()
                 .statusCode(HttpStatus.BAD_REQUEST.value());
         //@formatter:on

@@ -5,10 +5,12 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.autoconfigure.security.servlet.SecurityAutoConfiguration;
 
 // todo : remove exclusion to enable security
-@SpringBootApplication(exclude = {SecurityAutoConfiguration.class})
-public class AuctionhouseMvcApplication {
+@SpringBootApplication()
+public class AuctionhouseMvcApplication
+{
 
-  public static void main(String[] args) {
-    SpringApplication.run(AuctionhouseMvcApplication.class, args);
-  }
+    public static void main(String[] args)
+    {
+        SpringApplication.run(AuctionhouseMvcApplication.class, args);
+    }
 }
