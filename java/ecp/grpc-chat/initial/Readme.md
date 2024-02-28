@@ -16,7 +16,7 @@ The gradle protobuf plugin is used to generate the various stubs and services. O
 
 ## Running
 
-To run the server, define your main class as ReceiverMain (or update the class name in build.gradle) in the receiver module. This starts a server on localhost at port 8980.
+To run the server, define your main class as ServerMain (or update the class name in build.gradle) in the receiver module. This starts a server on localhost at port 8980.
 
-To run the client, define your main class as SenderMain in the sender module (or update the class name in build.gradle). This conects to the server on localhost:8980 and sends several chat 
+To run the client, define your main class as ClientMain in the sender module (or update the class name in build.gradle). This conects to the server on localhost:8980 and sends several chat 
 messages as well as printing the responses.

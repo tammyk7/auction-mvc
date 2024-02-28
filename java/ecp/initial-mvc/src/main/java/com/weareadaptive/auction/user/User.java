@@ -9,8 +9,8 @@ import jakarta.persistence.Id;
 
 import static com.weareadaptive.auction.StringUtil.isNullOrEmpty;
 
-@Entity(name = "AuctionUser")
-public class User implements com.weareadaptive.auction.model.Entity
+@Entity(name = "auction_user")
+public class User
 {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Id
@@ -23,12 +23,12 @@ public class User implements com.weareadaptive.auction.model.Entity
     private boolean isAdmin;
     private boolean isBlocked;
 
-    public User(final int id, final String username, final String password, final String firstName, final String lastName, final String organisation)
+    public User(final String username, final String password, final String firstName, final String lastName, final String organisation)
     {
-        this(id, username, password, firstName, lastName, organisation, false);
+        this(username, password, firstName, lastName, organisation, false);
     }
 
-    public User(final int id, final String username, final String password, final String firstName, final String lastName, final String organisation, final boolean isAdmin)
+    public User(final String username, final String password, final String firstName, final String lastName, final String organisation, final boolean isAdmin)
     {
         if (isNullOrEmpty(username))
         {
@@ -55,7 +55,6 @@ public class User implements com.weareadaptive.auction.model.Entity
             throw new AuthenticationExceptionHandling.BusinessException("organisation cannot be null or empty");
         }
 
-        this.id = id;
         this.username = username;
         this.password = password;
         this.firstName = firstName;

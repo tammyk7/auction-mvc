@@ -1,4 +1,4 @@
-package com.weareadaptive.auction.model;
+package com.weareadaptive.auction.auction;
 
 import com.weareadaptive.auction.TestData;
 import com.weareadaptive.auction.auction.Auction;
@@ -14,12 +14,11 @@ import static org.junit.jupiter.api.Assertions.*;
 
 public class AuctionTest
 {
-
     @Test
     @DisplayName("Receive the correct information from the Auction")
     public void testAuctionGetters()
     {
-        final Auction auction = new Auction(1, TestData.USER2, TestData.USDJPY, 100, 2.45);
+        final Auction auction = new Auction(TestData.USER2, TestData.USDJPY, 100, 2.45);
 
         assertEquals(TestData.USER2, auction.getUser());
         assertEquals(TestData.USDJPY, auction.getSymbol());
@@ -37,14 +36,24 @@ public class AuctionTest
                 {
                     final AuthenticationExceptionHandling.BusinessException exception = assertThrows(
                             AuthenticationExceptionHandling.BusinessException.class,
-                            () -> new Auction(1, TestData.USER2, null, 100, 2.45));
+                            () -> new Auction(
+                                    TestData.USER2,
+                                    null,
+                                    100,
+                                    2.45)
+                    );
                     assertTrue(exception.getMessage().contains("symbol"));
                 },
                 () ->
                 {
                     final AuthenticationExceptionHandling.BusinessException exception = assertThrows(
                             AuthenticationExceptionHandling.BusinessException.class,
-                            () -> new Auction(1, TestData.USER2, "", 100, 2.45));
+                            () -> new Auction(
+                                    TestData.USER2,
+                                    "",
+                                    100,
+                                    2.45)
+                    );
                     assertTrue(exception.getMessage().contains("symbol"));
                 }
         );
@@ -56,7 +65,12 @@ public class AuctionTest
     {
         final AuthenticationExceptionHandling.BusinessException exception = assertThrows(
                 AuthenticationExceptionHandling.BusinessException.class,
-                () -> new Auction(1, TestData.USER2, TestData.USDJPY, -1, 2.45));
+                () -> new Auction(
+                        TestData.USER2,
+                        TestData.USDJPY,
+                        -1,
+                        2.45)
+        );
 
         assertTrue(exception.getMessage().contains("quantity"));
     }
@@ -67,20 +81,36 @@ public class AuctionTest
     {
         final AuthenticationExceptionHandling.BusinessException exception = assertThrows(
                 AuthenticationExceptionHandling.BusinessException.class,
-                () -> new Auction(1, TestData.USER2, TestData.USDJPY, 100, -2.45));
+                () -> new Auction(
+                        TestData.USER2,
+                        TestData.USDJPY,
+                        100,
+                        -2.45)
+        );
 
-        assertTrue(exception.getMessage().contains("price"));
+        assertTrue(exception.getMessage().contains("accepted price"));
     }
 
     @Test
     @DisplayName("Bid with same price as minPrice should throw exception")
     public void bidWithSamePriceAsMinPrice()
     {
-        final Auction auction = new Auction(1, TestData.USER2, TestData.USDJPY, 100, 2.45);
+        final Auction auction = new Auction(
+                TestData.USER2,
+                TestData.USDJPY,
+                100,
+                2.45);
 
         final AuthenticationExceptionHandling.BusinessException exception = assertThrows(
                 AuthenticationExceptionHandling.BusinessException.class,
-                () -> auction.makeBid(new Bid(1, 10, 2.45, Instant.now(), TestData.USER1)));
+                () -> auction.makeBid(
+                        new Bid(100,
+                                1.45,
+                                Instant.now(),
+                                TestData.USER1,
+                                auction.getId())
+                )
+        );
         assertTrue(exception.getMessage().contains("price"));
     }
 
@@ -88,14 +118,22 @@ public class AuctionTest
     @DisplayName("When the price is less than the minPrice in a bid")
     public void bidPriceIsLessThanMinPrice()
     {
+        final Auction auction = new Auction(
+                TestData.USER2,
+                TestData.USDJPY,
+                100,
+                2.45);
+
         final AuthenticationExceptionHandling.BusinessException exception = assertThrows(
                 AuthenticationExceptionHandling.BusinessException.class,
-                () ->
-                {
-                    final Auction auction = new Auction(1, TestData.USER2, TestData.USDJPY, 100,
-                            2.45);
-                    auction.makeBid(new Bid(1, 100, 1.45, Instant.now(), TestData.USER1));
-                });
+                () -> auction.makeBid(new Bid(
+                        100,
+                        1.45,
+                        Instant.now(),
+                        TestData.USER1,
+                        auction.getId())
+                ));
+
         assertTrue(exception.getMessage().contains("price"));
     }
 
@@ -103,7 +141,7 @@ public class AuctionTest
     @DisplayName("getMinPrice should return the correct minimum price of the auction")
     public void getMinPriceTest()
     {
-        final Auction auction = new Auction(1, TestData.USER2, TestData.USDJPY, 100, 2.45);
+        final Auction auction = new Auction(TestData.USER2, TestData.USDJPY, 100, 2.45);
 
         assertEquals(2.45, auction.getMinPrice());
     }
@@ -112,14 +150,22 @@ public class AuctionTest
     @DisplayName("When the quantity is negative in a bid")
     public void bidQuantityIsNegative()
     {
+        final Auction auction = new Auction(
+                TestData.USER2,
+                TestData.USDJPY,
+                100,
+                2.45);
+
         final AuthenticationExceptionHandling.BusinessException exception = assertThrows(
                 AuthenticationExceptionHandling.BusinessException.class,
-                () ->
-                {
-                    final Auction auction = new Auction(1, TestData.USER2, TestData.USDJPY, 100,
-                            2.45);
-                    auction.makeBid(new Bid(1, -1, 3, Instant.now(), TestData.USER1));
-                });
+                () -> auction.makeBid(new Bid(
+                        -1,
+                        3,
+                        Instant.now(),
+                        TestData.USER1,
+                        auction.getId())
+                ));
+
         assertTrue(exception.getMessage().contains("quantity"));
     }
 
@@ -127,13 +173,23 @@ public class AuctionTest
     @DisplayName("When making a bid on a closed auction")
     public void bidOnClosedAuction()
     {
-        final Auction auction = new Auction(1, TestData.USER2, TestData.USDJPY, 100, 2.45);
+        final Auction auction = new Auction(
+                TestData.USER2,
+                TestData.USDJPY,
+                100,
+                2.45);
 
         auction.close();
 
         final AuthenticationExceptionHandling.BusinessException exception = assertThrows(
                 AuthenticationExceptionHandling.BusinessException.class,
-                () -> auction.makeBid(new Bid(1, 10, 3, Instant.now(), TestData.USER1)));
+                () -> auction.makeBid(new Bid(
+                        10,
+                        3,
+                        Instant.now(),
+                        TestData.USER1,
+                        auction.getId())
+                ));
         assertTrue(exception.getMessage().contains("closed"));
     }
 
@@ -141,11 +197,21 @@ public class AuctionTest
     @DisplayName("Bid by auction owner should throw exception")
     public void bidByAuctionOwner()
     {
-        final Auction auction = new Auction(1, TestData.USER2, TestData.USDJPY, 100, 2.45);
+        final Auction auction = new Auction(
+                TestData.USER2,
+                TestData.USDJPY,
+                100,
+                2.45);
 
         final AuthenticationExceptionHandling.BusinessException exception = assertThrows(
                 AuthenticationExceptionHandling.BusinessException.class,
-                () -> auction.makeBid(new Bid(1, 10, 3, Instant.now(), TestData.USER2)));
+                () -> auction.makeBid(new Bid(
+                        10,
+                        3,
+                        Instant.now(),
+                        TestData.USER2,
+                        auction.getId())
+                ));
         assertTrue(exception.getMessage().contains("own auction"));
     }
 
@@ -153,8 +219,8 @@ public class AuctionTest
     @DisplayName("Should show closing summary")
     public void closingSummary()
     {
-        final Auction auction = new Auction(1, TestData.USER2, TestData.USDJPY, 100, 2.45);
-        auction.makeBid(new Bid(1, 100, 3.00, Instant.now(), TestData.USER1));
+        final Auction auction = new Auction(TestData.USER2, TestData.USDJPY, 100, 2.45);
+        auction.makeBid(new Bid(100, 3.00, Instant.now(), TestData.USER1, auction.getId()));
 
         auction.close();
 
@@ -169,10 +235,10 @@ public class AuctionTest
     @DisplayName("Partial winning bids")
     public void partialWinningBids()
     {
-        final Auction auction = new Auction(1, TestData.USER2, TestData.USDJPY, 100, 2.45);
+        final Auction auction = new Auction(TestData.USER2, TestData.USDJPY, 100, 2.45);
 
-        auction.makeBid(new Bid(1, 60, 3.00, Instant.now(), TestData.USER1));
-        auction.makeBid(new Bid(1, 50, 2.50, Instant.now(), TestData.USER3));
+        auction.makeBid(new Bid(60, 3.00, Instant.now(), TestData.USER1, auction.getId()));
+        auction.makeBid(new Bid(50, 2.50, Instant.now(), TestData.USER3, auction.getId()));
 
         auction.close();
 
@@ -187,11 +253,11 @@ public class AuctionTest
     @DisplayName("Multiple bids with bid loss")
     public void multipleBidsWithBidLoss()
     {
-        final Auction auction = new Auction(1, TestData.USER2, TestData.USDJPY, 100, 2.45);
+        final Auction auction = new Auction(TestData.USER2, TestData.USDJPY, 100, 2.45);
 
-        auction.makeBid(new Bid(1, 50, 3.00, Instant.now(), TestData.USER1));
-        auction.makeBid(new Bid(2, 100, 2.50, Instant.now(), TestData.USER3));
-        auction.makeBid(new Bid(3, 50, 3.10, Instant.now(), TestData.USER4));
+        auction.makeBid(new Bid(50, 3.00, Instant.now(), TestData.USER1, auction.getId()));
+        auction.makeBid(new Bid(100, 2.50, Instant.now(), TestData.USER3, auction.getId()));
+        auction.makeBid(new Bid(50, 3.10, Instant.now(), TestData.USER4, auction.getId()));
 
         auction.close();
 
@@ -207,10 +273,10 @@ public class AuctionTest
     @DisplayName("Two identical bids to fill the order")
     public void twoIdenticalBidsToFillOrder()
     {
-        final Auction auction = new Auction(1, TestData.USER2, TestData.EBAY, 50, 2.45);
+        final Auction auction = new Auction(TestData.USER2, TestData.EBAY, 50, 2.45);
 
-        auction.makeBid(new Bid(1, 50, 3.00, Instant.now(), TestData.USER1));
-        auction.makeBid(new Bid(2, 50, 3.00, Instant.now(), TestData.USER3));
+        auction.makeBid(new Bid(50, 3.00, Instant.now(), TestData.USER1, auction.getId()));
+        auction.makeBid(new Bid(50, 3.00, Instant.now(), TestData.USER3, auction.getId()));
 
         auction.close();
 

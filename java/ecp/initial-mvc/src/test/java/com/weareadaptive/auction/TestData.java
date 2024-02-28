@@ -19,11 +19,11 @@ public class TestData
     public static final String FB = "FB";
     public static final String USDJPY = "USDJPY";
 
-    public static final User ADMIN = new User(0, "admin", "admin", "admin", "admin", "admin", true);
-    public static final User USER1 = new User(1, "testuser1", "password", "john", "doe", ORG_1);
-    public static final User USER2 = new User(2, "testuser2", "password", "john", "smith", ORG_1);
-    public static final User USER3 = new User(3, "testuser3", "password", "jane", "doe", ORG_2);
-    public static final User USER4 = new User(4, "testuser4", "password", "naomie", "legault", ORG_2);
+    public static final User ADMIN = new User("admin", "admin", "admin", "admin", "admin", true);
+    public static final User USER1 = new User("testuser1", "password", "john", "doe", ORG_1);
+    public static final User USER2 = new User("testuser2", "password", "john", "smith", ORG_1);
+    public static final User USER3 = new User("testuser3", "password", "jane", "doe", ORG_2);
+    public static final User USER4 = new User("testuser4", "password", "naomie", "legault", ORG_2);
 
 
     public static final String PASSWORD = "mypassword";

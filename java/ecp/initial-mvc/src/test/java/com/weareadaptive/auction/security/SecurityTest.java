@@ -1,5 +1,6 @@
 package com.weareadaptive.auction.security;
 
+import com.weareadaptive.auction.IntegrationTest;
 import com.weareadaptive.auction.TestData;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Disabled;
@@ -8,26 +9,38 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.web.server.LocalServerPort;
 import org.springframework.http.HttpStatus;
+import org.springframework.test.context.DynamicPropertyRegistry;
+import org.springframework.test.context.DynamicPropertySource;
+import org.testcontainers.containers.PostgreSQLContainer;
+import org.testcontainers.junit.jupiter.Container;
 
 import static com.weareadaptive.auction.TestData.ADMIN_AUTH_TOKEN;
 import static io.restassured.RestAssured.given;
 import static org.hamcrest.Matchers.equalTo;
 import static org.springframework.http.HttpHeaders.AUTHORIZATION;
 
-@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
-//@Disabled("Security not enabled")
-public class SecurityTest
+public class SecurityTest extends IntegrationTest
 {
-    @Autowired
-    private TestData testData;
-    @LocalServerPort
-    private int port;
-    private String uri;
+    // Initialise the PostgreSQL container
+    @Container
+    public static PostgreSQLContainer<?> postgreSQLContainer = new PostgreSQLContainer<>("postgres:latest")
+            .withDatabaseName("integration-tests-db")
+            .withUsername("testUsername")
+            .withPassword("testPassword");
 
+    // Dynamically replace the data source properties with those of the running container
+    @DynamicPropertySource
+    public static void postgresqlProperties(DynamicPropertyRegistry registry)
+    {
+        postgreSqlProperties(registry, postgreSQLContainer);
+    }
+
+    @Override
     @BeforeEach
     public void initialiseRestAssuredMockMvcStandalone()
     {
-        uri = "http://localhost:" + port + "/api";
+        super.initialiseRestAssuredMockMvcStandalone();
+        uri += "/api";
     }
 
     @Test

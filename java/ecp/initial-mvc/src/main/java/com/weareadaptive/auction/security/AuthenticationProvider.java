@@ -1,6 +1,6 @@
 package com.weareadaptive.auction.security;
 
-import com.weareadaptive.auction.model.UserCollection;
+import com.weareadaptive.auction.user.UserRepository;
 import jakarta.validation.constraints.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.BadCredentialsException;
@@ -17,7 +17,7 @@ public class AuthenticationProvider extends AbstractUserDetailsAuthenticationPro
 {
 
     @Autowired
-    private UserCollection userCollection;
+    private UserRepository userRepository;
 
     @Override
     public boolean supports(final Class<?> authentication)
@@ -57,16 +57,16 @@ public class AuthenticationProvider extends AbstractUserDetailsAuthenticationPro
         }
         final var username = token.substring(0, splitIndex);
         final var password = token.substring(splitIndex + 1);
-        final var user = userCollection.validateUsernamePassword(username, password);
-        System.out.println(user);
-        if (user.isEmpty())
+        final var user = userRepository.findByUsername(username)
+                .orElseThrow(() -> new UsernameNotFoundException("Bad token"));
+        if (!user.validatePassword(password))
         {
-            throw new UsernameNotFoundException("Bad token");
+            throw new BadCredentialsException("Bad token");
         }
         return User.builder()
-                .username(user.get().getUsername())
+                .username(user.getUsername())
                 .password(password)
-                .roles(user.get().isAdmin() ? "ADMIN" : "USER")
+                .roles(user.isAdmin() ? "ADMIN" : "USER")
 //                 .disabled(user.get().isBlocked())
                 .build();
     }

@@ -1,22 +1,30 @@
 package com.weareadaptive.auction.bid;
 
+import com.weareadaptive.auction.auction.Auction;
 import com.weareadaptive.auction.exception.AuthenticationExceptionHandling;
-import com.weareadaptive.auction.model.Entity;
 import com.weareadaptive.auction.user.User;
+import jakarta.persistence.*;
 
 import java.time.Instant;
 
-
-public class Bid implements Entity
+@Entity(name = "bid")
+public class Bid
 {
-    private final int id;
-    private final int quantity;
-    private final double price;
-    private final Instant timestamp;
-    private final User user;
-//    private BidStatus status;
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Id
+    private int id;
+    private int quantity;
+    @Column(columnDefinition = "numeric")
+    private double price;
+    private Instant timestamp;
+    @OneToOne
+    @JoinColumn(name = "user_id")
+    private User user;
+    @Column(name = "auction_id")
+    private int auctionId;
 
-    public Bid(final int id, final int quantity, final double minPrice, final Instant timestamp, final User user)
+    public Bid(final int quantity, final double minPrice, final Instant timestamp, final User user,
+               final int auctionId)
     {
         if (timestamp == null)
         {
@@ -26,11 +34,21 @@ public class Bid implements Entity
         {
             throw new AuthenticationExceptionHandling.BusinessException("quantity has to be above 0");
         }
-        this.id = id;
+        if (user == null)
+        {
+            throw new AuthenticationExceptionHandling.BusinessException("user cannot be null");
+        }
+
         this.quantity = quantity;
         this.price = minPrice;
         this.timestamp = timestamp;
         this.user = user;
+        this.auctionId = auctionId;
+    }
+
+    public Bid()
+    {
+
     }
 
     @Override
@@ -39,7 +57,11 @@ public class Bid implements Entity
         return "Bid{" + "quantity=" + quantity + ", price=" + price + ", user='" + user + '\'' + '}';
     }
 
-    @Override
+    public int getAuctionId()
+    {
+        return auctionId;
+    }
+
     public int getId()
     {
         return id;
@@ -64,13 +86,6 @@ public class Bid implements Entity
     {
         return user;
     }
-//    public BidStatus getStatus() {
-//        return status;
-//    }
-//
-//    public void setStatus(BidStatus status) {
-//        this.status = status; // Allow status to be updated
-//    }
 
     public enum BidStatus
     {

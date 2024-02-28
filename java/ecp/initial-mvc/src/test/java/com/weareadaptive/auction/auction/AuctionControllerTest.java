@@ -1,5 +1,6 @@
-package com.weareadaptive.auction.controller;
+package com.weareadaptive.auction.auction;
 
+import com.weareadaptive.auction.IntegrationTest;
 import com.weareadaptive.auction.TestData;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -7,6 +8,10 @@ import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.web.server.LocalServerPort;
 import org.springframework.http.HttpStatus;
+import org.springframework.test.context.DynamicPropertyRegistry;
+import org.springframework.test.context.DynamicPropertySource;
+import org.testcontainers.containers.PostgreSQLContainer;
+import org.testcontainers.junit.jupiter.Container;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -17,17 +22,30 @@ import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.hasSize;
 import static org.springframework.http.HttpHeaders.AUTHORIZATION;
 
-@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
-public class AuctionControllerTest
+public class AuctionControllerTest extends IntegrationTest
 {
-    @LocalServerPort
-    int port;
-    String uri;
+    // Initialise the PostgreSQL container
+    @Container
+    public static PostgreSQLContainer<?> postgreSQLContainer = new PostgreSQLContainer<>("postgres:latest")
+            .withDatabaseName("integration-tests-db")
+            .withUsername("testUsername")
+            .withPassword("testPassword");
 
-    @BeforeEach
-    public void beforeEach()
+    // Dynamically replace the data source properties with those of the running container
+    @DynamicPropertySource
+    public static void postgresqlProperties(DynamicPropertyRegistry registry)
     {
-        uri = "http://localhost:" + port + "/api/auctions";
+        registry.add("spring.datasource.url", postgreSQLContainer::getJdbcUrl);
+        registry.add("spring.datasource.username", postgreSQLContainer::getUsername);
+        registry.add("spring.datasource.password", postgreSQLContainer::getPassword);
+    }
+
+    @Override
+    @BeforeEach
+    public void initialiseRestAssuredMockMvcStandalone()
+    {
+        super.initialiseRestAssuredMockMvcStandalone(); // base URI is initialised with the port
+        uri += "/api/auctions"; // Adjusts the base uri for this test class
     }
 
     @Test

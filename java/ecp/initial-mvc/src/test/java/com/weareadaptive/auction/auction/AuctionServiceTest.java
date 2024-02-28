@@ -1,68 +1,78 @@
-package com.weareadaptive.auction.services;
+package com.weareadaptive.auction.auction;
 
 import com.weareadaptive.auction.RequestsResponses.BidRequest;
 import com.weareadaptive.auction.RequestsResponses.CreateAuctionRequest;
-import com.weareadaptive.auction.auction.Auction;
-import com.weareadaptive.auction.auction.AuctionCollection;
-import com.weareadaptive.auction.bid.BidCollection;
+import com.weareadaptive.auction.TestData;
+import com.weareadaptive.auction.bid.BidRepository;
 import com.weareadaptive.auction.exception.AuthenticationExceptionHandling;
-import com.weareadaptive.auction.auction.AuctionService;
 import com.weareadaptive.auction.user.User;
-import org.junit.jupiter.api.BeforeEach;
+import com.weareadaptive.auction.user.UserRepository;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
+
+import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.*;
 
+@ExtendWith(MockitoExtension.class)
 public class AuctionServiceTest
 {
+    @InjectMocks
     private AuctionService auctionService;
 
-    @BeforeEach
-    public void beforeEach()
-    {
-        final AuctionCollection auctionCollection = new AuctionCollection();
-        final UserCollection userCollection = new UserCollection();
-        final BidCollection bidCollection = new BidCollection();
+    @Mock
+    private UserRepository userRepository;
 
-        auctionService = new AuctionService(auctionCollection, userCollection, bidCollection);
+    @Mock
+    private BidRepository bidRepository;
 
-        final User user = new User(
-                1,
-                "username1",
-                "password",
-                "First",
-                "Last",
-                "Company"
-        );
+    @Mock
+    private AuctionRepository auctionRepository;
 
-        final User user2 = new User(
-                2,
-                "Username2",
-                "password",
-                "First",
-                "Last",
-                "Company"
-        );
-
-        userCollection.add(user);
-        userCollection.add(user2);
-    }
 
     @Test
     @DisplayName("Create auction")
     public void createAuction()
     {
+        final User user = new User(
+                "username3",
+                "password3",
+                "First3",
+                "Last3",
+                "Org3");
+
+        when(
+                userRepository.findById(user.getId()))
+                .thenReturn(Optional.of(user));
+
+        final Auction expectedAuction = new Auction(
+                user,
+                TestData.AAPL,
+                100,
+                10.0);
+
+        when(
+                auctionRepository.save(any(Auction.class)))
+                .thenReturn(expectedAuction);
+
         final CreateAuctionRequest request = new CreateAuctionRequest(
-                1,
-                "AAPL",
+                user.getId(),
+                TestData.AAPL,
                 100,
                 10.0
         );
+
         final Auction createdAuction = auctionService.create(request);
 
         assertNotNull(createdAuction);
-        assertEquals("AAPL", createdAuction.getSymbol());
+        assertEquals(TestData.AAPL, createdAuction.getSymbol());
+        verify(auctionRepository).save(any(Auction.class));
     }
 
     @Test
@@ -71,10 +81,14 @@ public class AuctionServiceTest
     {
         final CreateAuctionRequest request = new CreateAuctionRequest(
                 -1,
-                "AAPL",
+                TestData.AAPL,
                 100,
                 10.0
         );
+
+        when(
+                userRepository.findById(-1))
+                .thenReturn(Optional.empty());
 
         final AuthenticationExceptionHandling.BusinessException exception = assertThrows(
                 AuthenticationExceptionHandling.BusinessException.class,
@@ -88,15 +102,31 @@ public class AuctionServiceTest
     @DisplayName("Bid on auction")
     public void bidOnAuction()
     {
+        final User user = new User(
+                "username3",
+                "password3",
+                "First3",
+                "Last3",
+                "Org3");
+
+        when(
+                userRepository.findById(user.getId()))
+                .thenReturn(Optional.of(user));
+
         final Auction auction = auctionService.create(
                 new CreateAuctionRequest(
-                        1,
-                        "AAPL",
+                        user.getId(),
+                        TestData.AAPL,
                         100,
                         10.0
                 )
         );
-        final BidRequest bidRequest = new BidRequest(1, 50, 2);
+
+        when(
+                auctionRepository.findById(auction.getId()))
+                .thenReturn(Optional.of(auction));
+
+        final BidRequest bidRequest = new BidRequest(1, 50, user.getId());
 
         assertDoesNotThrow(() -> auctionService.bidOnAuction(auction.getId(), bidRequest));
     }
@@ -111,6 +141,10 @@ public class AuctionServiceTest
                 11
         );
 
+        when(
+                auctionRepository.findById(3))
+                .thenReturn(Optional.empty());
+
         final AuthenticationExceptionHandling.BusinessException exception = assertThrows(
                 AuthenticationExceptionHandling.BusinessException.class,
                 () -> auctionService.bidOnAuction(3, bidRequest)
@@ -123,19 +157,34 @@ public class AuctionServiceTest
     @DisplayName("Get auction by auction id")
     public void getAuctionById()
     {
+        final User user = new User(
+                "username3",
+                "password3",
+                "First3",
+                "Last3",
+                "Org3");
+
+        when(
+                userRepository.findById(user.getId()))
+                .thenReturn(Optional.of(user));
+
         final Auction createdAuction = auctionService.create(
                 new CreateAuctionRequest(
-                        1,
-                        "AAPL",
+                        user.getId(),
+                        TestData.AAPL,
                         100,
                         10.0
                 )
         );
 
+        when(
+                auctionRepository.findById(createdAuction.getId()))
+                .thenReturn(Optional.of(createdAuction));
+
         final Auction retrievedAuction = auctionService.getAuctionById(createdAuction.getId());
 
         assertNotNull(retrievedAuction);
-        assertEquals("AAPL", retrievedAuction.getSymbol());
+        assertEquals(TestData.AAPL, retrievedAuction.getSymbol());
     }
 
     @Test
@@ -143,6 +192,10 @@ public class AuctionServiceTest
     public void shouldThrowExceptionWhenGettingNonExistentAuctionById()
     {
         final int nonExistentAuctionId = 3;
+
+        when(
+                auctionRepository.findById(nonExistentAuctionId))
+                .thenReturn(Optional.empty());
 
         final AuthenticationExceptionHandling.BusinessException exception = assertThrows(
                 AuthenticationExceptionHandling.BusinessException.class,
@@ -156,16 +209,35 @@ public class AuctionServiceTest
     @DisplayName("Close auction")
     public void closeAuction()
     {
+        final User user = new User(
+                "username3",
+                "password3",
+                "First3",
+                "Last3",
+                "Org3");
+
+        when(
+                userRepository.findById(user.getId()))
+                .thenReturn(Optional.of(user));
+
         final Auction auction = auctionService.create(
                 new CreateAuctionRequest(
-                        1,
-                        "AAPL",
+                        user.getId(),
+                        TestData.AAPL,
                         100,
                         10.0
                 )
         );
 
-        assertDoesNotThrow(() -> auctionService.closeAuction(auction.getId()));
+        when(
+                auctionRepository.findById(auction.getId()))
+                .thenReturn(Optional.of(auction));
+
+
+        auctionService.closeAuction(auction.getId());
+
+        assertEquals(Auction.AuctionStatus.CLOSED, auction.getStatus());
+        verify(auctionRepository, times(2)).save(auction);
     }
 
     @Test
@@ -186,16 +258,33 @@ public class AuctionServiceTest
     @DisplayName("Remove auction")
     public void removeAuction()
     {
+        final User user = new User(
+                "username3",
+                "password3",
+                "First3",
+                "Last3",
+                "Org3");
+
+        when(
+                userRepository.findById(user.getId()))
+                .thenReturn(Optional.of(user));
+
         final Auction auction = auctionService.create(
                 new CreateAuctionRequest(
-                        1,
-                        "AAPL",
+                        user.getId(),
+                        TestData.AAPL,
                         100,
                         10.0
                 )
         );
 
-        assertDoesNotThrow(() -> auctionService.removeAuction(auction.getId()));
+        when(
+                auctionRepository.findById(auction.getId()))
+                .thenReturn(Optional.of(auction));
+
+        auctionService.removeAuction(auction.getId());
+
+        verify(auctionRepository).deleteById(auction.getId());
     }
 
     @Test
@@ -203,6 +292,9 @@ public class AuctionServiceTest
     public void shouldThrowAnExceptionWhenRemovingNonExistentAuction()
     {
         final int nonExistentAuctionId = 3;
+
+        when(auctionRepository.findById(nonExistentAuctionId))
+                .thenReturn(Optional.empty());
 
         final AuthenticationExceptionHandling.BusinessException exception = assertThrows(
                 AuthenticationExceptionHandling.BusinessException.class,

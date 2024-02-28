@@ -4,9 +4,12 @@ plugins {
 
 application {
     // Define the main class for the application.
-    mainClass = 'com.wearadaptive.grpcchat.sender.SenderMain'
+    mainClass = 'ClientMain'
 }
 
 dependencies {
     implementation 'org.junit.jupiter:junit-jupiter:5.8.1'
+    implementation("io.projectreactor:reactor-core:3.6.3")
+    testImplementation("io.projectreactor:reactor-test:3.6.3")
+    testCompileOnly("io.projectreactor:reactor-test:3.6.3")
 }

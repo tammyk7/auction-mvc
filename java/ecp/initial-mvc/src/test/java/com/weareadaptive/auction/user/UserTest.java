@@ -1,4 +1,4 @@
-package com.weareadaptive.auction.model;
+package com.weareadaptive.auction.user;
 
 import com.weareadaptive.auction.exception.AuthenticationExceptionHandling;
 import com.weareadaptive.auction.user.User;
@@ -20,15 +20,15 @@ public class UserTest
     {
         return Stream.of(
                 Arguments.of("username",
-                        (Executable) () -> new User(1, null, "pp", "first", "last", "Org")),
+                        (Executable) () -> new User(null, "pp", "first", "last", "Org")),
                 Arguments.of("first name",
-                        (Executable) () -> new User(1, "username", "pp", null, "last", "Org")),
+                        (Executable) () -> new User("username", "pp", null, "last", "Org")),
                 Arguments.of("last name",
-                        (Executable) () -> new User(1, "username", "pp", "first", null, "Org")),
+                        (Executable) () -> new User("username", "pp", "first", null, "Org")),
                 Arguments.of("organisation",
-                        (Executable) () -> new User(1, "username", "pp", "first", "last", null)),
+                        (Executable) () -> new User("username", "pp", "first", "last", null)),
                 Arguments.of("password",
-                        (Executable) () -> new User(1, "username", null, "first", "last", "Org"))
+                        (Executable) () -> new User("username", null, "first", "last", "Org"))
         );
     }
 
@@ -49,7 +49,7 @@ public class UserTest
     public void shouldReturnFalseWhenThePasswordIsNotValid()
     {
         //Arrange
-        var user = new User(1, "test", "thepassword", "Jonh", "Doe", "Adaptive");
+        var user = new User("test", "thepassword", "Jonh", "Doe", "Adaptive");
 
         //Act
         var result = user.validatePassword("bad");
@@ -63,7 +63,7 @@ public class UserTest
     public void shouldReturnTrueWhenThePasswordIsValid()
     {
         //Arrange
-        var user = new User(1, "test", "thepassword", "Jonh", "Doe", "Adaptive");
+        var user = new User("test", "thepassword", "Jonh", "Doe", "Adaptive");
 
         //Act
         var result = user.validatePassword("thepassword");
@@ -76,7 +76,7 @@ public class UserTest
     @DisplayName("Users should update values correctly")
     public void settersShouldUpdateValues()
     {
-        User user = new User(1, "username1", "password", "John", "Doe", "Adaptive");
+        User user = new User("username1", "password", "John", "Doe", "Adaptive");
 
         // Update each field
         user.setUsername("newUsername");
@@ -102,7 +102,7 @@ public class UserTest
     @DisplayName("Users should not update with empty values")
     public void settersShouldNotUpdateWithEmptyValues()
     {
-        final User user = new User(1, "tammy1", "password", "Tammy", "Khan", "Adaptive");
+        final User user = new User("tammy1", "password", "Tammy", "Khan", "Adaptive");
 
         user.setUsername("");
         assertEquals("tammy1", user.getUsername());

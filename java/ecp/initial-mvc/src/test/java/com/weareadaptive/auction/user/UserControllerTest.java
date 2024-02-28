@@ -1,11 +1,16 @@
-package com.weareadaptive.auction.controller;
+package com.weareadaptive.auction.user;
 
+import com.weareadaptive.auction.IntegrationTest;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.web.server.LocalServerPort;
 import org.springframework.http.HttpStatus;
+import org.springframework.test.context.DynamicPropertyRegistry;
+import org.springframework.test.context.DynamicPropertySource;
+import org.testcontainers.containers.PostgreSQLContainer;
+import org.testcontainers.junit.jupiter.Container;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -16,17 +21,28 @@ import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.notNullValue;
 import static org.springframework.http.HttpHeaders.AUTHORIZATION;
 
-@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
-public class UserControllerTest
+public class UserControllerTest extends IntegrationTest
 {
-    @LocalServerPort
-    int port;
-    String uri;
+    // Initialise the PostgreSQL container
+    @Container
+    public static PostgreSQLContainer<?> postgreSQLContainer = new PostgreSQLContainer<>("postgres:latest")
+            .withDatabaseName("integration-tests-db")
+            .withUsername("testUsername")
+            .withPassword("testPassword");
 
-    @BeforeEach
-    public void beforeEach()
+    // Dynamically replace the data source properties with those of the running container
+    @DynamicPropertySource
+    public static void postgresqlProperties(DynamicPropertyRegistry registry)
     {
-        uri = "http://localhost:" + port + "/api/users";
+        postgreSqlProperties(registry, postgreSQLContainer);
+    }
+
+    @Override
+    @BeforeEach
+    public void initialiseRestAssuredMockMvcStandalone()
+    {
+        super.initialiseRestAssuredMockMvcStandalone();
+        uri += "/api/users";
     }
 
     @Test

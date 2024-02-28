@@ -24,6 +24,10 @@ dependencyResolutionManagement {
             library('grpc-testing', 'io.grpc', 'grpc-testing').versionRef('grpc')
             library('junit', 'org.junit.jupiter', 'junit-jupiter-engine').versionRef('junit')
             library('mockito-core', 'org.mockito', 'mockito-core').versionRef('mockito')
+            library("reactor-core", "io.projectreactor", "reactor-core").version("3.6.3")
+            library("reactor-test", "io.projectreactor", "reactor-test").version("3.6.3")
         }
     }
 }
+include 'test'
+

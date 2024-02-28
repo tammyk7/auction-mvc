@@ -15,3 +15,4 @@ CREATE TABLE auction_user
 
 INSERT INTO auction_user (first_name, last_name, password, organisation, username, is_admin)
 VALUES ('admin', 'admin', 'adminpassword', 'Adaptive', 'ADMIN', TRUE);
+

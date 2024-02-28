@@ -1,0 +1,25 @@
+syntax = "proto3";
+
+package chat;
+
+option java_multiple_files = true;
+option java_package = "io.grpc.examples.chat";
+option java_outer_classname = "ChatProto";
+option objc_class_prefix = "CHT";
+
+service ChatService
+{
+  rpc ChatStream(stream ChatMessage) returns (stream ChatResponse) {}
+}
+
+message ChatMessage
+{
+  string user = 1;
+  string message = 2;
+}
+
+message ChatResponse
+{
+  string response = 1;
+}
+

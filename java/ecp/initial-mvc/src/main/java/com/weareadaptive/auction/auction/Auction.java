@@ -2,8 +2,8 @@ package com.weareadaptive.auction.auction;
 
 import com.weareadaptive.auction.exception.AuthenticationExceptionHandling;
 import com.weareadaptive.auction.bid.Bid;
-import com.weareadaptive.auction.model.Entity;
 import com.weareadaptive.auction.user.User;
+import jakarta.persistence.*;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
@@ -12,22 +12,36 @@ import java.util.List;
 
 import static com.weareadaptive.auction.StringUtil.isNullOrEmpty;
 
-public class Auction implements Entity
+@Entity(name = "auction")
+public class Auction
 {
-    private final int id;
-    private final List<Bid> bids;
-    private final User user;
-    private final String symbol;
-    private final int quantity;
-    private final double minPrice;
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Id
+    private int id;
+    @OneToMany()
+    @JoinColumn(name = "auction_id")
+    private List<Bid> bids;
+    //TODO: query the auction table with the user table - break the object relationship - instead do string username or int user id -
+    // value from column in auction table and if u need users make separate query - separate repo calls
+    @OneToOne
+    @JoinColumn(name = "user_id")
+    private User user;
+    private String symbol;
+    private int quantity;
+    @Column(name = "minimum_price", columnDefinition = "numeric")
+    private double minPrice;
+    @Enumerated(value = EnumType.STRING)
     private AuctionStatus status;
+    @Column(columnDefinition = "varchar")
     private BigDecimal totalRevenue;
     private int totalSoldQuantity;
-    private final List<Bid> winningBids;
-    private final List<Bid> losingBids;
+    @Transient
+    private List<Bid> winningBids;
+    @Transient
+    private List<Bid> losingBids;
 
 
-    public Auction(final int id, final User user, final String symbol, final int quantity, final double minPrice)
+    public Auction(final User user, final String symbol, final int quantity, final double minPrice)
     {
         if (quantity < 0)
         {
@@ -46,7 +60,6 @@ public class Auction implements Entity
             throw new AuthenticationExceptionHandling.BusinessException("user can not be null");
         }
 
-        this.id = id;
         this.user = user;
         this.symbol = symbol;
         this.minPrice = minPrice;
@@ -57,6 +70,11 @@ public class Auction implements Entity
         this.totalSoldQuantity = 0;
         this.winningBids = new ArrayList<>();
         this.losingBids = new ArrayList<>();
+    }
+
+    public Auction()
+    {
+
     }
 
     public void makeBid(final Bid bid)
@@ -81,7 +99,8 @@ public class Auction implements Entity
     {
         if (status == AuctionStatus.OPEN)
         {
-            throw new AuthenticationExceptionHandling.BusinessException("You can only obtain the winning bids on a closed auction");
+            throw new AuthenticationExceptionHandling.BusinessException(
+                    "You can only obtain the winning bids on a closed auction");
         }
 
         return winningBids;
@@ -91,7 +110,8 @@ public class Auction implements Entity
     {
         if (status == AuctionStatus.OPEN)
         {
-            throw new AuthenticationExceptionHandling.BusinessException("You can only obtain the losing bids on a closed auction");
+            throw new AuthenticationExceptionHandling.BusinessException(
+                    "You can only obtain the losing bids on a closed auction");
         }
         return losingBids;
     }
@@ -125,6 +145,11 @@ public class Auction implements Entity
                 winningBids.add(bid);
             }
         }
+    }
+
+    public int getId()
+    {
+        return id;
     }
 
     public User getUser()
@@ -178,9 +203,4 @@ public class Auction implements Entity
         OPEN, CLOSED
     }
 
-    @Override
-    public int getId()
-    {
-        return id;
-    }
 }
